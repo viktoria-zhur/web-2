@@ -4,7 +4,7 @@ app = Flask(__name__)
 @app.errorhandler(404)
 def not_found(err):
     return "нет такой страницы",404
-    
+
 @app.route("/")
 @app.route("/web")
 def start():
@@ -13,9 +13,12 @@ def start():
             <body>
                 <h1>web-cepsep на flask</h1>
             </body>
-        </html>"""
+        </html>""", 200, {
+            'X-Server': 'sample',
+            'Content-Tipe': 'text/plain; charset-utf-8'
+            }
 
-@app.route("/author")
+@app.route("/author") 
 def author():
     name = "Журавлева Виктория Александровна"
     group = "ФБИ-34"

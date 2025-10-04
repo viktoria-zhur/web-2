@@ -35,15 +35,43 @@ def author():
 
 @app.route('/image')
 def image():
-    path = url_for("static", filename="a.png")
+    image_path = url_for("static", filename="a.png")
+    css_path = url_for("static", filename="lab1.css")
+    headers = {
+        'Content-Language': 'ru',
+        'X-Generator': 'Flask-lab1',
+        'X-Custom-Header': 'This is a custom header value'
+    }
     return '''
     <!doctype html>
-    <html>
-        <body>
-            <h1>Supra</h1>
-            <img src="''' + path + '''">
-        </body>
-    </html>            
+   <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Самостоятельное задаиние💕</title>
+    <!-- Подключение CSS через url_for() -->
+    <link rel="stylesheet" href=" ''' + css_path + '''">
+</head>
+<body>
+    <!-- Милые сердечки в углах -->
+    <div class="corner-heart">💗</div>
+    <div class="corner-heart">💖</div>
+    <div class="corner-heart">💝</div>
+    <div class="corner-heart">💞</div>
+    
+    <div class="container">
+        <h1>💖</h1>
+               
+        <div class="image-wrapper">
+            <img src=" ''' + image_path + '''" 
+                 alt="Милое изображение" 
+                 class="styled-image">
+            <div class="image-caption">✨ Toyota Supra JZA80 ✨</div>
+        </div>       
+    </div>
+</body>
+</html>      
 '''
 count = 0
 

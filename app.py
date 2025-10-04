@@ -6,7 +6,7 @@ def not_found(err):
     return "нет такой страницы",404
 
 @app.route("/")
-@app.route("/web")
+@app.route("/lab1/web")
 def start():
     return """<!doctype html>
         <html>
@@ -18,7 +18,7 @@ def start():
             'Content-Tipe': 'text/plain; charset-utf-8'
             }
 
-@app.route("/author") 
+@app.route("/lab1/author") 
 def author():
     name = "Журавлева Виктория Александровна"
     group = "ФБИ-34"
@@ -33,7 +33,7 @@ def author():
             </body>
         </html>"""
 
-@app.route('/image')
+@app.route('/lab1/image')
 def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
@@ -75,7 +75,7 @@ def image():
 '''
 count = 0
 
-@app.route('/counter')
+@app.route('/lab1/counter')
 def counter():
     global count
     count += 1
@@ -97,7 +97,7 @@ def counter():
             </body>
         </html>
         '''
-@app.route('/reset_counter')
+@app.route('/lab1/reset_counter')
 def reset_counter():
     global count
     count = 0
@@ -112,7 +112,7 @@ def reset_counter():
     </html>
     '''
 
-@app.route("/info")
+@app.route("/lab1/info")
 def info():
     return redirect("/author")
 

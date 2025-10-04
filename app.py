@@ -6,6 +6,64 @@ def not_found(err):
     return "нет такой страницы",404
 
 @app.route("/")
+@app.route("/index")
+def index():
+    return '''
+    <!doctype html>
+    <html>
+        <head>
+            <title>НГТУ, ФБ, Лабораторные работы</title>
+        </head>
+        <body>
+            <header>
+                <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
+            </header>
+            
+            <nav>
+                <ul>
+                    <li><a href="/lab1">Первая лабораторная</a></li>
+                </ul>
+            </nav>
+            
+            <footer>
+                <hr>
+                <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2025</p>
+            </footer>
+        </body>
+    </html>
+    '''
+
+@app.route("/lab1")
+def lab1():
+    return '''
+    <!doctype html>
+    <html>
+        <head>
+            <title>Первая лабораторная работа</title>
+        </head>
+        <body>
+            <header>
+                <h1>Первая лабораторная работа</h1>
+            </header>
+            
+            <nav>
+                <ul>
+                    <li><a href="/lab1/web">WEB</a></li>
+                    <li><a href="/lab1/author">Автор</a></li>
+                    <li><a href="/lab1/image">Изображение</a></li>
+                    <li><a href="/lab1/counter">Счетчик</a></li>
+                    <li><a href="/lab1/info">Информация</a></li>
+                </ul>
+            </nav>
+            
+            <footer>
+                <hr>
+                <p><a href="/">Вернуться на главную</a></p>
+            </footer>
+        </body>
+    </html>
+    '''
+
 @app.route("/lab1/web")
 def start():
     return """<!doctype html>
@@ -93,7 +151,7 @@ def counter():
                 Запрошенный адрес: ''' + url + '''<br>
                 Ваш IP адрес: ''' + client_ip + '''<br>
                 <hr>
-                <a href="/reset_counter">Очистить счётчик</a>
+                <a href="/lab1/reset_counter">Очистить счётчик</a>
             </body>
         </html>
         '''
@@ -107,7 +165,7 @@ def reset_counter():
         <body>
             <h2>Счётчик очищен!</h2>
             <p>Текущее значение счетчика: ''' + str(count) + '''</p>
-            <a href="/counter">Вернуться к счётчику</a>
+            <a href="/lab1/counter">Вернуться к счётчику</a>
         </body>
     </html>
     '''
@@ -126,4 +184,4 @@ def created():
         <div><i>что-то создано...</i></div>
     </body>
 </html>
-''', 201    
+''', 201

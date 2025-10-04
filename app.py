@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, url_for
 app = Flask(__name__)
 
 @app.route("/")
@@ -25,5 +25,30 @@ def author():
                 <p>Факультет: """ + faculty + """</p>
             </body>
         </html>"""
-if __name__ == "__main__":
-    app.run(debug=True)
+
+@app.route('/image')
+def image():
+    path = url_for("static", filename="a.png")
+    return '''
+    <!doctype html>
+    <html>
+        <body>
+            <h1>Supra</h1>
+            <img src="''' + path + '''">
+        </body>
+    </html>            
+'''
+count = 0
+
+@app.route('/counter')
+def counter():
+    global count
+    count += 1
+    return '''
+<!doctype html>
+<html>
+    <body>
+        Сколько раз вы сюда заходили: ''' + str(count) + '''
+    </body>
+ </html>
+ '''       

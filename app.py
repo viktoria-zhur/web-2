@@ -49,7 +49,7 @@ def image():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Самостоятельное задаиние💕</title>
+    <title>Самостоятельное задание💕</title>
     <!-- Подключение CSS через url_for() -->
     <link rel="stylesheet" href=" ''' + css_path + '''">
 </head>
@@ -84,17 +84,33 @@ def counter():
     client_ip = request.remote_addr
 
     return '''
+        <!doctype html>
+        <html>
+            <body>
+                Сколько раз вы сюда заходили: ''' + str(count) + '''
+                <hr>
+                Дата и время: ''' + str(time) + '''<br>
+                Запрошенный адрес: ''' + url + '''<br>
+                Ваш IP адрес: ''' + client_ip + '''<br>
+                <hr>
+                <a href="/reset_counter">Очистить счётчик</a>
+            </body>
+        </html>
+        '''
+@app.route('/reset_counter')
+def reset_counter():
+    global count
+    count = 0
+    return '''
     <!doctype html>
     <html>
         <body>
-            Сколько раз вы сюда заходили: ''' + str(count) + '''
-            <hr>
-            Дата и время: ''' + str(time) + '''<br>
-            Запрошенный адрес: ''' + url + '''<br>
-            Ваш IP адрес: ''' + client_ip + '''<br>
+            <h2>Счётчик очищен!</h2>
+            <p>Текущее значение счетчика: ''' + str(count) + '''</p>
+            <a href="/counter">Вернуться к счётчику</a>
         </body>
     </html>
- '''
+    '''
 
 @app.route("/info")
 def info():

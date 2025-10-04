@@ -1,9 +1,6 @@
 from flask import Flask, url_for, request, redirect
 import datetime
 app = Flask(__name__)
-@app.errorhandler(404)
-def not_found(err):
-    return "нет такой страницы",404
 
 @app.route("/")
 @app.route("/index")
@@ -27,7 +24,7 @@ def index():
             
             <footer>
                 <hr>
-                <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2025</p>
+                <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, </p>
             </footer>
         </body>
     </html>
@@ -39,26 +36,27 @@ def lab1():
     <!doctype html>
     <html>
         <head>
-            <title>Первая лабораторная работа</title>
+            <title>Лабораторная 1</title>
         </head>
         <body>
             <header>
-                <h1>Первая лабораторная работа</h1>
+                <h1>Лабораторная работа 1</h1>
             </header>
             
-            <nav>
-                <ul>
-                    <li><a href="/lab1/web">WEB</a></li>
-                    <li><a href="/lab1/author">Автор</a></li>
-                    <li><a href="/lab1/image">Изображение</a></li>
-                    <li><a href="/lab1/counter">Счетчик</a></li>
-                    <li><a href="/lab1/info">Информация</a></li>
-                </ul>
-            </nav>
+            <p>
+                Flask — фреймворк для создания веб-приложений на языке
+                программирования Python, использующий набор инструментов
+                Werkzeug, а также шаблонизатор Jinja2. Относится к категории так
+                называемых микрофреймворков — минималистичных каркасов
+                веб-приложений, сознательно предоставляющих лишь самые ба-
+                зовые возможности.
+            </p>
+            
+            <p><a href="/">Вернуться на главную</a></p>
             
             <footer>
                 <hr>
-                <p><a href="/">Вернуться на главную</a></p>
+                <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, </p>
             </footer>
         </body>
     </html>

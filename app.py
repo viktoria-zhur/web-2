@@ -15,7 +15,6 @@ def not_found(err):
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <!-- Милые сердечки в углах -->
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
@@ -41,10 +40,8 @@ def not_found(err):
                     </ul>
                 </div>
                 
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="/" style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                    color: white; text-decoration: none; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);">
-                    🏠 Вернуться на главную</a>
+                <div class="text-center">
+                    <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
             </div>
         </body>
@@ -63,7 +60,6 @@ def index():
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <!-- Милые сердечки в углах -->
             <div class="corner-heart">💗</div>
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
@@ -89,7 +85,7 @@ def index():
         </body>
     </html>
     '''
-# Обработчик ошибки 500
+
 @app.errorhandler(500)
 def internal_server_error(err):
     css_path = url_for("static", filename="lab1.css")
@@ -101,7 +97,6 @@ def internal_server_error(err):
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <!-- Милые сердечки в углах -->
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
@@ -111,7 +106,7 @@ def internal_server_error(err):
                 <h1>💥 Ой! Что-то пошло не так 💥</h1>
                 
                 <div class="image-wrapper">
-                    <div style="font-size: 80px; margin: 20px 0;">😵</div>
+                    <div class="big-emoji">😵</div>
                     <div class="image-caption">500 - Внутренняя ошибка сервера</div>
                 </div>
                 
@@ -125,21 +120,19 @@ def internal_server_error(err):
                     </ul>
                 </div>
                 
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="/" style="display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                    color: white; text-decoration: none; border-radius: 25px; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);">
-                    🏠 Вернуться на главную</a>
+                <div class="text-center">
+                    <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
             </div>
         </body>
     </html>
     ''', 500
 
-# Страница, вызывающая ошибку 500
 @app.route('/lab1/error500')
 def cause_error():
     my_list = [1, 2, 3]
-    return my_list[10] 
+    return my_list[10]
+
 @app.route("/lab1")
 def lab1():
     css_path = url_for("static", filename="lab1.css")
@@ -151,7 +144,6 @@ def lab1():
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <!-- Милые сердечки в углах -->
             <div class="corner-heart">💗</div>
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
@@ -171,10 +163,8 @@ def lab1():
                     зовые возможности.
                 </p>
                 
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="/" style="display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                    color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                    🏠 Вернуться на главную</a>
+                <div class="text-center">
+                    <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
                 
                 <footer>
@@ -197,10 +187,8 @@ def start():
             <body>
                 <div class="container">
                     <h1>web-cepsep на flask</h1>
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                        color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                        🏠 Вернуться на главную</a>
+                    <div class="text-center">
+                        <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
                     </div>
                 </div>
             </body>
@@ -229,10 +217,8 @@ def author():
                         <p><strong>Группа:</strong> {group}</p>
                         <p><strong>Факультет:</strong> {faculty}</p>
                     </div>
-                    <div style="text-align: center; margin-top: 30px;">
-                        <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                        color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                        🏠 Вернуться на главную</a>
+                    <div class="text-center">
+                        <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
                     </div>
                 </div>
             </body>
@@ -242,6 +228,8 @@ def author():
 def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
+
+    
     return f'''
     <!doctype html>
     <html lang="ru">
@@ -252,7 +240,6 @@ def image():
         <link rel="stylesheet" href="{css_path}">
     </head>
     <body>
-        <!-- Милые сердечки в углах -->
         <div class="corner-heart">💗</div>
         <div class="corner-heart">💖</div>
         <div class="corner-heart">💝</div>
@@ -267,15 +254,13 @@ def image():
                      class="styled-image">
                 <div class="image-caption">✨ Toyota Supra JZA80 ✨</div>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
     </html>      
-    '''
+    ''', 200, headers 
 
 count = 0
 
@@ -303,13 +288,9 @@ def counter():
                         <p><strong>Запрошенный адрес:</strong> {url}</p>
                         <p><strong>Ваш IP адрес:</strong> {client_ip}</p>
                     </div>
-                    <div style="text-align: center;">
-                        <a href="/lab1/reset_counter" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                        color: white; text-decoration: none; border-radius: 20px; font-weight: bold; margin-right: 10px;">
-                        🗑️ Очистить счётчик</a>
-                        <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #a0d8ff, #4a90e2); 
-                        color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                        🏠 На главную</a>
+                    <div class="btn-group">
+                        <a href="/lab1/reset_counter" class="btn btn-small">🗑️ Очистить счётчик</a>
+                        <a href="/" class="btn btn-small btn-secondary">🏠 На главную</a>
                     </div>
                 </div>
             </body>
@@ -333,13 +314,9 @@ def reset_counter():
                 <div class="info-box">
                     <p>Текущее значение счетчика: {count}</p>
                 </div>
-                <div style="text-align: center;">
-                    <a href="/lab1/counter" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                    color: white; text-decoration: none; border-radius: 20px; font-weight: bold; margin-right: 10px;">
-                    🔄 Вернуться к счётчику</a>
-                    <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #a0d8ff, #4a90e2); 
-                    color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                    🏠 На главную</a>
+                <div class="btn-group">
+                    <a href="/lab1/counter" class="btn btn-small">🔄 Вернуться к счётчику</a>
+                    <a href="/" class="btn btn-small btn-secondary">🏠 На главную</a>
                 </div>
             </div>
         </body>
@@ -365,17 +342,14 @@ def created():
             <div class="info-box">
                 <div><i>что-то создано...</i></div>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
 </html>
 ''', 201
 
-# Страницы с кодами ответов HTTP
 @app.route('/400')
 def bad_request():
     css_path = url_for("static", filename="lab1.css")
@@ -391,10 +365,8 @@ def bad_request():
             <div class="info-box">
                 <p>Сервер не может обработать запрос из-за неверного синтаксиса.</p>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
@@ -416,10 +388,8 @@ def unauthorized():
             <div class="info-box">
                 <p>Требуется аутентификация для доступа к ресурсу.</p>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
@@ -441,10 +411,8 @@ def payment_required():
             <div class="info-box">
                 <p>Требуется оплата для доступа к ресурсу.</p>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
@@ -466,10 +434,8 @@ def forbidden():
             <div class="info-box">
                 <p>Доступ к запрошенному ресурсу запрещен.</p>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
@@ -491,10 +457,8 @@ def method_not_allowed():
             <div class="info-box">
                 <p>Метод запроса не поддерживается для данного ресурса.</p>
             </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>
@@ -517,11 +481,9 @@ def teapot():
                 <p>Я - чайник. Не могу заварить кофе. ☕→❌</p>
                 <p>Но могу предложить вам чай! :)→✅</p>
             </div>
-            <div style="text-align: center; font-size: 60px; margin: 20px 0;">💖 </div>
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #ffb6c1, #ff69b4); 
-                color: white; text-decoration: none; border-radius: 20px; font-weight: bold;">
-                🏠 Вернуться на главную</a>
+            <div class="big-emoji">💖</div>
+            <div class="text-center">
+                <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
             </div>
         </div>
     </body>

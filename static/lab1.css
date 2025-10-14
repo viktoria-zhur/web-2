@@ -31,6 +31,7 @@ body {
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(255, 182, 193, 0.4);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: float 3s ease-in-out infinite;
 }
 
 .styled-image:hover {
@@ -47,7 +48,6 @@ body {
     text-shadow: 1px 1px 2px rgba(255, 182, 193, 0.5);
 }
 
-
 h1 {
     color: #ff69b4;
     text-align: center;
@@ -55,6 +55,11 @@ h1 {
     font-size: 2.8em;
     text-shadow: 2px 2px 4px rgba(255, 182, 193, 0.3);
     font-weight: bold;
+}
+
+h2 {
+    color: #ff69b4;
+    margin-top: 20px;
 }
 
 p {
@@ -91,42 +96,105 @@ p {
     top: 8px;
 }
 
-/* Дополнительные милые элементы */
-.container::before {
-    content: "✨";
-    font-size: 24px;
-    position: absolute;
-    top: 10px;
-    left: 10px;
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
-.image-wrapper::after {
-    content: "🌸";
-    font-size: 20px;
-    position: absolute;
-    bottom: 10px;
-    right: 20px;
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4);
 }
 
-/* Анимации */
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+.btn-secondary {
+    background: linear-gradient(135deg, #a0d8ff, #4a90e2);
 }
 
-.styled-image {
-    animation: float 3s ease-in-out infinite;
+.btn-small {
+    padding: 10px 20px;
+    border-radius: 20px;
 }
 
-/* Милые сердечки в углах */
 .corner-heart {
     position: fixed;
     font-size: 20px;
     opacity: 0.3;
     z-index: -1;
+    animation: float 3s ease-in-out infinite;
 }
 
 .corner-heart:nth-child(1) { top: 10%; left: 5%; }
 .corner-heart:nth-child(2) { top: 10%; right: 5%; }
 .corner-heart:nth-child(3) { bottom: 10%; left: 5%; }
 .corner-heart:nth-child(4) { bottom: 10%; right: 5%; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+nav li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+nav a {
+    color: #ff69b4;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #ff1493;
+    text-decoration: underline;
+}
+
+footer {
+    margin-top: 40px;
+    text-align: center;
+    color: #8b5a7c;
+}
+
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+    margin: 30px 0;
+}
+
+.text-center {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.btn-group {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-group .btn {
+    margin: 0 10px;
+}
+
+.big-emoji {
+    font-size: 80px;
+    margin: 20px 0;
+    text-align: center;
+}

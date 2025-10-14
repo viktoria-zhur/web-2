@@ -582,5 +582,13 @@ def teapot():
 </html>
 ''', 418
 
+@app.route('/lab2/a/')
+def a():
+    return 'со слешем'
+
+@app.route('/lab2/a')
+def a():
+    return 'без слеша'
+
 if __name__ == '__main__':
     app.run(debug=True)

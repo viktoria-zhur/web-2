@@ -73,7 +73,9 @@ def index():
                 <nav>
                     <ul>
                         <li><a href="/lab1">Первая лабораторная</a></li>
-                        <li><a href="/lab1/error500">Тест ошибки 500</a></li>
+                        <li><a href="/lab1/error500">Тест ошибки 500 (IndexError)</a></li>
+                        <li><a href="/lab1/divide_zero">Тест ошибки 500 (ZeroDivision)</a></li>
+                        <li><a href="/lab1/type_mismatch">Тест ошибки 500 (TypeError)</a></li>
                     </ul>
                 </nav>
                 
@@ -86,6 +88,7 @@ def index():
     </html>
     '''
 
+# ОШИБКА 500
 @app.errorhandler(500)
 def internal_server_error(err):
     css_path = url_for("static", filename="lab1.css")
@@ -93,45 +96,79 @@ def internal_server_error(err):
     <!doctype html>
     <html>
         <head>
-            <title>Ошибка сервера</title>
+            <title>Внутренняя ошибка сервера</title>
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <div class="corner-heart">💔</div>
-            <div class="corner-heart">💔</div>
-            <div class="corner-heart">💔</div>
-            <div class="corner-heart">💔</div>
+            <div class="corner-heart">💥</div>
+            <div class="corner-heart">🔥</div>
+            <div class="corner-heart">💥</div>
+            <div class="corner-heart">🔥</div>
             
             <div class="container">
-                <h1>💥 Ой! Что-то пошло не так 💥</h1>
+                <h1>🚨 Внутренняя ошибка сервера 🚨</h1>
                 
                 <div class="image-wrapper">
-                    <div class="big-emoji">😵</div>
-                    <div class="image-caption">500 - Внутренняя ошибка сервера</div>
+                    <div class="big-emoji">😵‍💫</div>
+                    <div class="image-caption">500 - Сервер столкнулся с непредвиденной ошибкой</div>
                 </div>
                 
-                <div class="info-box">
-                    <h2>Что случилось?</h2>
-                    <p>На сервере произошла непредвиденная ошибка. Не волнуйтесь, наши инженеры уже работают над решением проблемы!</p>
-                    <ul>
-                        <li>Попробуйте обновить страницу позже</li>
-                        <li>Вернитесь на главную страницу</li>
-                        <li>Если проблема повторяется, сообщите администратору</li>
-                    </ul>
+                <div class="info-box error-details">
+                    <h2>Что произошло?</h2>
+                    <p>На сервере произошла внутренняя ошибка. Наша команда уже уведомлена и работает над решением проблемы.</p>
+                    
+                    <div class="error-actions">
+                        <h3>Что можно сделать:</h3>
+                        <ul>
+                            <li>🔄 <strong>Обновите страницу</strong> - возможно, это временная проблема</li>
+                            <li>⏰ <strong>Попробуйте позже</strong> - мы уже исправляем ошибку</li>
+                            <li>📧 <strong>Сообщите администратору</strong> - если проблема повторяется</li>
+                            <li>🏠 <strong>Вернитесь на главную</strong> - и продолжите работу с другими разделами</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="technical-info">
+                        <details>
+                            <summary>Техническая информация (для администратора)</summary>
+                            <p><strong>Время ошибки:</strong> {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+                            <p><strong>Код ошибки:</strong> 500 Internal Server Error</p>
+                        </details>
+                    </div>
                 </div>
                 
                 <div class="text-center">
-                    <a href="/" class="btn">🏠 Вернуться на главную</a>
+                    <a href="/" class="btn btn-primary">🏠 Вернуться на главную</a>
+                    <a href="/lab1" class="btn btn-secondary">📚 К лабораторным работам</a>
                 </div>
+                
+                <footer class="error-footer">
+                    <hr>
+                    <p>Если ошибка повторяется, свяжитесь с технической поддержкой</p>
+                </footer>
             </div>
         </body>
     </html>
     ''', 500
 
+# РАЗЛИЧНЫЕ ОБРАБОТЧИКИ ДЛЯ ВЫЗОВА ОШИБКИ 500
 @app.route('/lab1/error500')
 def cause_error():
+    """Вызывает IndexError - обращение к несуществующему индексу списка"""
     my_list = [1, 2, 3]
-    return my_list[10]
+    return my_list[10]  # IndexError
+
+@app.route('/lab1/divide_zero')
+def divide_zero():
+    """Вызывает ZeroDivisionError - деление на ноль"""
+    result = 10 / 0  # ZeroDivisionError
+    return f"Результат: {result}"
+
+@app.route('/lab1/type_mismatch')
+def type_mismatch():
+    """Вызывает TypeError - конкатенация строки и числа"""
+    text = "Текст: "
+    number = 42
+    return text + number  # TypeError
 
 @app.route("/lab1")
 def lab1():
@@ -162,6 +199,40 @@ def lab1():
                     веб-приложений, сознательно предоставляющих лишь самые ба-
                     зовые возможности.
                 </p>
+
+                <h2>Список роутов</h2>
+                <div class="info-box">
+                    <h3>Основные роуты:</h3>
+                    <ul>
+                        <li><a href="/">Главная страница</a></li>
+                        <li><a href="/index">Главная (альтернативная)</a></li>
+                        <li><a href="/lab1">Лабораторная работа 1</a></li>
+                        <li><a href="/lab1/web">WEB-сервер на Flask</a></li>
+                        <li><a href="/lab1/author">Об авторе</a></li>
+                        <li><a href="/lab1/image">Изображение</a></li>
+                        <li><a href="/lab1/counter">Счётчик посещений</a></li>
+                        <li><a href="/lab1/reset_counter">Сброс счётчика</a></li>
+                        <li><a href="/lab1/info">Информация (редирект)</a></li>
+                    </ul>
+                    
+                    <h3>Тестирование ошибок:</h3>
+                    <ul>
+                        <li><a href="/lab1/error500">Ошибка 500 (IndexError)</a></li>
+                        <li><a href="/lab1/divide_zero">Ошибка 500 (ZeroDivision)</a></li>
+                        <li><a href="/lab1/type_mismatch">Ошибка 500 (TypeError)</a></li>
+                        <li><a href="/400">Ошибка 400</a></li>
+                        <li><a href="/401">Ошибка 401</a></li>
+                        <li><a href="/402">Ошибка 402</a></li>
+                        <li><a href="/403">Ошибка 403</a></li>
+                        <li><a href="/405">Ошибка 405</a></li>
+                        <li><a href="/418">Ошибка 418</a></li>
+                    </ul>
+                    
+                    <h3>Дополнительные роуты:</h3>
+                    <ul>
+                        <li><a href="/created">Создано (201)</a></li>
+                    </ul>
+                </div>
                 
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
@@ -229,6 +300,12 @@ def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
 
+    headers = {
+        'Content-Language': 'ru',  # Указываем язык контента - русский
+        'X-Developer': 'Zhuravleva-Victoria',  # Нестандартный заголовок - разработчик
+        'X-Application': 'Flask-Lab1',  # Нестандартный заголовок - приложение
+        'Cache-Control': 'no-cache'  # Дополнительный стандартный заголовок
+    }
     
     return f'''
     <!doctype html>
@@ -260,7 +337,7 @@ def image():
         </div>
     </body>
     </html>      
-    ''', 200, headers 
+    ''', 200, headers
 
 count = 0
 
@@ -489,3 +566,6 @@ def teapot():
     </body>
 </html>
 ''', 418
+
+if __name__ == '__main__':
+    app.run(debug=False)  # Важно: debug=False для тестирования обработчика 500

@@ -1,12 +1,13 @@
 from flask import Flask, url_for, request, redirect
 import datetime
+
 app = Flask(__name__)
 
 @app.errorhandler(404)
 def not_found(err):
     css_path = url_for("static", filename="lab1.css")
-    image_path = url_for("static", filename="404_image.png") 
-    
+    image_path = url_for("static", filename="404_image.png")
+
     return f'''
     <!doctype html>
     <html>
@@ -19,17 +20,17 @@ def not_found(err):
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
-            
+
             <div class="container">
                 <h1>💔 Ой-ой! Страница потерялась 💔</h1>
-                
+
                 <div class="image-wrapper">
-                    <img src="{image_path}" 
-                         alt="Страница не найдена" 
+                    <img src="{image_path}"
+                         alt="Страница не найдена"
                          class="styled-image">
                     <div class="image-caption">404 - Страница не найдена</div>
                 </div>
-                
+
                 <div class="info-box">
                     <h2>Что случилось?</h2>
                     <p>Похоже, эта страница отправилась в путешествие и не может найти дорогу домой!</p>
@@ -39,7 +40,7 @@ def not_found(err):
                         <li>Или просто полюбуйтесь нашими сердечками 💖</li>
                     </ul>
                 </div>
-                
+
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
@@ -64,12 +65,12 @@ def index():
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
             <div class="corner-heart">💞</div>
-            
+
             <div class="container">
                 <header>
                     <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
                 </header>
-               
+
                 <nav>
                     <ul>
                         <li><a href="/lab1">Первая лабораторная</a></li>
@@ -78,7 +79,7 @@ def index():
                         <li><a href="/lab1/type_mismatch">Тест ошибки 500 (TypeError)</a></li>
                     </ul>
                 </nav>
-                
+
                 <footer>
                     <hr>
                     <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2024</p>
@@ -88,7 +89,6 @@ def index():
     </html>
     '''
 
-# ОШИБКА 500
 @app.errorhandler(500)
 def internal_server_error(err):
     css_path = url_for("static", filename="lab1.css")
@@ -104,19 +104,19 @@ def internal_server_error(err):
             <div class="corner-heart">🔥</div>
             <div class="corner-heart">💥</div>
             <div class="corner-heart">🔥</div>
-            
+
             <div class="container">
                 <h1>🚨 Внутренняя ошибка сервера 🚨</h1>
-                
+
                 <div class="image-wrapper">
                     <div class="big-emoji">😵‍💫</div>
                     <div class="image-caption">500 - Сервер столкнулся с непредвиденной ошибкой</div>
                 </div>
-                
+
                 <div class="info-box error-details">
                     <h2>Что произошло?</h2>
                     <p>На сервере произошла внутренняя ошибка. Наша команда уже уведомлена и работает над решением проблемы.</p>
-                    
+
                     <div class="error-actions">
                         <h3>Что можно сделать:</h3>
                         <ul>
@@ -126,7 +126,7 @@ def internal_server_error(err):
                             <li>🏠 <strong>Вернитесь на главную</strong> - и продолжите работу с другими разделами</li>
                         </ul>
                     </div>
-                    
+
                     <div class="technical-info">
                         <details>
                             <summary>Техническая информация (для администратора)</summary>
@@ -135,12 +135,12 @@ def internal_server_error(err):
                         </details>
                     </div>
                 </div>
-                
+
                 <div class="text-center">
                     <a href="/" class="btn btn-primary">🏠 Вернуться на главную</a>
                     <a href="/lab1" class="btn btn-secondary">📚 К лабораторным работам</a>
                 </div>
-                
+
                 <footer class="error-footer">
                     <hr>
                     <p>Если ошибка повторяется, свяжитесь с технической поддержкой</p>
@@ -150,25 +150,21 @@ def internal_server_error(err):
     </html>
     ''', 500
 
-# РАЗЛИЧНЫЕ ОБРАБОТЧИКИ ДЛЯ ВЫЗОВА ОШИБКИ 500
 @app.route('/lab1/error500')
 def cause_error():
-    """Вызывает IndexError - обращение к несуществующему индексу списка"""
     my_list = [1, 2, 3]
-    return my_list[10]  # IndexError
+    return my_list[10]
 
 @app.route('/lab1/divide_zero')
 def divide_zero():
-    """Вызывает ZeroDivisionError - деление на ноль"""
-    result = 10 / 0  # ZeroDivisionError
+    result = 10 / 0
     return f"Результат: {result}"
 
 @app.route('/lab1/type_mismatch')
 def type_mismatch():
-    """Вызывает TypeError - конкатенация строки и числа"""
     text = "Текст: "
     number = 42
-    return text + number  # TypeError
+    return text + number
 
 @app.route("/lab1")
 def lab1():
@@ -185,12 +181,12 @@ def lab1():
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
             <div class="corner-heart">💞</div>
-            
+
             <div class="container">
                 <header>
                     <h1>Лабораторная работа 1</h1>
                 </header>
-                
+
                 <p>
                     Flask — фреймворк для создания веб-приложений на языке
                     программирования Python, использующий набор инструментов
@@ -199,7 +195,6 @@ def lab1():
                     веб-приложений, сознательно предоставляющих лишь самые ба-
                     зовые возможности.
                 </p>
-
                 <h2>Список роутов</h2>
                 <div class="info-box">
                     <h3>Основные роуты:</h3>
@@ -214,7 +209,7 @@ def lab1():
                         <li><a href="/lab1/reset_counter">Сброс счётчика</a></li>
                         <li><a href="/lab1/info">Информация (редирект)</a></li>
                     </ul>
-                    
+
                     <h3>Тестирование ошибок:</h3>
                     <ul>
                         <li><a href="/lab1/error500">Ошибка 500 (IndexError)</a></li>
@@ -227,17 +222,17 @@ def lab1():
                         <li><a href="/405">Ошибка 405</a></li>
                         <li><a href="/418">Ошибка 418</a></li>
                     </ul>
-                    
+
                     <h3>Дополнительные роуты:</h3>
                     <ul>
                         <li><a href="/created">Создано (201)</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
-                
+
                 <footer>
                     <hr>
                     <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2024</p>
@@ -257,24 +252,23 @@ def start():
             </head>
             <body>
                 <div class="container">
-                    <h1>web-cepsep на flask</h1>
+                    <h1>WEB-сервер на Flask</h1>
                     <div class="text-center">
                         <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
                     </div>
                 </div>
             </body>
         </html>""", 200, {
-            'X-Server': 'sample',
-            'Content-Tipe': 'text/plain; charset-utf-8'
-            }
+        'X-Server': 'Flask-Sample',
+        'Content-Type': 'text/html; charset=utf-8'
+    }
 
-@app.route("/lab1/author") 
+@app.route("/lab1/author")
 def author():
     css_path = url_for("static", filename="lab1.css")
     name = "Журавлева Виктория Александровна"
     group = "ФБИ-34"
     faculty = "ФБ"
-
     return f"""<!doctype html>
         <html>
             <head>
@@ -300,15 +294,7 @@ def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
 
-    # Сначала определяем headers, потом используем
-    headers = {
-        'Content-Language': 'ru',  # Указываем язык контента - русский
-        'X-Developer': 'Zhuravleva-Victoria',  # Нестандартный заголовок - разработчик
-        'X-Application': 'Flask-Lab1',  # Нестандартный заголовок - приложение
-        'Cache-Control': 'no-cache'  # Дополнительный стандартный заголовок
-    }
-    
-    return f'''
+    html_content = f'''
     <!doctype html>
     <html lang="ru">
     <head>
@@ -322,13 +308,13 @@ def image():
         <div class="corner-heart">💖</div>
         <div class="corner-heart">💝</div>
         <div class="corner-heart">💞</div>
-        
+
         <div class="container">
             <h1>💖 Toyota Supra 💖</h1>
-                   
+
             <div class="image-wrapper">
-                <img src="{image_path}" 
-                     alt="Toyota Supra JZA80" 
+                <img src="{image_path}"
+                     alt="Toyota Supra JZA80"
                      class="styled-image">
                 <div class="image-caption">✨ Toyota Supra JZA80 ✨</div>
             </div>
@@ -337,10 +323,15 @@ def image():
             </div>
         </div>
     </body>
-    </html>      
-    ''', 200, headers
+    </html>'''
 
-count = 0
+    return html_content, 200, {
+        'Content-Language': 'ru',
+        'X-Developer': 'Zhuravleva-Victoria',
+        'X-Student-Group': 'FBI-34',  # Заменили на латиницу
+        'X-Lab-Number': '1'
+    }
+
 
 @app.route('/lab1/counter')
 def counter():
@@ -350,7 +341,6 @@ def counter():
     time = datetime.datetime.today()
     url = request.url
     client_ip = request.remote_addr
-
     return f'''
         <!doctype html>
         <html>
@@ -403,7 +393,7 @@ def reset_counter():
 
 @app.route("/lab1/info")
 def info():
-    return redirect("/author")
+    return redirect("/lab1/author")
 
 @app.route("/created")
 def created():
@@ -569,4 +559,4 @@ def teapot():
 ''', 418
 
 if __name__ == '__main__':
-    app.run(debug=False)  # Важно: debug=False для тестирования обработчика 500
+    app.run(debug=True)

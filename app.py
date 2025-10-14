@@ -300,6 +300,7 @@ def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
 
+    # Сначала определяем headers, потом используем
     headers = {
         'Content-Language': 'ru',  # Указываем язык контента - русский
         'X-Developer': 'Zhuravleva-Victoria',  # Нестандартный заголовок - разработчик

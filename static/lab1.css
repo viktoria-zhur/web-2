@@ -33,6 +33,41 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: float 3s ease-in-out infinite;
 }
+.log-box {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #ffebf2;
+    border-radius: 12px;
+    border: 2px solid #ffb3c6;
+    box-shadow: 0 4px 8px rgba(255, 179, 198, 0.2);
+}
+
+.log-box h2 {
+    margin-top: 0;
+    color: #e91e63;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    text-align: center;
+}
+
+.log-box h2::before {
+    content: "📖 ";
+}
+
+.log-entries {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #880e4f;
+    line-height: 1.7;
+    padding: 10px;
+    background-color: rgba(255, 182, 193, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid #ff80ab;
+}
+
+.log-entries::before {
+    content: "💖 ";
+    color: #e91e63;
+}
 
 .styled-image:hover {
     transform: scale(1.03);

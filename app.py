@@ -3,10 +3,29 @@ import datetime
 
 app = Flask(__name__)
 
+# Глобальный список для хранения лога посещений
+access_log = []
+count = 0  # Инициализация счётчика
+
 @app.errorhandler(404)
 def not_found(err):
     css_path = url_for("static", filename="lab1.css")
     image_path = url_for("static", filename="404_image.png")
+
+    # Получаем IP-адрес пользователя и текущую дату/время
+    client_ip = request.remote_addr
+    access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Добавляем запись в лог
+    log_entry = f"{access_time} — IP: {client_ip} — Запрошен несуществующий адрес: {request.path}"
+    access_log.append(log_entry)
+
+    # Ограничиваем количество записей в логе, чтобы не перегружать страницу
+    if len(access_log) > 20:
+        access_log.pop(0)
+
+    # Формируем HTML-список записей лога
+    log_entries_html = "<br>".join(access_log)
 
     return f'''
     <!doctype html>
@@ -35,14 +54,23 @@ def not_found(err):
                     <h2>Что случилось?</h2>
                     <p>Похоже, эта страница отправилась в путешествие и не может найти дорогу домой!</p>
                     <ul>
+                        <li>Ваш IP-адрес: {client_ip}</li>
+                        <li>Дата доступа: {access_time}</li>
                         <li>Проверьте правильность адреса</li>
-                        <li>Вернитесь на главную страницу</li>
+                        <li>Вернитесь на <a href="/">главную страницу</a></li>
                         <li>Или просто полюбуйтесь нашими сердечками 💖</li>
                     </ul>
                 </div>
 
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
+                </div>
+
+                <div class="log-box">
+                    <h2>📜 Журнал посещений:</h2>
+                    <div class="log-entries">
+                        {log_entries_html}
+                    </div>
                 </div>
             </div>
         </body>
@@ -74,9 +102,6 @@ def index():
                 <nav>
                     <ul>
                         <li><a href="/lab1">Первая лабораторная</a></li>
-                        <li><a href="/lab1/error500">Тест ошибки 500 (IndexError)</a></li>
-                        <li><a href="/lab1/divide_zero">Тест ошибки 500 (ZeroDivision)</a></li>
-                        <li><a href="/lab1/type_mismatch">Тест ошибки 500 (TypeError)</a></li>
                     </ul>
                 </nav>
 
@@ -328,10 +353,9 @@ def image():
     return html_content, 200, {
         'Content-Language': 'ru',
         'X-Developer': 'Zhuravleva-Victoria',
-        'X-Student-Group': 'FBI-34',  # Заменили на латиницу
+        'X-Student-Group': 'FBI-34',
         'X-Lab-Number': '1'
     }
-
 
 @app.route('/lab1/counter')
 def counter():

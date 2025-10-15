@@ -11,22 +11,17 @@ count = 0  # Инициализация счётчика
 def not_found(err):
     css_path = url_for("static", filename="lab1.css")
     image_path = url_for("static", filename="404_image.png")
-
     # Получаем IP-адрес пользователя и текущую дату/время
     client_ip = request.remote_addr
     access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     # Добавляем запись в лог
     log_entry = f"{access_time} — IP: {client_ip} — Запрошен несуществующий адрес: {request.path}"
     access_log.append(log_entry)
-
     # Ограничиваем количество записей в логе, чтобы не перегружать страницу
     if len(access_log) > 20:
         access_log.pop(0)
-
     # Формируем HTML-список записей лога
     log_entries_html = "<br>".join(access_log)
-
     return f'''
     <!doctype html>
     <html>
@@ -39,17 +34,14 @@ def not_found(err):
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
             <div class="corner-heart">💔</div>
-
             <div class="container">
                 <h1>💔 Ой-ой! Страница потерялась 💔</h1>
-
                 <div class="image-wrapper">
                     <img src="{image_path}"
                          alt="Страница не найдена"
                          class="styled-image">
                     <div class="image-caption">404 - Страница не найдена</div>
                 </div>
-
                 <div class="info-box">
                     <h2>Что случилось?</h2>
                     <p>Похоже, эта страница отправилась в путешествие и не может найти дорогу домой!</p>
@@ -61,11 +53,9 @@ def not_found(err):
                         <li>Или просто полюбуйтесь нашими сердечками 💖</li>
                     </ul>
                 </div>
-
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
-
                 <div class="log-box">
                     <h2>📜 Журнал посещений:</h2>
                     <div class="log-entries">
@@ -93,18 +83,15 @@ def index():
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
             <div class="corner-heart">💞</div>
-
             <div class="container">
                 <header>
                     <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
                 </header>
-
                 <nav>
                     <ul>
                         <li><a href="/lab1">Первая лабораторная</a></li>
                     </ul>
                 </nav>
-
                 <footer>
                     <hr>
                     <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2024</p>
@@ -129,19 +116,15 @@ def internal_server_error(err):
             <div class="corner-heart">🔥</div>
             <div class="corner-heart">💥</div>
             <div class="corner-heart">🔥</div>
-
             <div class="container">
                 <h1>🚨 Внутренняя ошибка сервера 🚨</h1>
-
                 <div class="image-wrapper">
                     <div class="big-emoji">😵‍💫</div>
                     <div class="image-caption">500 - Сервер столкнулся с непредвиденной ошибкой</div>
                 </div>
-
                 <div class="info-box error-details">
                     <h2>Что произошло?</h2>
                     <p>На сервере произошла внутренняя ошибка. Наша команда уже уведомлена и работает над решением проблемы.</p>
-
                     <div class="error-actions">
                         <h3>Что можно сделать:</h3>
                         <ul>
@@ -151,7 +134,6 @@ def internal_server_error(err):
                             <li>🏠 <strong>Вернитесь на главную</strong> - и продолжите работу с другими разделами</li>
                         </ul>
                     </div>
-
                     <div class="technical-info">
                         <details>
                             <summary>Техническая информация (для администратора)</summary>
@@ -160,12 +142,10 @@ def internal_server_error(err):
                         </details>
                     </div>
                 </div>
-
                 <div class="text-center">
                     <a href="/" class="btn btn-primary">🏠 Вернуться на главную</a>
                     <a href="/lab1" class="btn btn-secondary">📚 К лабораторным работам</a>
                 </div>
-
                 <footer class="error-footer">
                     <hr>
                     <p>Если ошибка повторяется, свяжитесь с технической поддержкой</p>
@@ -206,12 +186,10 @@ def lab1():
             <div class="corner-heart">💖</div>
             <div class="corner-heart">💝</div>
             <div class="corner-heart">💞</div>
-
             <div class="container">
                 <header>
                     <h1>Лабораторная работа 1</h1>
                 </header>
-
                 <p>
                     Flask — фреймворк для создания веб-приложений на языке
                     программирования Python, использующий набор инструментов
@@ -234,7 +212,6 @@ def lab1():
                         <li><a href="/lab1/reset_counter">Сброс счётчика</a></li>
                         <li><a href="/lab1/info">Информация (редирект)</a></li>
                     </ul>
-
                     <h3>Тестирование ошибок:</h3>
                     <ul>
                         <li><a href="/lab1/error500">Ошибка 500 (IndexError)</a></li>
@@ -247,17 +224,14 @@ def lab1():
                         <li><a href="/405">Ошибка 405</a></li>
                         <li><a href="/418">Ошибка 418</a></li>
                     </ul>
-
                     <h3>Дополнительные роуты:</h3>
                     <ul>
                         <li><a href="/created">Создано (201)</a></li>
                     </ul>
                 </div>
-
                 <div class="text-center">
                     <a href="/" class="btn">🏠 Вернуться на главную</a>
                 </div>
-
                 <footer>
                     <hr>
                     <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2024</p>
@@ -318,7 +292,6 @@ def author():
 def image():
     image_path = url_for("static", filename="a.png")
     css_path = url_for("static", filename="lab1.css")
-
     html_content = f'''
     <!doctype html>
     <html lang="ru">
@@ -333,10 +306,8 @@ def image():
         <div class="corner-heart">💖</div>
         <div class="corner-heart">💝</div>
         <div class="corner-heart">💞</div>
-
         <div class="container">
             <h1>💖 Toyota Supra 💖</h1>
-
             <div class="image-wrapper">
                 <img src="{image_path}"
                      alt="Toyota Supra JZA80"
@@ -349,7 +320,6 @@ def image():
         </div>
     </body>
     </html>'''
-
     return html_content, 200, {
         'Content-Language': 'ru',
         'X-Developer': 'Zhuravleva-Victoria',
@@ -422,9 +392,7 @@ def info():
 @app.route("/created")
 def created():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -439,15 +407,12 @@ def created():
             </div>
         </div>
     </body>
-</html>
-''', 201
+</html>''', 201
 
 @app.route('/400')
 def bad_request():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -462,15 +427,12 @@ def bad_request():
             </div>
         </div>
     </body>
-</html>
-''', 400
+</html>''', 400
 
 @app.route('/401')
 def unauthorized():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -485,15 +447,12 @@ def unauthorized():
             </div>
         </div>
     </body>
-</html>
-''', 401
+</html>''', 401
 
 @app.route('/402')
 def payment_required():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -508,15 +467,12 @@ def payment_required():
             </div>
         </div>
     </body>
-</html>
-''', 402
+</html>''', 402
 
 @app.route('/403')
 def forbidden():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -531,15 +487,12 @@ def forbidden():
             </div>
         </div>
     </body>
-</html>
-''', 403
+</html>''', 403
 
 @app.route('/405')
 def method_not_allowed():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -554,15 +507,12 @@ def method_not_allowed():
             </div>
         </div>
     </body>
-</html>
-''', 405
+</html>''', 405
 
 @app.route('/418')
 def teapot():
     css_path = url_for("static", filename="lab1.css")
-    return f'''
-<!doctype html>
-<html>
+    return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
     </head>
@@ -579,16 +529,24 @@ def teapot():
             </div>
         </div>
     </body>
-</html>
-''', 418
+</html>''', 418
 
 @app.route('/lab2/a/')
-def a():
+def a_with_slash():
     return 'со слешем'
 
-@app.route('/lab2/a')
-def a():
+@app.route('/lab2/b')
+def a_without_slash():
     return 'без слеша'
+
+flower_list = ('роза', 'тюльпан', 'незабудка', 'ромашка')
+
+@app.route('/lab2/flowers/<int:flower_id>')
+def flower_id(flower_id):
+    if flower_id >= len(flower_list):
+        abort(404)
+    else:
+        return "цветок: " + flower_list[flower_id]
 
 if __name__ == '__main__':
     app.run(debug=True)

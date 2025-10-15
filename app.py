@@ -539,14 +539,28 @@ def a_with_slash():
 def a_without_slash():
     return 'без слеша'
 
-flower_list = ('роза', 'тюльпан', 'незабудка', 'ромашка')
+# Инициализация списка цветов
+flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
 
-@app.route('/lab2/flowers/<int:flower_id>')
-def flower_id(flower_id):
-    if flower_id >= len(flower_list):
-        abort(404)
-    else:
-        return "цветок: " + flower_list[flower_id]
+@app.route('/lab2/add_flower/<name>')
+def add_flower(name):
+    # Добавление нового цветка в список
+    flower_list.append(name)
+
+    # Возвращаем HTML-страницу с информацией о добавленном цветке
+    return f'''
+<!doctype html>
+<html>
+        <body>
+        <h1>Добавлен новый цветок</h1>
+        <p>Название нового цветка: {name}</p>
+        <p>Всего цветов: {len(flower_list)}</p>
+        <p>Полный список: {flower_list}</p>
+    </body>
+</html>
+'''
+
+ 
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -539,15 +539,11 @@ def a_with_slash():
 def a_without_slash():
     return 'без слеша'
 
-# Инициализация списка цветов
 flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
 
 @app.route('/lab2/add_flower/<name>')
 def add_flower(name):
-    # Добавление нового цветка в список
     flower_list.append(name)
-
-    # Возвращаем HTML-страницу с информацией о добавленном цветке
     return f'''
 <!doctype html>
 <html>

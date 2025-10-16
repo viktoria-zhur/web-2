@@ -1,0 +1,36 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: #ffffff;
+    color: #2c3e50;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+main {
+    margin-bottom: 40px;
+    padding: 10px;
+}
+
+header {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #e3f2fd;
+    border-bottom: 2px solid #90caf9;
+}
+
+footer {
+    margin-top: 20px;
+    padding: 10px;
+    background: #e3f2fd;
+    text-align: right;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 2px solid #90caf9;
+    color: #1565c0;
+}

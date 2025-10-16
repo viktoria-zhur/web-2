@@ -3,24 +3,23 @@ import datetime
 
 app = Flask(__name__)
 
-# Глобальный список для хранения лога посещений
 access_log = []
-count = 0  # Инициализация счётчика
+count = 0  
 
 @app.errorhandler(404)
 def not_found(err):
     css_path = url_for("static", filename="lab1.css")
     image_path = url_for("static", filename="404_image.png")
-    # Получаем IP-адрес пользователя и текущую дату/время
+    
     client_ip = request.remote_addr
     access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # Добавляем запись в лог
+   
     log_entry = f"{access_time} — IP: {client_ip} — Запрошен несуществующий адрес: {request.path}"
     access_log.append(log_entry)
-    # Ограничиваем количество записей в логе, чтобы не перегружать страницу
+   
     if len(access_log) > 20:
         access_log.pop(0)
-    # Формируем HTML-список записей лога
+
     log_entries_html = "<br>".join(access_log)
     return f'''
     <!doctype html>
@@ -561,7 +560,11 @@ def example():
     lab_number = 2
     group = 'ФБИ-34'
     course = 3
-    return render_template('example.html', name=name, lab_number=lab_number, course=course)
+    return render_template('example.html', 
+                     name=name,
+                     lab_number=lab_number, 
+                     course=course,
+                     group=group)
 
 if __name__ == '__main__':
     app.run(debug=True)

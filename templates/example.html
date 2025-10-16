@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Журавлева Виктория. Лабораторная работа 2</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename=main.css) }}">
+    <title>
+        {% if name %}
+            {{ name }} - 
+        {% else %}
+            Анонимус - 
+        {% endif %}
+        Лабораторная работа 
+        {% if lab_number %}
+            {{ lab_number }}
+        {% endif %}
+    </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
 <body>
-    <header>
-        WEB-программирование, часть 2. Лабораторная работа 2
-    </header>
 
     <main>
        <div class="info-box">
@@ -34,7 +41,23 @@
     </main>
 
     <footer>
-        &copy; {{ name }}, ФБИ-34, 3 курс, 2025
+        &copy; 
+        {% if name %}
+            {{ name }}
+        {% else %}
+            Анонимус
+        {% endif %},
+        {% if group %}
+            {{ group }}
+        {% else %}
+            Потеряшка
+        {% endif %},  
+        {% if course %}
+            {{ course }}
+        {% else %}
+            Не дожил до 3 курса
+        {% endif %}, 
+        2025
     </footer>
 </body>
 </html>

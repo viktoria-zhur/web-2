@@ -631,6 +631,57 @@ def calc_default():
 @app.route('/lab2/calc/<int:a>')
 def calc_single(a):
     return redirect(f'/lab2/calc/{a}/1') 
-    
+
+# Список книг на стороне сервера
+books = [
+    {'author': 'Фёдор Достоевский', 'title': 'Преступление и наказание', 'genre': 'Роман', 'pages': 671},
+    {'author': 'Лев Толстой', 'title': 'Война и мир', 'genre': 'Роман-эпопея', 'pages': 1225},
+    {'author': 'Антон Чехов', 'title': 'Рассказы', 'genre': 'Рассказы', 'pages': 320},
+    {'author': 'Михаил Булгаков', 'title': 'Мастер и Маргарита', 'genre': 'Роман', 'pages': 480},
+    {'author': 'Александр Пушкин', 'title': 'Евгений Онегин', 'genre': 'Роман в стихах', 'pages': 240},
+    {'author': 'Николай Гоголь', 'title': 'Мёртвые души', 'genre': 'Поэма', 'pages': 352},
+    {'author': 'Иван Тургенев', 'title': 'Отцы и дети', 'genre': 'Роман', 'pages': 288},
+    {'author': 'Александр Островский', 'title': 'Гроза', 'genre': 'Драма', 'pages': 120},
+    {'author': 'Михаил Лермонтов', 'title': 'Герой нашего времени', 'genre': 'Роман', 'pages': 224},
+    {'author': 'Александр Грибоедов', 'title': 'Горе от ума', 'genre': 'Комедия', 'pages': 160},
+    {'author': 'Иван Гончаров', 'title': 'Обломов', 'genre': 'Роман', 'pages': 640},
+    {'author': 'Николай Лесков', 'title': 'Левша', 'genre': 'Повесть', 'pages': 96}
+]
+
+@app.route('/lab2/books')
+def show_books():
+    return render_template('books.html', books=books)
+
+# Список легендарных машин мира
+legendary_cars = [
+    {'name': 'Ford Mustang 1965', 'image': 'Ford Mustang 1965.png', 'description': 'Американский мускул-кар, икона 60-х годов'},
+    {'name': 'Chevrolet Corvette Stingray', 'image': 'Chevrolet Corvette Stingray.jpg', 'description': 'Легендарный спорткар с уникальным дизайном'},
+    {'name': 'Porsche 911', 'image': 'Porsche 911.jpg', 'description': 'Немецкий спорткар с заднемоторной компоновкой'},
+    {'name': 'Ferrari F40', 'image': 'Ferrari F40.jpg', 'description': 'Последний Ferrari, одобренный Энцо Феррари'},
+    {'name': 'Lamborghini Countach', 'image': 'Lamborghini Countach.png', 'description': 'Суперкар с клиновидным дизайном 70-х'},
+    {'name': 'BMW M3 E30', 'image': 'BMW M3 E30.jpg', 'description': 'Первое поколение культового спортивного седана'},
+    {'name': 'Mercedes-Benz 300SL', 'image': 'Mercedes-Benz 300SL.png', 'description': 'Знаменит дверями "крыло чайки"'},
+    {'name': 'Audi Quattro', 'image': 'Audi Quattro.jpg', 'description': 'Пионер полного привода в ралли'},
+    {'name': 'Toyota Supra MK4', 'image': 'Toyota Supra MK4.jpg', 'description': 'Японская легенда с двигателем 2JZ'},
+    {'name': 'Nissan Skyline GT-R R34', 'image': 'Nissan Skyline GT-R R34.jpg', 'description': 'Легенда японского автопрома'},
+    {'name': 'Mazda RX-7 FD', 'image': 'Mazda RX-7 FD.jpg', 'description': 'Спорткар с роторным двигателем'},
+    {'name': 'Subaru Impreza WRX STI', 'image': 'Subaru Impreza WRX STI.jpg', 'description': 'Раллийная легенда с симметричным полным приводом'},
+    {'name': 'Mitsubishi Lancer Evolution', 'image': 'Mitsubishi Lancer Evolution.jpg', 'description': 'Соперник Subaru в мировом ралли'},
+    {'name': 'Volkswagen Golf GTI', 'image': 'Volkswagen Golf GTI.jpg', 'description': 'Родоначальник хот-хэтчей'},
+    {'name': 'Ford GT40', 'image': 'Ford GT40.jpg', 'description': 'Победитель Ле-Мана, созданный чтобы победить Ferrari'},
+    {'name': 'Jaguar E-Type', 'image': 'Jaguar E-Type.jpg', 'description': 'Был назван самой красивой машиной Энцо Феррари'},
+    {'name': 'Aston Martin DB5', 'image': 'Aston Martin DB5.jpg', 'description': 'Автомобиль Джеймса Бонда'},
+    {'name': 'DeLorean DMC-12', 'image': 'DeLorean DMC-12.jpg', 'description': 'Знаменит дверями-крыльями и появлением в "Назад в будущее"'},
+    {'name': 'Dodge Charger', 'image': 'Dodge Charger.jpg', 'description': 'Американский мускул-кар из фильмов'},
+    {'name': 'Shelby Cobra', 'image': 'Shelby Cobra.jpg', 'description': 'Американский V8 в британском кузове'},
+    {'name': 'Bugatti Veyron', 'image': 'Bugatti Veyron.jpg', 'description': 'Первый суперкар мощностью 1000 л.с.'},
+    {'name': 'McLaren F1', 'image': 'McLaren F1.jpg', 'description': 'Легендарный гиперкар с центральным расположением водителя'},
+    {'name': 'Ferrari Testarossa', 'image': 'Ferrari Testarossa.png', 'description': 'Икона 80-х с характерными воздухозаборниками'}
+]
+
+@app.route('/lab2/cars')
+def show_cars():
+    return render_template('cars.html', cars=legendary_cars)
+
 if __name__ == '__main__':
     app.run(debug=True)

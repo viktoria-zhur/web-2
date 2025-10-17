@@ -1,42 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         {% if name %}
             {{ name }} - 
-        {% else %}
-            Анонимус - 
         {% endif %}
         Лабораторная работа 
-        {% if lab_number %}
-            {{ lab_number }}
+        {% if lab_num %}
+            {{ lab_num }}
         {% endif %}
     </title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
 <body>
+    <header>
+        <h1>
+            Лабораторная работа 
+            {% if lab_num %}
+                {{ lab_num }}
+            {% endif %}
+        </h1>
+    </header>
 
     <main>
-       <div class="info-box">
-            <h2>Информация о студенте</h2>
-            <p><strong>Имя:</strong> {{ name }}</p>
-        </div>
+        <div class="container">
+            <h2>Информация о студенте:</h2>
+            <p>
+                <strong>Имя:</strong> 
+                {% if name %}
+                    {{ name }}
+                {% else %}
+                    Анонимус
+                {% endif %}
+            </p>
+            <p>
+                <strong>Группа:</strong> 
+                {% if group %}
+                    {{ group }}
+                {% else %}
+                    Потеряшка
+                {% endif %}
+            </p>
+            <p>
+                <strong>Курс:</strong> 
+                {% if course %}
+                    {{ course }}
+                {% else %}
+                    Не дожил до 3 курса
+                {% endif %}
+            </p>
 
-        <div class="info-box">
-            <h2>Информация о лабораторной работе</h2>
-            <p><strong>Номер лабораторной работы:</strong> {{ lab_number }}</p>
-            <p><strong>Группа:</strong> {{ group }}</p>
-            <p><strong>Курс:</strong> {{ course }}</p>
-        </div> 
+            <h2>Список фруктов:</h2>
+            
+            <ul>
+                {% for fruit in fruits %}
+                <li>{{ loop.index }} - {{ fruit.name }}: {{fruit.price}} &#x20bd;</li>
+                {% endfor %}
+            </ul>
 
-        <div class="info-box">
-            <p>5 + 2 = {{ 5 + 2 }}<br></p>
-            <p>11 * 28 = {{ 11 * 28 }}<br></p>
-            <p>3258 - 759 = {{ 3258 - 759 }}<br></p>
-            <p>8452 / 793 = {{ 8452 / 793 }}<br></p>
-            <p>45<sup>8</sup> = {{ 45 ** 8 }}<br></p>
         </div>
     </main>
 

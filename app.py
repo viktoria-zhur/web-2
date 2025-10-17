@@ -124,12 +124,8 @@ def lab2_index():
         </nav>
 
         <main>
-            <div class="description">
-                <h2>Flask и шаблонизатор Jinja2</h2>
-            </div>
-
             <div class="routes-section">
-                <h2>Список роутов</h2>
+                <h2>Список всех роутов лабораторной работы 2</h2>
                 
                 <div class="routes-category">
                     <h3>Основные роуты:</h3>
@@ -141,6 +137,7 @@ def lab2_index():
                         <li><a href="/lab2/cars">Легендарные автомобили</a></li>
                         <li><a href="/lab2/flowers">Управление цветами</a></li>
                         <li><a href="/lab2/add_flower/">Добавить цветок</a></li>
+                        <li><a href="/lab2/flowers_advanced">Расширенное управление цветами</a></li>
                     </ul>
                 </div>
 
@@ -150,6 +147,7 @@ def lab2_index():
                         <li><a href="/lab2/calc/10/5">Калькулятор: 10 и 5</a></li>
                         <li><a href="/lab2/calc/25">Калькулятор: 25 и 1</a></li>
                         <li><a href="/lab2/flowers/clear">Очистить список цветов</a></li>
+                        <li><a href="/lab2/flowers_advanced/clear">Очистить расширенный список</a></li>
                     </ul>
                 </div>
             </div>
@@ -162,7 +160,7 @@ def lab2_index():
     </div>
 </body>
 </html>
-'''  
+'''
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -620,6 +618,7 @@ def show_flower(flower_id):
                          total_count=len(flower_list))
 
 flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
+
 @app.route('/lab2/flowers/clear')
 def clear_flowers():
     flower_list.clear()
@@ -749,6 +748,63 @@ legendary_cars = [
 @app.route('/lab2/cars')
 def show_cars():
     return render_template('cars.html', cars=legendary_cars)
+    
+    # Новые улучшенные обработчики с ценами
+flowers_with_prices = [
+    {'id': 0, 'name': 'роза', 'price': 150},
+    {'id': 1, 'name': 'тюльпан', 'price': 80},
+    {'id': 2, 'name': 'незабудка', 'price': 50},
+    {'id': 3, 'name': 'ромашка', 'price': 40}
+]
+
+# Главная страница цветов с ценами
+@app.route('/lab2/flowers_advanced')
+def show_flowers_advanced():
+    total_price = sum(flower['price'] for flower in flowers_with_prices)
+    return render_template('flowers_advanced.html', 
+                         flowers=flowers_with_prices, 
+                         total_price=total_price)
+
+# Добавление цветка с ценой (POST форма)
+@app.route('/lab2/flowers_advanced/add', methods=['POST'])
+def add_flower_advanced():
+    name = request.form.get('name')
+    price = request.form.get('price')
+    
+    if name and price:
+        new_id = max([flower['id'] for flower in flowers_with_prices], default=-1) + 1
+        flowers_with_prices.append({
+            'id': new_id,
+            'name': name,
+            'price': int(price)
+        })
+    
+    return redirect(url_for('show_flowers_advanced'))
+
+# Удаление цветка по ID
+@app.route('/lab2/flowers_advanced/delete/<int:flower_id>')
+def delete_flower_advanced(flower_id):
+    global flowers_with_prices
+    flower_to_delete = None
+    
+    for flower in flowers_with_prices:
+        if flower['id'] == flower_id:
+            flower_to_delete = flower
+            break
+    
+    if flower_to_delete:
+        flowers_with_prices = [flower for flower in flowers_with_prices if flower['id'] != flower_id]
+        return redirect(url_for('show_flowers_advanced'))
+    else:
+        return "Цветок с таким ID не найден", 404
+
+# Удаление всех цветов
+@app.route('/lab2/flowers_advanced/clear')
+def clear_flowers_advanced():
+    global flowers_with_prices
+    flowers_with_prices.clear()
+    return redirect(url_for('show_flowers_advanced'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+    <head>
+        <title>цветы</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='lab1.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>🌷 цветы</h1>
+            
+            <div class="controls">
+                <a href="/lab2/add_flower/" class="btn">➕ Добавить цветок</a>
+                {% if flower_list %}
+                <a href="/lab2/flowers/clear" class="btn btn-danger" 
+                   onclick="return confirm('Вы уверены, что хотите очистить весь список?')">
+                   🗑️ Очистить список
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="stats">
+                <p><strong>Общее количество цветов:</strong> {{ flower_list|length }}</p>
+            </div>
+
+            <div class="flower-list">
+                <h2>📋 Список цветов:</h2>
+                {% if flower_list %}
+                    <ul>
+                        {% for flower in flower_list %}
+                        <li>
+                            <a href="/lab2/flowers/{{ loop.index0 }}">{{ flower }}</a> 
+                            <span class="flower-id">(ID: {{ loop.index0 }})</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="empty-message">📭 Список цветов пуст</p>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>

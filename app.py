@@ -538,22 +538,54 @@ def a_with_slash():
 def a_without_slash():
     return 'без слеша'
 
-flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
+@app.route('/lab2/flowers')
+def show_flowers():
+    return render_template('flowers_management.html', flower_list=flower_list)
 
-@app.route('/lab2/add_flower/<name>')
-def add_flower(name):
-    flower_list.append(name)
-    return f'''
-<!doctype html>
-<html>
+@app.route('/lab2/flowers/<int:flower_id>')
+def show_flower(flower_id):
+    if flower_id < 0 or flower_id >= len(flower_list):
+        return "Цветок с таким ID не найден", 404
+    
+    return render_template('flower_detail.html', 
+                         flower=flower_list[flower_id], 
+                         flower_id=flower_id,
+                         total_count=len(flower_list))
+
+flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
+@app.route('/lab2/flowers/clear')
+def clear_flowers():
+    flower_list.clear()
+    return render_template('flowers_management.html', flower_list=flower_list)
+
+@app.route('/lab2/add_flower/', methods=['GET', 'POST'])
+def add_flower_form():
+    if request.method == 'POST':
+        name = request.form.get('flower_name')
+        if name:
+            flower_list.append(name)
+            return redirect('/lab2/flowers')
+        else:
+            return "вы не задали имя цветка", 400
+    
+    return '''
+    <!doctype html>
+    <html>
+        <head>
+            <title>Добавить цветок</title>
+            <link rel="stylesheet" href="/static/lab1.css">
+        </head>
         <body>
-        <h1>Добавлен новый цветок</h1>
-        <p>Название нового цветка: {name}</p>
-        <p>Всего цветов: {len(flower_list)}</p>
-        <p>Полный список: {flower_list}</p>
-    </body>
-</html>
-'''
+            <h1>Добавить новый цветок</h1>
+            <form method="POST">
+                <label for="flower_name">Название цветка:</label>
+                <input type="text" id="flower_name" name="flower_name" required>
+                <button type="submit">Добавить</button>
+            </form>
+            <p><a href="/lab2/flowers">← Вернуться к списку цветов</a></p>
+        </body>
+    </html>
+    '''
 
 @app.route('/lab2/example')                    
 def example_lab2():
@@ -572,6 +604,11 @@ def example_lab2():
 @app.route('/lab2/')
 def lab2():
     return render_template('lab2.html')
-    
+
+@app.route('/lab2/filters')
+def filters():
+    phrase = "0 <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
+    return render_template('filter.html', phrase = phrase)
+
 if __name__ == '__main__':
     app.run(debug=True)

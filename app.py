@@ -569,5 +569,9 @@ def example_lab2():
                             name=name, lab_num=lab_num, group=group,
                             course=course, fruits=fruits)
 
+@app.route('/lab2/')
+def lab2():
+    return render_template('lab2.html')
+    
 if __name__ == '__main__':
     app.run(debug=True)

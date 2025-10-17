@@ -163,6 +163,9 @@ def lab2_index():
 </body>
 </html>
 '''  
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.errorhandler(500)
 def internal_server_error(err):

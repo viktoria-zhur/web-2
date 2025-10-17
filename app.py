@@ -78,27 +78,91 @@ def index():
             <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
-            <div class="corner-heart">💗</div>
-            <div class="corner-heart">💖</div>
-            <div class="corner-heart">💝</div>
-            <div class="corner-heart">💞</div>
             <div class="container">
                 <header>
                     <h1>НГТУ, ФБ, WEB-программирование, часть 2. Список лабораторных</h1>
                 </header>
-                <nav>
-                    <ul>
-                        <li><a href="/lab1">Первая лабораторная</a></li>
-                    </ul>
-                </nav>
+                
+                <main>
+                    <div class="labs-list">
+                        <h2>Список лабораторных работ:</h2>
+                        <ul>
+                            <li><a href="/lab1">Лабораторная работа 1</a></li>
+                            <li><a href="/lab2/">Лабораторная работа 2</a></li>
+                        </ul>
+                    </div>
+                </main>
+                
                 <footer>
                     <hr>
-                    <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2024</p>
+                    <p>Журавлева Виктория Александровна, ФБИ-34, 3 курс, 2025</p>
                 </footer>
             </div>
         </body>
     </html>
     '''
+@app.route('/lab2/')
+def lab2_index():
+    return '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Лабораторная работа 2</title>
+    <link rel="stylesheet" href="/static/lab1.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Лабораторная работа 2</h1>
+        </header>
+        
+        <nav>
+            <ul>
+                <li><a href="/">Главная</a></li>
+                <li><a href="/lab1">Лабораторная работа 1</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div class="description">
+                <h2>Flask и шаблонизатор Jinja2</h2>
+            </div>
+
+            <div class="routes-section">
+                <h2>Список роутов</h2>
+                
+                <div class="routes-category">
+                    <h3>Основные роуты:</h3>
+                    <ul>
+                        <li><a href="/lab2/example">Пример страницы</a></li>
+                        <li><a href="/lab2/filters">Фильтры Jinja2</a></li>
+                        <li><a href="/lab2/calc/">Калькулятор</a></li>
+                        <li><a href="/lab2/books">Библиотека книг</a></li>
+                        <li><a href="/lab2/cars">Легендарные автомобили</a></li>
+                        <li><a href="/lab2/flowers">Управление цветами</a></li>
+                        <li><a href="/lab2/add_flower/">Добавить цветок</a></li>
+                    </ul>
+                </div>
+
+                <div class="routes-category">
+                    <h3>Быстрый доступ:</h3>
+                    <ul>
+                        <li><a href="/lab2/calc/10/5">Калькулятор: 10 и 5</a></li>
+                        <li><a href="/lab2/calc/25">Калькулятор: 25 и 1</a></li>
+                        <li><a href="/lab2/flowers/clear">Очистить список цветов</a></li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <hr>
+            <p>© 2025 Журавлева Виктория Александровна, ФБИ-34, 3 курс</p>
+        </footer>
+    </div>
+</body>
+</html>
+'''  
 
 @app.errorhandler(500)
 def internal_server_error(err):

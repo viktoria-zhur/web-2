@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Калькулятор</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='lab1.css') }}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>🧮 Калькулятор</h1>
+            
+            <div class="calc-info">
+                <p><strong>Параметры:</strong> a = {{ a }}, b = {{ b }}</p>
+            </div>
+
+            <div class="calc-results">
+                <h2>Результаты вычислений:</h2>
+                <table>
+                    <tr>
+                        <th>Операция</th>
+                        <th>Выражение</th>
+                        <th>Результат</th>
+                    </tr>
+                    {% for op in operations %}
+                    <tr>
+                        <td>{{ op.name }}</td>
+                        <td>{{ a }} {{ op.symbol }} {{ b }}</td>
+                        <td><strong>{{ op.result }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="navigation">
+                <a href="/lab2/" class="btn">← Назад к лабораторной работе 2</a>
+            </div>
+        </div>
+    </body>
+</html>

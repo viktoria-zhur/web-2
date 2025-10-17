@@ -610,5 +610,27 @@ def filters():
     phrase = "0 <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
     return render_template('filter.html', phrase = phrase)
 
+@app.route('/lab2/calc/<int:a>/<int:b>')
+def calc(a, b):
+    operations = [
+        {'symbol': '+', 'result': a + b, 'name': 'Сумма'},
+        {'symbol': '-', 'result': a - b, 'name': 'Разность'},
+        {'symbol': '×', 'result': a * b, 'name': 'Произведение'},
+        {'symbol': '/', 'result': a / b if b != 0 else 'Ошибка: деление на ноль', 'name': 'Частное'},
+        {'symbol': '^', 'result': a ** b, 'name': 'Степень'}
+    ]
+    
+    return render_template('calc.html', a=a, b=b, operations=operations)
+
+# Пересылка с /lab2/calc/ на /lab2/calc/1/1
+@app.route('/lab2/calc/')
+def calc_default():
+    return redirect('/lab2/calc/1/1')
+
+# Пересылка с /lab2/calc/<int:a> на /lab2/calc/<int:a>/1
+@app.route('/lab2/calc/<int:a>')
+def calc_single(a):
+    return redirect(f'/lab2/calc/{a}/1') 
+    
 if __name__ == '__main__':
     app.run(debug=True)

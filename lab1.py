@@ -23,6 +23,7 @@ def type_mismatch():
 @lab1.route("/lab1")
 def lab11():
     css_path = url_for("static", filename="lab1.css")
+    web_url = url_for('lab1.web')
     return f'''
     <!doctype html>
     <html>

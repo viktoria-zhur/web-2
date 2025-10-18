@@ -1,79 +1,19 @@
 from flask import Blueprint, redirect, url_for, render_template
 lab2 = Blueprint('lab2', __name__)
 
-@app.route('/lab2/')
-def lab2_index():
-    return '''
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Лабораторная работа 2</title>
-    <link rel="stylesheet" href="/static/lab1.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Лабораторная работа 2</h1>
-        </header>
-        
-        <nav>
-            <ul>
-                <li><a href="/">Главная</a></li>
-                <li><a href="/lab1">Лабораторная работа 1</a></li>
-            </ul>
-        </nav>
-
-        <main>
-            <div class="routes-section">
-                <h2>Список всех роутов лабораторной работы 2</h2>
-                
-                <div class="routes-category">
-                    <h3>Основные роуты:</h3>
-                    <ul>
-                        <li><a href="/lab2/example">Пример страницы</a></li>
-                        <li><a href="/lab2/filters">Фильтры Jinja2</a></li>
-                        <li><a href="/lab2/calc/">Калькулятор</a></li>
-                        <li><a href="/lab2/books">Библиотека книг</a></li>
-                        <li><a href="/lab2/cars">Легендарные автомобили</a></li>
-                        <li><a href="/lab2/flowers">Управление цветами</a></li>
-                        <li><a href="/lab2/add_flower/">Добавить цветок</a></li>
-                        <li><a href="/lab2/flowers_advanced">Расширенное управление цветами</a></li>
-                    </ul>
-                </div>
-
-                <div class="routes-category">
-                    <h3>Быстрый доступ:</h3>
-                    <ul>
-                        <li><a href="/lab2/calc/10/5">Калькулятор: 10 и 5</a></li>
-                        <li><a href="/lab2/calc/25">Калькулятор: 25 и 1</a></li>
-                        <li><a href="/lab2/flowers/clear">Очистить список цветов</a></li>
-                        <li><a href="/lab2/flowers_advanced/clear">Очистить расширенный список</a></li>
-                    </ul>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-            <hr>
-            <p>© 2025 Журавлева Виктория Александровна, ФБИ-34, 3 курс</p>
-        </footer>
-    </div>
-</body>
-</html>
-'''
-@app.route('/lab2/a/')
+@lab2.route('/lab2/a/')
 def a_with_slash():
     return 'со слешем'
 
-@app.route('/lab2/b')
+@lab2.route('/lab2/b')
 def a_without_slash():
     return 'без слеша'
 
-@app.route('/lab2/flowers')
+@lab2.route('/lab2/flowers')
 def show_flowers():
     return render_template('flowers_management.html', flower_list=flower_list)
 
-@app.route('/lab2/flowers/<int:flower_id>')
+@lab2.route('/lab2/flowers/<int:flower_id>')
 def show_flower(flower_id):
     if flower_id < 0 or flower_id >= len(flower_list):
         return "Цветок с таким ID не найден", 404
@@ -85,17 +25,17 @@ def show_flower(flower_id):
 
 flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашка']
 
-@app.route('/lab2/flowers/clear')
+@lab2.route('/lab2/flowers/clear')
 def clear_flowers():
     flower_list.clear()
     return render_template('flowers_management.html', flower_list=flower_list)
 
-@app.route('/lab2/add_flower/', methods=['GET', 'POST'])
+@lab2.route('/lab2/add_flower/', methods=['GET', 'POST'])
 def add_flower_form():
     if request.method == 'POST':
         name = request.form.get('flower_name')
         if name:
-            flower_list.append(name)
+            flower_list.lab2end(name)
             return redirect('/lab2/flowers')
         else:
             return "вы не задали имя цветка", 400
@@ -119,7 +59,7 @@ def add_flower_form():
     </html>
     '''
 
-@app.route('/lab2/example')                    
+@lab2.route('/lab2/example')                    
 def example_lab2():
     name, lab_num, group, course = 'Журавлева Виктория', 3, 'ФБИ-34', 3
     fruits = [
@@ -133,16 +73,16 @@ def example_lab2():
                             name=name, lab_num=lab_num, group=group,
                             course=course, fruits=fruits)
 
-@app.route('/lab2/')
-def lab2():
+@lab2.route('/lab2/')
+def lab22():
     return render_template('lab2.html')
 
-@app.route('/lab2/filters')
+@lab2.route('/lab2/filters')
 def filters():
     phrase = "0 <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
     return render_template('filter.html', phrase = phrase)
 
-@app.route('/lab2/calc/<int:a>/<int:b>')
+@lab2.route('/lab2/calc/<int:a>/<int:b>')
 def calc(a, b):
     operations = [
         {'symbol': '+', 'result': a + b, 'name': 'Сумма'},
@@ -155,12 +95,12 @@ def calc(a, b):
     return render_template('calc.html', a=a, b=b, operations=operations)
 
 # Пересылка с /lab2/calc/ на /lab2/calc/1/1
-@app.route('/lab2/calc/')
+@lab2.route('/lab2/calc/')
 def calc_default():
     return redirect('/lab2/calc/1/1')
 
 # Пересылка с /lab2/calc/<int:a> на /lab2/calc/<int:a>/1
-@app.route('/lab2/calc/<int:a>')
+@lab2.route('/lab2/calc/<int:a>')
 def calc_single(a):
     return redirect(f'/lab2/calc/{a}/1') 
 
@@ -180,7 +120,7 @@ books = [
     {'author': 'Николай Лесков', 'title': 'Левша', 'genre': 'Повесть', 'pages': 96}
 ]
 
-@app.route('/lab2/books')
+@lab2.route('/lab2/books')
 def show_books():
     return render_template('books.html', books=books)
 
@@ -211,7 +151,7 @@ legendary_cars = [
     {'name': 'Ferrari Testarossa', 'image': 'Ferrari Testarossa.png', 'description': 'Икона 80-х с характерными воздухозаборниками'}
 ]
 
-@app.route('/lab2/cars')
+@lab2.route('/lab2/cars')
 def show_cars():
     return render_template('cars.html', cars=legendary_cars)
     
@@ -224,7 +164,7 @@ flowers_with_prices = [
 ]
 
 # Главная страница цветов с ценами
-@app.route('/lab2/flowers_advanced')
+@lab2.route('/lab2/flowers_advanced')
 def show_flowers_advanced():
     total_price = sum(flower['price'] for flower in flowers_with_prices)
     return render_template('flowers_advanced.html', 
@@ -232,14 +172,14 @@ def show_flowers_advanced():
                          total_price=total_price)
 
 # Добавление цветка с ценой (POST форма)
-@app.route('/lab2/flowers_advanced/add', methods=['POST'])
+@lab2.route('/lab2/flowers_advanced/add', methods=['POST'])
 def add_flower_advanced():
     name = request.form.get('name')
     price = request.form.get('price')
     
     if name and price:
         new_id = max([flower['id'] for flower in flowers_with_prices], default=-1) + 1
-        flowers_with_prices.append({
+        flowers_with_prices.lab2end({
             'id': new_id,
             'name': name,
             'price': int(price)
@@ -248,7 +188,7 @@ def add_flower_advanced():
     return redirect(url_for('show_flowers_advanced'))
 
 # Удаление цветка по ID
-@app.route('/lab2/flowers_advanced/delete/<int:flower_id>')
+@lab2.route('/lab2/flowers_advanced/delete/<int:flower_id>')
 def delete_flower_advanced(flower_id):
     global flowers_with_prices
     flower_to_delete = None
@@ -265,7 +205,7 @@ def delete_flower_advanced(flower_id):
         return "Цветок с таким ID не найден", 404
 
 # Удаление всех цветов
-@app.route('/lab2/flowers_advanced/clear')
+@lab2.route('/lab2/flowers_advanced/clear')
 def clear_flowers_advanced():
     global flowers_with_prices
     flowers_with_prices.clear()

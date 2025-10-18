@@ -2,9 +2,12 @@ from flask import Flask, url_for, request, redirect, abort, render_template
 import datetime
 from lab1 import lab1
 from lab2 import lab2
+from lab3 import lab3
 
 app = Flask(__name__)
 app.register_blueprint(lab1)
+app.register_blueprint(lab2)
+app.register_blueprint(lab3)
 
 access_log = []
 count = 0  
@@ -74,6 +77,9 @@ def not_found(err):
 @app.route("/index")
 def index():
     css_path = url_for("static", filename="lab1.css")
+    lab1_url = url_for('lab1.lab11')
+    lab2_url = url_for('lab2.lab22')
+    lab3_url = url_for('lab3.lab33')
     return f'''
     <!doctype html>
     <html>
@@ -91,8 +97,10 @@ def index():
                     <div class="labs-list">
                         <h2>Список лабораторных работ:</h2>
                         <ul>
-                            <li><a href="/lab1">Лабораторная работа 1</a></li>
-                            <li><a href="/lab2/">Лабораторная работа 2</a></li>
+                            <li><a href="''' + lab1_url + '''">Лабораторная работа 1</a></li>
+                            <li><a href="''' + lab2_url + '''">Лабораторная работа 2</a></li>
+                            <li><a href="''' + lab3_url + '''">Лабораторная работа 3</a></li>
+                            
                         </ul>
                     </div>
                 </main>
@@ -105,7 +113,6 @@ def index():
         </body>
     </html>
     '''
-
 
 @app.errorhandler(500)
 def internal_server_error(err):
@@ -160,7 +167,3 @@ def internal_server_error(err):
         </body>
     </html>
     ''', 500
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

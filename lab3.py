@@ -85,3 +85,44 @@ def delete_cookie():
     resp.set_cookie('age', '', expires=0)
     resp.set_cookie('name_color', '', expires=0)
     return resp
+
+@lab3.route('/lab3/settings')
+def settings():
+    color = request.args.get('color')
+    bg_color = request.args.get('bg_color')
+    font_size = request.args.get('font_size')
+    font_family = request.args.get('font_family')
+    
+    # Если есть новые настройки - устанавливаем куки и делаем редирект
+    if any([color, bg_color, font_size, font_family]):
+        resp = make_response(redirect('/lab3/settings'))
+        if color:
+            resp.set_cookie('color', color)
+        if bg_color:
+            resp.set_cookie('bg_color', bg_color)
+        if font_size:
+            resp.set_cookie('font_size', font_size)
+        if font_family:
+            resp.set_cookie('font_family', font_family)
+        return resp
+    
+    # Если новых настроек нет - показываем страницу с текущими настройками из куки
+    color = request.cookies.get('color')
+    bg_color = request.cookies.get('bg_color')
+    font_size = request.cookies.get('font_size')
+    font_family = request.cookies.get('font_family')
+    
+    return render_template('lab3/settings.html', 
+                         color=color, 
+                         bg_color=bg_color, 
+                         font_size=font_size, 
+                         font_family=font_family)
+
+@lab3.route('/lab3/delete_settings')
+def delete_settings():
+    resp = make_response(redirect('/lab3/settings'))
+    resp.set_cookie('color', '', expires=0)
+    resp.set_cookie('bg_color', '', expires=0)
+    resp.set_cookie('font_size', '', expires=0)
+    resp.set_cookie('font_family', '', expires=0)
+    return resp

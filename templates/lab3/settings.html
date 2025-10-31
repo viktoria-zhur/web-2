@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Настройки отображения</h1>
+    
+    <form>
+        <div>
+            <label for="color">Выберите цвет текста:</label>
+            <input type="color" id="color" name="color" value="{{ color or '#000000' }}">
+        </div>
+        
+        <div>
+            <label for="bg_color">Выберите цвет фона:</label>
+            <input type="color" id="bg_color" name="bg_color" value="{{ bg_color or '#ffffff' }}">
+        </div>
+        
+        <div>
+            <label for="font_size">Размер шрифта:</label>
+            <select id="font_size" name="font_size">
+                <option value="14px" {% if font_size == '14px' %}selected{% endif %}>Маленький</option>
+                <option value="16px" {% if font_size == '16px' %}selected{% endif %}>Средний</option>
+                <option value="18px" {% if font_size == '18px' %}selected{% endif %}>Большой</option>
+                <option value="20px" {% if font_size == '20px' %}selected{% endif %}>Очень большой</option>
+            </select>
+        </div>
+        
+        <div>
+            <label for="font_family">Шрифт:</label>
+            <select id="font_family" name="font_family">
+                <option value="Arial, sans-serif" {% if font_family == 'Arial, sans-serif' %}selected{% endif %}>Arial</option>
+                <option value="'Times New Roman', serif" {% if font_family == "'Times New Roman', serif" %}selected{% endif %}>Times New Roman</option>
+                <option value="'Courier New', monospace" {% if font_family == "'Courier New', monospace" %}selected{% endif %}>Courier New</option>
+                <option value="Verdana, sans-serif" {% if font_family == 'Verdana, sans-serif' %}selected{% endif %}>Verdana</option>
+            </select>
+        </div>
+        
+        <div>
+            <button type="submit">OK</button>
+        </div>
+    </form>
+
+    <div style="margin-top: 20px;">
+        <p>Текущие настройки:</p>
+        <ul>
+            <li>Цвет текста: <span style="color: {{ color or 'black' }}">{{ color or 'черный' }}</span></li>
+            <li>Цвет фона: <span style="background-color: {{ bg_color or 'white' }}; padding: 2px 5px;">{{ bg_color or 'белый' }}</span></li>
+            <li>Размер шрифта: {{ font_size or '16px' }}</li>
+            <li>Шрифт: {{ font_family or 'Arial' }}</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/lab3/delete_settings">Сбросить настройки</a>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/lab3/">Назад к лабораторной работе</a>
+    </div>
+{% endblock %}

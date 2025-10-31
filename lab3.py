@@ -198,3 +198,99 @@ def ticket():
         return render_template('lab3/ticket_result.html', **ticket_data)
     
     return render_template('lab3/ticket_form.html')
+
+    # Список игрушек
+toys = [
+    {'id': 1, 'name': 'Конструктор LEGO City', 'brand': 'LEGO', 'price': 2990, 'category': 'Конструктор', 'age': '6+'},
+    {'id': 2, 'name': 'Кукла Barbie', 'brand': 'Mattel', 'price': 1890, 'category': 'Кукла', 'age': '3+'},
+    {'id': 3, 'name': 'Машинка Hot Wheels', 'brand': 'Mattel', 'price': 390, 'category': 'Машинка', 'age': '3+'},
+    {'id': 4, 'name': 'Плюшевый мишка', 'brand': 'Aurora', 'price': 1290, 'category': 'Мягкая игрушка', 'age': '0+'},
+    {'id': 5, 'name': 'Набор доктора', 'brand': 'PlayGo', 'price': 1590, 'category': 'Ролевые игры', 'age': '3+'},
+    {'id': 6, 'name': 'Железная дорога', 'brand': 'Brio', 'price': 4590, 'category': 'Железная дорога', 'age': '3+'},
+    {'id': 7, 'name': 'Пазл 1000 элементов', 'brand': 'Ravensburger', 'price': 890, 'category': 'Пазл', 'age': '8+'},
+    {'id': 8, 'name': 'Набор для рисования', 'brand': 'Crayola', 'price': 1290, 'category': 'Творчество', 'age': '4+'},
+    {'id': 9, 'name': 'Интерактивный робот', 'brand': 'WowWee', 'price': 7990, 'category': 'Электронная игрушка', 'age': '6+'},
+    {'id': 10, 'name': 'Настольная игра "Монополия"', 'brand': 'Hasbro', 'price': 2490, 'category': 'Настольная игра', 'age': '8+'},
+    {'id': 11, 'name': 'Кукольный домик', 'brand': 'Sylvanian Families', 'price': 5990, 'category': 'Кукольный домик', 'age': '4+'},
+    {'id': 12, 'name': 'Воздушный змей', 'brand': 'Prism', 'price': 1490, 'category': 'Уличные игрушки', 'age': '5+'},
+    {'id': 13, 'name': 'Набор "Юный химик"', 'brand': 'Bondibon', 'price': 1890, 'category': 'Обучающие', 'age': '8+'},
+    {'id': 14, 'name': 'Радиоуправляемая машинка', 'brand': 'WLtoys', 'price': 3290, 'category': 'Радиоуправление', 'age': '6+'},
+    {'id': 15, 'name': 'Музыкальный инструмент', 'brand': 'Melissa & Doug', 'price': 2190, 'category': 'Музыкальные', 'age': '3+'},
+    {'id': 16, 'name': '3D-ручка', 'brand': 'MyRiwell', 'price': 2990, 'category': 'Творчество', 'age': '8+'},
+    {'id': 17, 'name': 'Набор "Фокусы"', 'brand': 'Bondibon', 'price': 990, 'category': 'Обучающие', 'age': '6+'},
+    {'id': 18, 'name': 'Спортивный набор', 'brand': 'Little Tikes', 'price': 3590, 'category': 'Спортивные', 'age': '3+'},
+    {'id': 19, 'name': 'Интерактивный питомец', 'brand': 'FurReal', 'price': 4590, 'category': 'Электронная игрушка', 'age': '4+'},
+    {'id': 20, 'name': 'Набор "Сделай слайм"', 'brand': 'Crayola', 'price': 790, 'category': 'Творчество', 'age': '6+'},
+    {'id': 21, 'name': 'Детский планшет', 'brand': 'VTech', 'price': 3990, 'category': 'Электронная игрушка', 'age': '3+'},
+    {'id': 22, 'name': 'Набор солдатиков', 'brand': 'Playmobil', 'price': 1590, 'category': 'Фигурки', 'age': '4+'},
+    {'id': 23, 'name': 'Мягкий конструктор', 'brand': 'Battat', 'price': 1190, 'category': 'Конструктор', 'age': '1+'},
+    {'id': 24, 'name': 'Набор для вышивания', 'brand': 'Rico', 'price': 690, 'category': 'Творчество', 'age': '7+'},
+    {'id': 25, 'name': 'Детский микроскоп', 'brand': 'National Geographic', 'price': 2890, 'category': 'Обучающие', 'age': '6+'}
+]
+
+@lab3.route('/lab3/toys')
+def toys_search():
+    # Получаем значения из куки
+    min_price_cookie = request.cookies.get('min_price', '')
+    max_price_cookie = request.cookies.get('max_price', '')
+    
+    # Получаем значения из формы (если есть)
+    min_price_form = request.args.get('min_price', '')
+    max_price_form = request.args.get('max_price', '')
+    
+    # Определяем приоритет: форма > куки
+    min_price = min_price_form if min_price_form != '' else min_price_cookie
+    max_price = max_price_form if max_price_form != '' else max_price_cookie
+    
+    # Обработка сброса
+    if request.args.get('reset'):
+        min_price = ''
+        max_price = ''
+    
+    # Фильтрация товаров
+    filtered_toys = toys.copy()
+    
+    if min_price or max_price:
+        try:
+            min_val = float(min_price) if min_price else 0
+            max_val = float(max_price) if max_price else float('inf')
+            
+            # Если пользователь перепутал min и max
+            if min_val > max_val:
+                min_val, max_val = max_val, min_val
+                min_price, max_price = str(min_val), str(max_val)
+            
+            filtered_toys = [toy for toy in toys if min_val <= toy['price'] <= max_val]
+            
+        except ValueError:
+            # Если введены некорректные значения
+            filtered_toys = toys
+    
+    # Рассчитываем мин и макс цены для плейсхолдеров
+    all_prices = [toy['price'] for toy in toys]
+    min_all_price = min(all_prices)
+    max_all_price = max(all_prices)
+    
+    response = make_response(render_template(
+        'lab3/toys.html',
+        toys=filtered_toys,
+        min_price=min_price,
+        max_price=max_price,
+        min_all_price=min_all_price,
+        max_all_price=max_all_price,
+        found_count=len(filtered_toys),
+        total_count=len(toys)
+    ))
+    
+    # Сохраняем в куки (если не сброс)
+    if not request.args.get('reset'):
+        if min_price:
+            response.set_cookie('min_price', min_price, max_age=30*24*60*60)
+        if max_price:
+            response.set_cookie('max_price', max_price, max_age=30*24*60*60)
+    else:
+        # Очищаем куки при сбросе
+        response.set_cookie('min_price', '', expires=0)
+        response.set_cookie('max_price', '', expires=0)
+    
+    return response

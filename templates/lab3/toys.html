@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск игрушек{% endblock %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h1>🎮 Поиск игрушек по цене</h1>
+    
+    <!-- Форма поиска -->
+    <div class="search-form">
+        <form method="GET">
+            <div class="price-inputs">
+                <div class="input-group">
+                    <label for="min_price">Минимальная цена (руб.):</label>
+                    <input type="number" id="min_price" name="min_price" 
+                           value="{{ min_price }}" 
+                           placeholder="{{ min_all_price }}"
+                           min="0" step="10">
+                </div>
+                
+                <div class="input-group">
+                    <label for="max_price">Максимальная цена (руб.):</label>
+                    <input type="number" id="max_price" name="max_price" 
+                           value="{{ max_price }}" 
+                           placeholder="{{ max_all_price }}"
+                           min="0" step="10">
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" name="search" class="btn btn-primary">🔍 Искать</button>
+                <button type="submit" name="reset" value="1" class="btn btn-secondary">🔄 Сброс</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats">
+        <p>
+            <strong>Найдено игрушек:</strong> {{ found_count }} из {{ total_count }}
+            {% if min_price or max_price %}
+                в диапазоне 
+                {% if min_price %}{{ min_price }}{% else %}0{% endif %} - 
+                {% if max_price %}{{ max_price }}{% else %}∞{% endif %} руб.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Результаты поиска -->
+    <div class="toys-results">
+        {% if toys %}
+            <div class="toys-grid">
+                {% for toy in toys %}
+                <div class="toy-card">
+                    <div class="toy-info">
+                        <h3>{{ toy.name }}</h3>
+                        <p class="toy-brand">{{ toy.brand }}</p>
+                        <p class="toy-category">Категория: {{ toy.category }}</p>
+                        <p class="toy-age">Возраст: {{ toy.age }}</p>
+                        <p class="toy-price">{{ toy.price }} руб.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results">
+                <h3>😔 Не найдено ни одной игрушки</h3>
+                <p>Попробуйте изменить диапазон цен</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="navigation">
+        <a href="/lab3/" class="btn">← Назад к лабораторной работе 3</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,29 +1,17 @@
-from flask import Blueprint, redirect, url_for, render_template
+from flask import Blueprint, redirect, url_for, render_template, request
+import datetime
+
 lab1 = Blueprint('lab1', __name__)
+count = 0
 
 @lab1.route('/lab1/error500')
 def cause_error():
     my_list = [1, 2, 3]
     return my_list[10]
 
-
-@lab1.route('/lab1/divide_zero')
-def divide_zero():
-    result = 10 / 0
-    return f"Результат: {result}"
-
-
-@lab1.route('/lab1/type_mismatch')
-def type_mismatch():
-    text = "Текст: "
-    number = 42
-    return text + number
-
-
 @lab1.route("/lab1")
 def lab11():
-    css_path = url_for("static", filename="lab1.css")
-    web_url = url_for('lab1.web')
+    css_path = url_for("static", filename="lab1/lab1.css")
     return f'''
     <!doctype html>
     <html>
@@ -53,20 +41,16 @@ def lab11():
                     <h3>Основные роуты:</h3>
                     <ul>
                         <li><a href="/">Главная страница</a></li>
-                        <li><a href="/index">Главная (альтернативная)</a></li>
                         <li><a href="/lab1">Лабораторная работа 1</a></li>
                         <li><a href="/lab1/web">WEB-сервер на Flask</a></li>
                         <li><a href="/lab1/author">Об авторе</a></li>
                         <li><a href="/lab1/image">Изображение</a></li>
                         <li><a href="/lab1/counter">Счётчик посещений</a></li>
                         <li><a href="/lab1/reset_counter">Сброс счётчика</a></li>
-                        <li><a href="/lab1/info">Информация (редирект)</a></li>
                     </ul>
                     <h3>Тестирование ошибок:</h3>
                     <ul>
                         <li><a href="/lab1/error500">Ошибка 500 (IndexError)</a></li>
-                        <li><a href="/lab1/divide_zero">Ошибка 500 (ZeroDivision)</a></li>
-                        <li><a href="/lab1/type_mismatch">Ошибка 500 (TypeError)</a></li>
                         <li><a href="/400">Ошибка 400</a></li>
                         <li><a href="/401">Ошибка 401</a></li>
                         <li><a href="/402">Ошибка 402</a></li>
@@ -91,10 +75,9 @@ def lab11():
     </html>
     '''
 
-
 @lab1.route("/lab1/web")
-def start():
-    css_path = url_for("static", filename="lab1.css")
+def web():
+    css_path = url_for("static", filename="lab1/lab1.css")
     return f"""<!doctype html>
         <html>
             <head>
@@ -113,10 +96,9 @@ def start():
         'Content-Type': 'text/html; charset=utf-8'
     }
 
-
 @lab1.route("/lab1/author")
 def author():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
     name = "Журавлева Виктория Александровна"
     group = "ФБИ-34"
     faculty = "ФБ"
@@ -140,11 +122,10 @@ def author():
             </body>
         </html>"""
 
-
 @lab1.route('/lab1/image')
 def image():
-    image_path = url_for("static", filename="a.png")
-    css_path = url_for("static", filename="lab1.css")
+    image_path = url_for("static", filename="lab1/a.png")
+    css_path = url_for("static", filename="lab1/lab1.css")
     html_content = f'''
     <!doctype html>
     <html lang="ru">
@@ -161,7 +142,7 @@ def image():
         <div class="corner-heart">💞</div>
         <div class="container">
             <h1>💖 Toyota Supra 💖</h1>
-            <div class="image-wrlab1er">
+            <div class="image-wrapper">
                 <img src="{image_path}"
                      alt="Toyota Supra JZA80"
                      class="styled-image">
@@ -180,10 +161,9 @@ def image():
         'X-Lab-Number': '1'
     }
 
-
 @lab1.route('/lab1/counter')
 def counter():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
     global count
     count += 1
     time = datetime.datetime.today()
@@ -213,10 +193,9 @@ def counter():
         </html>
         '''
 
-
 @lab1.route('/lab1/reset_counter')
 def reset_counter():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
     global count
     count = 0
     return f'''
@@ -240,15 +219,9 @@ def reset_counter():
     </html>
     '''
 
-
-@lab1.route("/lab1/info")
-def info():
-    return redirect("/lab1/author")
-
-
 @lab1.route("/created")
 def created():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -266,10 +239,10 @@ def created():
     </body>
 </html>''', 201
 
-
 @lab1.route('/400')
 def bad_request():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -279,6 +252,7 @@ def bad_request():
             <h1>400 Bad Request</h1>
             <div class="info-box">
                 <p>Сервер не может обработать запрос из-за неверного синтаксиса.</p>
+                <img src="{image_path}" alt="400 Error" style="max-width: 300px;">
             </div>
             <div class="text-center">
                 <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
@@ -287,10 +261,10 @@ def bad_request():
     </body>
 </html>''', 400
 
-
 @lab1.route('/401')
 def unauthorized():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -300,6 +274,7 @@ def unauthorized():
             <h1>401 Unauthorized</h1>
             <div class="info-box">
                 <p>Требуется аутентификация для доступа к ресурсу.</p>
+                <img src="{image_path}" alt="401 Error" style="max-width: 300px;">
             </div>
             <div class="text-center">
                 <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
@@ -308,10 +283,10 @@ def unauthorized():
     </body>
 </html>''', 401
 
-
 @lab1.route('/402')
 def payment_required():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -321,6 +296,7 @@ def payment_required():
             <h1>402 Payment Required</h1>
             <div class="info-box">
                 <p>Требуется оплата для доступа к ресурсу.</p>
+                <img src="{image_path}" alt="402 Error" style="max-width: 300px;">
             </div>
             <div class="text-center">
                 <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
@@ -329,10 +305,10 @@ def payment_required():
     </body>
 </html>''', 402
 
-
 @lab1.route('/403')
 def forbidden():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -342,6 +318,7 @@ def forbidden():
             <h1>403 Forbidden</h1>
             <div class="info-box">
                 <p>Доступ к запрошенному ресурсу запрещен.</p>
+                <img src="{image_path}" alt="403 Error" style="max-width: 300px;">
             </div>
             <div class="text-center">
                 <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
@@ -350,10 +327,10 @@ def forbidden():
     </body>
 </html>''', 403
 
-
 @lab1.route('/405')
 def method_not_allowed():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -363,6 +340,7 @@ def method_not_allowed():
             <h1>405 Method Not Allowed</h1>
             <div class="info-box">
                 <p>Метод запроса не поддерживается для данного ресурса.</p>
+                <img src="{image_path}" alt="405 Error" style="max-width: 300px;">
             </div>
             <div class="text-center">
                 <a href="/" class="btn btn-small">🏠 Вернуться на главную</a>
@@ -371,10 +349,10 @@ def method_not_allowed():
     </body>
 </html>''', 405
 
-
 @lab1.route('/418')
 def teapot():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
     return f'''<!doctype html><html>
     <head>
         <link rel="stylesheet" href="{css_path}">
@@ -385,6 +363,7 @@ def teapot():
             <div class="info-box">
                 <p>Я - чайник. Не могу заварить кофе. ☕→❌</p>
                 <p>Но могу предложить вам чай! :)→✅</p>
+                <img src="{image_path}" alt="418 Error" style="max-width: 300px;">
             </div>
             <div class="big-emoji">💖</div>
             <div class="text-center">

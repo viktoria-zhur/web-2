@@ -14,8 +14,9 @@ count = 0
 
 @app.errorhandler(404)
 def not_found(err):
-    css_path = url_for("static", filename="lab1.css")
-    image_path = url_for("static", filename="404_image.png")
+    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
+    image_path = url_for("static", filename="lab1/404_image.png")  # Изменено
+    favicon_path = url_for("static", filename="lab1/favicon.ico")  # Добавлено
     
     client_ip = request.remote_addr
     access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -31,7 +32,7 @@ def not_found(err):
     <!doctype html>
     <html>
         <head>
-            <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}"> 
+            <link rel="icon" type="image/x-icon" href="{favicon_path}"> 
             <title>Страница не найдена</title>
             <link rel="stylesheet" href="{css_path}">
         </head>
@@ -76,7 +77,7 @@ def not_found(err):
 @app.route("/")
 @app.route("/index")
 def index():
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
     lab1_url = url_for('lab1.lab11')
     lab2_url = url_for('lab2.lab22')
     lab3_url = url_for('lab3.lab')
@@ -86,6 +87,7 @@ def index():
         <head>
             <title>НГТУ, ФБ, Лабораторные работы</title>
             <link rel="stylesheet" href="{css_path}">
+            <link rel="icon" href="{{%20url_for('static',%20filename='lab1/favicon.ico')%20}}">
         </head>
         <body>
             <div class="container">
@@ -116,7 +118,7 @@ def index():
 
 @app.errorhandler(500)
 def internal_server_error(err):
-    css_path = url_for("static", filename="lab1.css")
+    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
     return f'''
     <!doctype html>
     <html>

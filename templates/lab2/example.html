@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if name %}
+        {{ name }} - 
+    {% endif %}
+    Лабораторная работа 
+    {% if lab_num %}
+        {{ lab_num }}
+    {% endif %}
+{% endblock %}
+
+{% block lab %}
+    Лабораторная работа 
+    {% if lab_num %}
+        {{ lab_num }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h2>Информация о студенте:</h2>
+    <p>
+        <strong>Имя:</strong> 
+        {% if name %}
+            {{ name }}
+        {% else %}
+            Анонимус
+        {% endif %}
+    </p>
+    <p>
+        <strong>Группа:</strong> 
+        {% if group %}
+            {{ group }}
+        {% else %}
+            Потеряшка
+        {% endif %}
+    </p>
+    <p>
+        <strong>Курс:</strong> 
+        {% if course %}
+            {{ course }}
+        {% else %}
+            Не дожил до 3 курса
+        {% endif %}
+    </p>
+
+    <h2>Список фруктов:</h2>
+    
+    <ul>
+        {% for fruit in fruits %}
+        <li>{{ loop.index }} - {{ fruit.name }}: {{fruit.price}} &#x20bd;</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

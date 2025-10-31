@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, url_for, render_template
+from flask import Blueprint, redirect, url_for, render_template, request
+
 lab2 = Blueprint('lab2', __name__)
 
 @lab2.route('/lab2/a/')
@@ -11,14 +12,14 @@ def a_without_slash():
 
 @lab2.route('/lab2/flowers')
 def show_flowers():
-    return render_template('flowers_management.html', flower_list=flower_list)
+    return render_template('lab2/flowers_management.html', flower_list=flower_list)
 
 @lab2.route('/lab2/flowers/<int:flower_id>')
 def show_flower(flower_id):
     if flower_id < 0 or flower_id >= len(flower_list):
         return "Цветок с таким ID не найден", 404
     
-    return render_template('flower_detail.html', 
+    return render_template('lab2/flower_detail.html', 
                          flower=flower_list[flower_id], 
                          flower_id=flower_id,
                          total_count=len(flower_list))
@@ -28,24 +29,25 @@ flower_list = ['роза', 'тюльпан', 'незабудка', 'ромашк
 @lab2.route('/lab2/flowers/clear')
 def clear_flowers():
     flower_list.clear()
-    return render_template('flowers_management.html', flower_list=flower_list)
+    return render_template('lab2/flowers_management.html', flower_list=flower_list)
 
 @lab2.route('/lab2/add_flower/', methods=['GET', 'POST'])
 def add_flower_form():
     if request.method == 'POST':
         name = request.form.get('flower_name')
         if name:
-            flower_list.lab2end(name)
+            flower_list.append(name)
             return redirect('/lab2/flowers')
         else:
             return "вы не задали имя цветка", 400
     
-    return '''
+    css_path = url_for("static", filename="lab1/lab1.css")
+    return f'''
     <!doctype html>
     <html>
         <head>
             <title>Добавить цветок</title>
-            <link rel="stylesheet" href="/static/lab1.css">
+            <link rel="stylesheet" href="{css_path}">
         </head>
         <body>
             <h1>Добавить новый цветок</h1>
@@ -69,18 +71,18 @@ def example_lab2():
         {'name':'мандарины', 'price': 95},
         {'name':'манго', 'price': 321}
     ]    
-    return render_template('example.html',
+    return render_template('lab2/example.html',
                             name=name, lab_num=lab_num, group=group,
                             course=course, fruits=fruits)
 
 @lab2.route('/lab2/')
 def lab22():
-    return render_template('lab2.html')
+    return render_template('lab2/lab2.html')
 
 @lab2.route('/lab2/filters')
 def filters():
     phrase = "0 <b>сколько</b> <u>нам</u> <i>открытий</i> чудных..."
-    return render_template('filter.html', phrase = phrase)
+    return render_template('lab2/filter.html', phrase = phrase)
 
 @lab2.route('/lab2/calc/<int:a>/<int:b>')
 def calc(a, b):
@@ -92,7 +94,7 @@ def calc(a, b):
         {'symbol': '^', 'result': a ** b, 'name': 'Степень'}
     ]
     
-    return render_template('calc.html', a=a, b=b, operations=operations)
+    return render_template('lab2/calc.html', a=a, b=b, operations=operations)
 
 # Пересылка с /lab2/calc/ на /lab2/calc/1/1
 @lab2.route('/lab2/calc/')
@@ -122,40 +124,40 @@ books = [
 
 @lab2.route('/lab2/books')
 def show_books():
-    return render_template('books.html', books=books)
+    return render_template('lab2/books.html', books=books)
 
 # Список легендарных машин мира
 legendary_cars = [
-    {'name': 'Ford Mustang 1965', 'image': 'Ford Mustang 1965.png', 'description': 'Американский мускул-кар, икона 60-х годов'},
-    {'name': 'Chevrolet Corvette Stingray', 'image': 'Chevrolet Corvette Stingray.jpg', 'description': 'Легендарный спорткар с уникальным дизайном'},
-    {'name': 'Porsche 911', 'image': 'Porsche 911.jpg', 'description': 'Немецкий спорткар с заднемоторной компоновкой'},
-    {'name': 'Ferrari F40', 'image': 'Ferrari F40.jpg', 'description': 'Последний Ferrari, одобренный Энцо Феррари'},
-    {'name': 'Lamborghini Countach', 'image': 'Lamborghini Countach.png', 'description': 'Суперкар с клиновидным дизайном 70-х'},
-    {'name': 'BMW M3 E30', 'image': 'BMW M3 E30.jpg', 'description': 'Первое поколение культового спортивного седана'},
-    {'name': 'Mercedes-Benz 300SL', 'image': 'Mercedes-Benz 300SL.png', 'description': 'Знаменит дверями "крыло чайки"'},
-    {'name': 'Audi Quattro', 'image': 'Audi Quattro.jpg', 'description': 'Пионер полного привода в ралли'},
-    {'name': 'Toyota Supra MK4', 'image': 'Toyota Supra MK4.jpg', 'description': 'Японская легенда с двигателем 2JZ'},
-    {'name': 'Nissan Skyline GT-R R34', 'image': 'Nissan Skyline GT-R R34.jpg', 'description': 'Легенда японского автопрома'},
-    {'name': 'Mazda RX-7 FD', 'image': 'Mazda RX-7 FD.jpg', 'description': 'Спорткар с роторным двигателем'},
-    {'name': 'Subaru Impreza WRX STI', 'image': 'Subaru Impreza WRX STI.jpg', 'description': 'Раллийная легенда с симметричным полным приводом'},
-    {'name': 'Mitsubishi Lancer Evolution', 'image': 'Mitsubishi Lancer Evolution.jpg', 'description': 'Соперник Subaru в мировом ралли'},
-    {'name': 'Volkswagen Golf GTI', 'image': 'Volkswagen Golf GTI.jpg', 'description': 'Родоначальник хот-хэтчей'},
-    {'name': 'Ford GT40', 'image': 'Ford GT40.jpg', 'description': 'Победитель Ле-Мана, созданный чтобы победить Ferrari'},
-    {'name': 'Jaguar E-Type', 'image': 'Jaguar E-Type.jpg', 'description': 'Был назван самой красивой машиной Энцо Феррари'},
-    {'name': 'Aston Martin DB5', 'image': 'Aston Martin DB5.jpg', 'description': 'Автомобиль Джеймса Бонда'},
-    {'name': 'DeLorean DMC-12', 'image': 'DeLorean DMC-12.jpg', 'description': 'Знаменит дверями-крыльями и появлением в "Назад в будущее"'},
-    {'name': 'Dodge Charger', 'image': 'Dodge Charger.jpg', 'description': 'Американский мускул-кар из фильмов'},
-    {'name': 'Shelby Cobra', 'image': 'Shelby Cobra.jpg', 'description': 'Американский V8 в британском кузове'},
-    {'name': 'Bugatti Veyron', 'image': 'Bugatti Veyron.jpg', 'description': 'Первый суперкар мощностью 1000 л.с.'},
-    {'name': 'McLaren F1', 'image': 'McLaren F1.jpg', 'description': 'Легендарный гиперкар с центральным расположением водителя'},
-    {'name': 'Ferrari Testarossa', 'image': 'Ferrari Testarossa.png', 'description': 'Икона 80-х с характерными воздухозаборниками'}
+    {'name': 'Ford Mustang 1965', 'image': 'lab2/Ford Mustang 1965.png', 'description': 'Американский мускул-кар, икона 60-х годов'},
+    {'name': 'Chevrolet Corvette Stingray', 'image': 'lab2/Chevrolet Corvette Stingray.jpg', 'description': 'Легендарный спорткар с уникальным дизайном'},
+    {'name': 'Porsche 911', 'image': 'lab2/Porsche 911.jpg', 'description': 'Немецкий спорткар с заднемоторной компоновкой'},
+    {'name': 'Ferrari F40', 'image': 'lab2/Ferrari F40.jpg', 'description': 'Последний Ferrari, одобренный Энцо Феррари'},
+    {'name': 'Lamborghini Countach', 'image': 'lab2/Lamborghini Countach.png', 'description': 'Суперкар с клиновидным дизайном 70-х'},
+    {'name': 'BMW M3 E30', 'image': 'lab2/BMW M3 E30.jpg', 'description': 'Первое поколение культового спортивного седана'},
+    {'name': 'Mercedes-Benz 300SL', 'image': 'lab2/Mercedes-Benz 300SL.png', 'description': 'Знаменит дверями "крыло чайки"'},
+    {'name': 'Audi Quattro', 'image': 'lab2/Audi Quattro.jpg', 'description': 'Пионер полного привода в ралли'},
+    {'name': 'Toyota Supra MK4', 'image': 'lab2/Toyota Supra MK4.jpg', 'description': 'Японская легенда с двигателем 2JZ'},
+    {'name': 'Nissan Skyline GT-R R34', 'image': 'lab2/Nissan Skyline GT-R R34.jpg', 'description': 'Легенда японского автопрома'},
+    {'name': 'Mazda RX-7 FD', 'image': 'lab2/Mazda RX-7 FD.jpg', 'description': 'Спорткар с роторным двигателем'},
+    {'name': 'Subaru Impreza WRX STI', 'image': 'lab2/Subaru Impreza WRX STI.jpg', 'description': 'Раллийная легенда с симметричным полным приводом'},
+    {'name': 'Mitsubishi Lancer Evolution', 'image': 'lab2/Mitsubishi Lancer Evolution.jpg', 'description': 'Соперник Subaru в мировом ралли'},
+    {'name': 'Volkswagen Golf GTI', 'image': 'lab2/Volkswagen Golf GTI.jpg', 'description': 'Родоначальник хот-хэтчей'},
+    {'name': 'Ford GT40', 'image': 'lab2/Ford GT40.jpg', 'description': 'Победитель Ле-Мана, созданный чтобы победить Ferrari'},
+    {'name': 'Jaguar E-Type', 'image': 'lab2/Jaguar E-Type.jpg', 'description': 'Был назван самой красивой машиной Энцо Феррари'},
+    {'name': 'Aston Martin DB5', 'image': 'lab2/Aston Martin DB5.jpg', 'description': 'Автомобиль Джеймса Бонда'},
+    {'name': 'DeLorean DMC-12', 'image': 'lab2/DeLorean DMC-12.jpg', 'description': 'Знаменит дверями-крыльями и появлением в "Назад в будущее"'},
+    {'name': 'Dodge Charger', 'image': 'lab2/Dodge Charger.jpg', 'description': 'Американский мускул-кар из фильмов'},
+    {'name': 'Shelby Cobra', 'image': 'lab2/Shelby Cobra.jpg', 'description': 'Американский V8 в британском кузове'},
+    {'name': 'Bugatti Veyron', 'image': 'lab2/Bugatti Veyron.jpg', 'description': 'Первый суперкар мощностью 1000 л.с.'},
+    {'name': 'McLaren F1', 'image': 'lab2/McLaren F1.jpg', 'description': 'Легендарный гиперкар с центральным расположением водителя'},
+    {'name': 'Ferrari Testarossa', 'image': 'lab2/Ferrari Testarossa.png', 'description': 'Икона 80-х с характерными воздухозаборниками'}
 ]
 
 @lab2.route('/lab2/cars')
 def show_cars():
-    return render_template('cars.html', cars=legendary_cars)
+    return render_template('lab2/cars.html', cars=legendary_cars)
     
-    # Новые улучшенные обработчики с ценами
+# Новые улучшенные обработчики с ценами
 flowers_with_prices = [
     {'id': 0, 'name': 'роза', 'price': 150},
     {'id': 1, 'name': 'тюльпан', 'price': 80},
@@ -167,7 +169,7 @@ flowers_with_prices = [
 @lab2.route('/lab2/flowers_advanced')
 def show_flowers_advanced():
     total_price = sum(flower['price'] for flower in flowers_with_prices)
-    return render_template('flowers_advanced.html', 
+    return render_template('lab2/flowers_advanced.html', 
                          flowers=flowers_with_prices, 
                          total_price=total_price)
 
@@ -179,13 +181,13 @@ def add_flower_advanced():
     
     if name and price:
         new_id = max([flower['id'] for flower in flowers_with_prices], default=-1) + 1
-        flowers_with_prices.lab2end({
+        flowers_with_prices.append({
             'id': new_id,
             'name': name,
             'price': int(price)
         })
     
-    return redirect(url_for('show_flowers_advanced'))
+    return redirect(url_for('lab2.show_flowers_advanced'))
 
 # Удаление цветка по ID
 @lab2.route('/lab2/flowers_advanced/delete/<int:flower_id>')
@@ -200,7 +202,7 @@ def delete_flower_advanced(flower_id):
     
     if flower_to_delete:
         flowers_with_prices = [flower for flower in flowers_with_prices if flower['id'] != flower_id]
-        return redirect(url_for('show_flowers_advanced'))
+        return redirect(url_for('lab2.show_flowers_advanced'))
     else:
         return "Цветок с таким ID не найден", 404
 
@@ -209,4 +211,4 @@ def delete_flower_advanced(flower_id):
 def clear_flowers_advanced():
     global flowers_with_prices
     flowers_with_prices.clear()
-    return redirect(url_for('show_flowers_advanced'))
+    return redirect(url_for('lab2.show_flowers_advanced'))

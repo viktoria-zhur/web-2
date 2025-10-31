@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Железнодорожный билет{% endblock %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h1>🚂 Железнодорожный билет</h1>
+    
+    {% if errors %}
+    <div class="error-box">
+        <h3>Ошибки в форме:</h3>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <form method="POST" class="ticket-form">
+        <div class="form-group">
+            <label for="fio">ФИО пассажира:</label>
+            <input type="text" id="fio" name="fio" required value="{{ request.form.fio if request.form }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="shelf">Полка:</label>
+            <select id="shelf" name="shelf" required>
+                <option value="">-- Выберите полку --</option>
+                <option value="нижняя">Нижняя</option>
+                <option value="верхняя">Верхняя</option>
+                <option value="верхняя боковая">Верхняя боковая</option>
+                <option value="нижняя боковая">Нижняя боковая</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>С бельём:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="linen" value="да" required> Да</label>
+                <label><input type="radio" name="linen" value="нет"> Нет</label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>С багажом:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="baggage" value="да" required> Да</label>
+                <label><input type="radio" name="baggage" value="нет"> Нет</label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="age">Возраст:</label>
+            <input type="number" id="age" name="age" min="1" max="120" required value="{{ request.form.age if request.form }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="departure">Пункт выезда:</label>
+            <input type="text" id="departure" name="departure" required value="{{ request.form.departure if request.form }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="destination">Пункт назначения:</label>
+            <input type="text" id="destination" name="destination" required value="{{ request.form.destination if request.form }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="date">Дата поездки:</label>
+            <input type="date" id="date" name="date" required value="{{ request.form.date if request.form }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Страховка:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="insurance" value="да" required> Да</label>
+                <label><input type="radio" name="insurance" value="нет"> Нет</label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn">🎫 Оформить билет</button>
+    </form>
+    
+    <div class="navigation">
+        <a href="/lab3/" class="btn">← Назад к лабораторной работе 2</a>
+    </div>
+</div>
+{% endblock %}

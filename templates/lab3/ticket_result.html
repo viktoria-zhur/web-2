@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Железнодорожный билет - Результат{% endblock %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+<div class="container">
+    <h1>🎫 Ваш железнодорожный билет</h1>
+    
+    <div class="ticket">
+        <div class="ticket-header">
+            <h2>Железнодорожный билет</h2>
+            {% if is_child %}
+            <div class="child-ticket">Детский билет</div>
+            {% endif %}
+        </div>
+        
+        <div class="ticket-info">
+            <div class="ticket-row">
+                <span class="label">Пассажир:</span>
+                <span class="value">{{ fio }}</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Возраст:</span>
+                <span class="value">{{ age }} лет</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Маршрут:</span>
+                <span class="value">{{ departure }} → {{ destination }}</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Дата поездки:</span>
+                <span class="value">{{ date }}</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Место:</span>
+                <span class="value">{{ shelf }} полка</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Бельё:</span>
+                <span class="value">{{ 'Да' if linen == 'да' else 'Нет' }}</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Багаж:</span>
+                <span class="value">{{ 'Да' if baggage == 'да' else 'Нет' }}</span>
+            </div>
+            
+            <div class="ticket-row">
+                <span class="label">Страховка:</span>
+                <span class="value">{{ 'Да' if insurance == 'да' else 'Нет' }}</span>
+            </div>
+            
+            <div class="ticket-row total">
+                <span class="label">Итого к оплате:</span>
+                <span class="value">{{ total_price }} руб.</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="navigation">
+        <a href="/lab3/ticket" class="btn">🔄 Оформить новый билет</a>
+        <a href="/lab3/" class="btn">← Назад к лабораторной работе 2</a>
+    </div>
+</div>
+{% endblock %}

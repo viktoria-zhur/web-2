@@ -126,3 +126,75 @@ def delete_settings():
     resp.set_cookie('font_size', '', expires=0)
     resp.set_cookie('font_family', '', expires=0)
     return resp
+
+@lab3.route('/lab3/ticket', methods=['GET', 'POST'])
+def ticket():
+    if request.method == 'POST':
+        # Получаем данные из формы
+        fio = request.form.get('fio')
+        shelf = request.form.get('shelf')
+        linen = request.form.get('linen')
+        baggage = request.form.get('baggage')
+        age = request.form.get('age')
+        departure = request.form.get('departure')
+        destination = request.form.get('destination')
+        date = request.form.get('date')
+        insurance = request.form.get('insurance')
+        
+        # Проверка на пустые поля
+        errors = []
+        if not fio: errors.append("ФИО пассажира обязательно")
+        if not shelf: errors.append("Выберите полку")
+        if not linen: errors.append("Укажите наличие белья")
+        if not baggage: errors.append("Укажите наличие багажа")
+        if not age: errors.append("Возраст обязателен")
+        if not departure: errors.append("Пункт выезда обязателен")
+        if not destination: errors.append("Пункт назначения обязателен")
+        if not date: errors.append("Дата поездки обязательна")
+        if not insurance: errors.append("Укажите наличие страховки")
+        
+        # Проверка возраста
+        if age:
+            try:
+                age_int = int(age)
+                if age_int < 1 or age_int > 120:
+                    errors.append("Возраст должен быть от 1 до 120 лет")
+            except ValueError:
+                errors.append("Возраст должен быть числом")
+        
+        if errors:
+            return render_template('lab2/ticket_form.html', errors=errors)
+        
+        # Расчет стоимости
+        age_int = int(age)
+        base_price = 700 if age_int < 18 else 1000
+        total_price = base_price
+        
+        # Доплаты
+        if shelf in ['нижняя', 'нижняя боковая']:
+            total_price += 100
+        if linen == 'да':
+            total_price += 75
+        if baggage == 'да':
+            total_price += 250
+        if insurance == 'да':
+            total_price += 150
+        
+        # Формируем данные билета
+        ticket_data = {
+            'fio': fio,
+            'shelf': shelf,
+            'linen': linen,
+            'baggage': baggage,
+            'age': age_int,
+            'departure': departure,
+            'destination': destination,
+            'date': date,
+            'insurance': insurance,
+            'total_price': total_price,
+            'is_child': age_int < 18
+        }
+        
+        return render_template('lab3/ticket_result.html', **ticket_data)
+    
+    return render_template('lab3/ticket_form.html')

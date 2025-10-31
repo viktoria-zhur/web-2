@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='lab1.css') }}">
+{% endblock %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Заказ напитка</h1>
+    
+    <form action="/lab3/success" method="get" class="order-form">
+        <div class="section">
+            <h3>🎵 Напитки:</h3>
+            <div class="options">
+                <label class="option">
+                    <input type="radio" value="cofee" name="drink" checked>
+                    <span class="option-text">Кофе <span class="price">120 руб.</span></span>
+                </label>
+                <label class="option">
+                    <input type="radio" value="black-tea" name="drink">
+                    <span class="option-text">Чёрный чай <span class="price">80 руб.</span></span>
+                </label>
+                <label class="option">
+                    <input type="radio" value="green-tea" name="drink">
+                    <span class="option-text">Зелёный чай <span class="price">70 руб.</span></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>✨ Добавки:</h3>
+            <div class="options">
+                <label class="option">
+                    <input type="checkbox" name="milk" value="on">
+                    <span class="option-text">Молоко <span class="price">+30 руб.</span></span>
+                </label>
+                <label class="option">
+                    <input type="checkbox" name="sugar" value="on">
+                    <span class="option-text">Сахар <span class="price">+10 руб.</span></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="submit-section">
+            <button type="submit" class="submit-btn">💳 Оплатить заказ</button>
+        </div>
+    </form>
+{% endblock %}

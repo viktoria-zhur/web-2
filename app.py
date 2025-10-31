@@ -79,7 +79,7 @@ def index():
     css_path = url_for("static", filename="lab1.css")
     lab1_url = url_for('lab1.lab11')
     lab2_url = url_for('lab2.lab22')
-    lab3_url = url_for('lab3.lab33')
+    lab3_url = url_for('lab3.lab')
     return f'''
     <!doctype html>
     <html>

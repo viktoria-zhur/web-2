@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 3{% endblock %}
+
+{% block main %}
+    <h1>Работа с cookie</h1>
+    
+    {% if name or age %}
+    <div class="result">
+        <h2>Установленные данные:</h2>
+        <p>Привет, <span style="color: {% if name %}magenta{% else %}black{% endif %}">
+            {{ name or 'Незнакомец' }}
+        </span>!
+        {% if age %}
+            <span> ({{ age }} лет)</span>
+        {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <div>
+        <h2>Установить cookie:</h2>
+        <form action="/lab3/set_cookie">
+            <div>
+                <label>Имя:</label>
+                <input type="text" name="name" value="{{ name or '' }}">
+            </div>
+            <div>
+                <label>Возраст:</label>
+                <input type="number" name="age" value="{{ age or '' }}">
+            </div>
+            <div>
+                <button type="submit">Установить</button>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <a href="/lab3/delete_cookie">Удалить все cookie</a>
+    </div>
+
+    <div>
+        <a href="/lab3/">Назад к лабораторной работе</a>
+    </div>
+{% endblock %}

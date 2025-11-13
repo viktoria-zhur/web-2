@@ -16,9 +16,9 @@ count = 0
 
 @app.errorhandler(404)
 def not_found(err):
-    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
-    image_path = url_for("static", filename="lab1/404_image.png")  # Изменено
-    favicon_path = url_for("static", filename="lab1/favicon.ico")  # Добавлено
+    css_path = url_for("static", filename="lab1/lab1.css")
+    image_path = url_for("static", filename="lab1/404_image.png")
+    favicon_path = url_for("static", filename="lab1/favicon.ico")
     
     client_ip = request.remote_addr
     access_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -79,18 +79,20 @@ def not_found(err):
 @app.route("/")
 @app.route("/index")
 def index():
-    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
+    css_path = url_for("static", filename="lab1/lab1.css")
+    favicon_path = url_for("static", filename="lab1/favicon.ico")
     lab1_url = url_for('lab1.lab11')
     lab2_url = url_for('lab2.lab22')
     lab3_url = url_for('lab3.lab')
-    lab3_url = url_for('lab4.lab')
+    lab4_url = url_for('lab4.lab')
+
     return f'''
     <!doctype html>
     <html>
         <head>
             <title>НГТУ, ФБ, Лабораторные работы</title>
             <link rel="stylesheet" href="{css_path}">
-            <link rel="icon" href="{{%20url_for('static',%20filename='lab1/favicon.ico')%20}}">
+            <link rel="icon" href="{favicon_path}">
         </head>
         <body>
             <div class="container">
@@ -102,11 +104,10 @@ def index():
                     <div class="labs-list">
                         <h2>Список лабораторных работ:</h2>
                         <ul>
-                            <li><a href="''' + lab1_url + '''">Лабораторная работа 1</a></li>
-                            <li><a href="''' + lab2_url + '''">Лабораторная работа 2</a></li>
-                            <li><a href="''' + lab3_url + '''">Лабораторная работа 3</a></li>
-                            <li><a href="''' + lab4_url + '''">Лабораторная работа 4</a></li>
-                            
+                            <li><a href="{lab1_url}">Лабораторная работа 1</a></li>
+                            <li><a href="{lab2_url}">Лабораторная работа 2</a></li>
+                            <li><a href="{lab3_url}">Лабораторная работа 3</a></li>
+                            <li><a href="{lab4_url}">Лабораторная работа 4</a></li>  
                         </ul>
                     </div>
                 </main>
@@ -122,7 +123,7 @@ def index():
 
 @app.errorhandler(500)
 def internal_server_error(err):
-    css_path = url_for("static", filename="lab1/lab1.css")  # Изменено
+    css_path = url_for("static", filename="lab1/lab1.css")
     return f'''
     <!doctype html>
     <html>

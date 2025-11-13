@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block lab %}Результат вычисления{% endblock %}
+
+{% block main %}
+    <h1>Результат вычисления</h1>
+    
+    {% if error %}
+        <div style="color: red; font-weight: bold;">{{ error }}</div>
+    {% else %}
+        <div>
+            {% if operation == '+' %}
+                {{ x1 }} + {{ x2 }} = {{ result }}
+            {% elif operation == '-' %}
+                {{ x1 }} - {{ x2 }} = {{ result }}
+            {% elif operation == '*' %}
+                {{ x1 }} × {{ x2 }} = {{ result }}
+            {% elif operation == '/' %}
+                {{ x1 }} / {{ x2 }} = {{ result }}
+            {% elif operation == '**' %}
+                {{ x1 }} <sup>{{ x2 }}</sup> = {{ result }}
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 20px;">
+        <a href="/lab4/">Вернуться к списку операций</a>
+    </div>
+{% endblock %}

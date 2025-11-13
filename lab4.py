@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 
-lab4 = Blueprint('lab4', __name__)
+lab4 = Blueprint('lab4', __pyname__)
 
 @lab4.route('/lab4/')
 def lab():
@@ -15,7 +15,6 @@ def div():
     x1 = request.form.get('x1')
     x2 = request.form.get('x2')
     
-    # Валидация - проверка на пустые поля
     if x1 == '' or x2 == '':
         return render_template('lab4/div.html', error='Оба поля должны быть заполнены!')
     
@@ -25,9 +24,9 @@ def div():
     except ValueError:
         return render_template('lab4/div.html', error='Введите корректные целые числа!')
     
-    # Проверка деления на ноль
     if x2 == 0:
         return render_template('lab4/div.html', error='На ноль делить нельзя!')
     
     result = x1 / x2
-    return render_template('lab4/div.html', x1=x1, x2=x2, result=result)
+    return render_template('lab4/div.html', x1=x1, x2=x2, result=result, operation='/')
+

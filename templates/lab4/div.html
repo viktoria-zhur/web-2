@@ -3,6 +3,7 @@
 {% block lab %}Деление чисел{% endblock %}
 
 {% block main %}
+    <h1>Деление чисел</h1>
     
     {% if error %}
         <div style="color: red; font-weight: bold;">{{ error }}</div>
@@ -10,7 +11,8 @@
         <div>{{ x1 }} / {{ x2 }} = {{ result }}</div>
     {% endif %}
     
-    <div>
-        <a href="/lab4/div-form">Вернуться к форме</a>
+    <div style="margin-top: 20px;">
+        <a href="/lab4/div-form">Вернуться к форме деления</a><br>
+        <a href="/lab4/">Вернуться к списку операций</a>
     </div>
 {% endblock %}

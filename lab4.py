@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 
-lab4 = Blueprint('lab4', __pyname__)
+lab4 = Blueprint('lab4', __name__)
 
 @lab4.route('/lab4/')
 def lab():
@@ -30,3 +30,83 @@ def div():
     result = x1 / x2
     return render_template('lab4/div.html', x1=x1, x2=x2, result=result, operation='/')
 
+@lab4.route('/lab4/sum-form')
+def sum_form():
+    return render_template('lab4/sum-form.html')
+
+@lab4.route('/lab4/sum', methods=['POST'])
+def sum():
+    x1 = request.form.get('x1', '0')
+    x2 = request.form.get('x2', '0')
+    
+    try:
+        x1 = float(x1) if x1 != '' else 0
+        x2 = float(x2) if x2 != '' else 0
+    except ValueError:
+        return render_template('lab4/result.html', error='Введите корректные числа!', operation='+')
+    
+    result = x1 + x2
+    return render_template('lab4/result.html', x1=x1, x2=x2, result=result, operation='+')
+
+@lab4.route('/lab4/mult-form')
+def mult_form():
+    return render_template('lab4/mult-form.html')
+
+@lab4.route('/lab4/mult', methods=['POST'])
+def mult():
+    x1 = request.form.get('x1', '1')
+    x2 = request.form.get('x2', '1')
+    
+    try:
+        x1 = float(x1) if x1 != '' else 1
+        x2 = float(x2) if x2 != '' else 1
+    except ValueError:
+        return render_template('lab4/result.html', error='Введите корректные числа!', operation='*')
+    
+    result = x1 * x2
+    return render_template('lab4/result.html', x1=x1, x2=x2, result=result, operation='*')
+
+@lab4.route('/lab4/sub-form')
+def sub_form():
+    return render_template('lab4/sub-form.html')
+
+@lab4.route('/lab4/sub', methods=['POST'])
+def sub():
+    x1 = request.form.get('x1')
+    x2 = request.form.get('x2')
+    
+    if x1 == '' or x2 == '':
+        return render_template('lab4/result.html', error='Оба поля должны быть заполнены!', operation='-')
+    
+    try:
+        x1 = float(x1)
+        x2 = float(x2)
+    except ValueError:
+        return render_template('lab4/result.html', error='Введите корректные числа!', operation='-')
+    
+    result = x1 - x2
+    return render_template('lab4/result.html', x1=x1, x2=x2, result=result, operation='-')
+
+@lab4.route('/lab4/pow-form')
+def pow_form():
+    return render_template('lab4/pow-form.html')
+
+@lab4.route('/lab4/pow', methods=['POST'])
+def power():
+    x1 = request.form.get('x1')
+    x2 = request.form.get('x2')
+    
+    if x1 == '' or x2 == '':
+        return render_template('lab4/result.html', error='Оба поля должны быть заполнены!', operation='**')
+    
+    try:
+        x1 = float(x1)
+        x2 = float(x2)
+    except ValueError:
+        return render_template('lab4/result.html', error='Введите корректные числа!', operation='**')
+    
+    if x1 == 0 and x2 == 0:
+        return render_template('lab4/result.html', error='Ноль в нулевой степени не определен!', operation='**')
+    
+    result = x1 ** x2
+    return render_template('lab4/result.html', x1=x1, x2=x2, result=result, operation='**')

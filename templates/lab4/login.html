@@ -4,7 +4,7 @@
 
 {% block main %}
     {% if authorized %}
-        <h1>Добро пожаловать, {{ login }}!</h1>
+        <h1>Добро пожаловать, {{ user_name }}!</h1>
         <div>
             <form action="/lab4/logout" method="post">
                 <button type="submit">Выход</button>
@@ -22,9 +22,15 @@
                 <label for="password">Пароль:</label>
                 <input type="password" id="password" name="password">
             </div>
-            {% if error %}
-                <div style="color: red;">{{ error }}</div>
+            
+            {% if errors %}
+                <div class="error-messages">
+                    {% for error in errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
+            
             <div>
                 <button type="submit">Войти</button>
                 <button type="reset">Отмена</button>
@@ -34,11 +40,27 @@
         <div style="margin-top: 20px;">
             <h3>Тестовые пользователи:</h3>
             <ul>
-                <li>alex / 123</li>
-                <li>bob / 555</li>
-                <li>vika / 458</li>
-                <li>sergo / 153</li>
+                <li>alex / 123 (Александр)</li>
+                <li>bob / 555 (Роберт)</li>
+                <li>vika / 458 (Виктория)</li>
+                <li>sergo / 153 (Сергей)</li>
+                <li>lis / 777 (Лиса)</li>
             </ul>
         </div>
+        
+        <style>
+            .error-messages {
+                margin: 15px 0;
+            }
+            .error {
+                color: #d32f2f;
+                background-color: #ffebee;
+                border: 1px solid #f44336;
+                padding: 10px 15px;
+                border-radius: 5px;
+                margin: 5px 0;
+                font-weight: bold;
+            }
+        </style>
     {% endif %}
 {% endblock %}

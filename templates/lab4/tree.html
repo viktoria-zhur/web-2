@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block lab %}Посадка деревьев{% endblock %}
+
+{% block main %}
+    <h1>Посадка деревьев</h1>
+    <div>
+        Посажено деревьев: {{ tree_count }}
+    </div>
+    <form method="post">
+        <button type="submit" name="operation" value="plant" 
+                {% if tree_count >= 10 %}disabled{% endif %}>
+            Посадить дерево
+        </button>
+        <button type="submit" name="operation" value="cut" 
+                {% if tree_count <= 0 %}disabled{% endif %}>
+            Срубить дерево
+        </button>
+    </form>
+{% endblock %}

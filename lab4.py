@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect
+
+tree_count = 0
 
 lab4 = Blueprint('lab4', __name__)
 
@@ -110,3 +112,24 @@ def power():
     
     result = x1 ** x2
     return render_template('lab4/result.html', x1=x1, x2=x2, result=result, operation='**')
+
+# Обработчик для страницы с деревьями
+@lab4.route('/lab4/tree', methods=['GET', 'POST'])
+def tree():
+    global tree_count
+    
+    # Обработка GET запроса - просто показываем страницу
+    if request.method == 'GET':
+        return render_template('lab4/tree.html', tree_count=tree_count)
+    
+    # Обработка POST запроса - обрабатываем действие и делаем редирект
+    operation = request.form.get('operation')
+    
+    if operation == 'plant':
+        tree_count += 1
+    elif operation == 'cut':
+        if tree_count > 0:  # Проверяем, чтобы счетчик не ушел в минус
+            tree_count -= 1
+    
+    # Редирект на эту же страницу методом GET
+    return redirect('/lab4/tree')

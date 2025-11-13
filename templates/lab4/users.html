@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block lab %}Список пользователей{% endblock %}
+
+{% block main %}
+    <h1>Список пользователей</h1>
+    
+    <div class="users-container">
+        <div class="user-actions">
+            <a href="/lab4/edit_profile" class="btn">Редактировать мой профиль</a>
+            <form action="/lab4/delete_user" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить свой аккаунт?')">
+                    Удалить мой аккаунт
+                </button>
+            </form>
+        </div>
+        
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Логин</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr {% if user.login == current_user_login %}class="current-user"{% endif %}>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.login }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="back-link">
+            <a href="/lab4/">Назад к лабораторным работам</a>
+        </div>
+    </div>
+    
+    <style>
+        .users-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .user-actions {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .users-table th, .users-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .users-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .current-user {
+            background-color: #e3f2fd;
+            font-weight: bold;
+        }
+        
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+{% endblock %}

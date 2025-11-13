@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block lab %}Заказ зерна{% endblock %}
+
+{% block main %}
+    <h1>Заказ зерна</h1>
+    
+    <div class="grain-container">
+        <form method="post">
+            <div class="form-group">
+                <label for="grain_type">Выберите тип зерна:</label>
+                <select id="grain_type" name="grain_type">
+                    <option value="">-- Выберите зерно --</option>
+                    <option value="barley" {% if grain_type == 'barley' %}selected{% endif %}>Ячмень - 12,000 руб/т</option>
+                    <option value="oats" {% if grain_type == 'oats' %}selected{% endif %}>Овёс - 8,500 руб/т</option>
+                    <option value="wheat" {% if grain_type == 'wheat' %}selected{% endif %}>Пшеница - 9,000 руб/т</option>
+                    <option value="rye" {% if grain_type == 'rye' %}selected{% endif %}>Рожь - 15,000 руб/т</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">Вес заказа (тонны):</label>
+                <input type="number" id="weight" name="weight" 
+                       value="{{ weight }}"
+                       step="0.1" min="0.1"
+                       placeholder="Введите вес в тоннах">
+            </div>
+            
+            <button type="submit">Оформить заказ</button>
+        </form>
+        
+        {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+        {% endif %}
+        
+        {% if success and message %}
+            <div class="success-message">
+                {{ message }}
+            </div>
+        {% endif %}
+        
+        <div class="price-info">
+            <h3>Цены на зерно:</h3>
+            <ul>
+                <li>Ячмень: 12,000 руб/т</li>
+                <li>Овёс: 8,500 руб/т</li>
+                <li>Пшеница: 9,000 руб/т</li>
+                <li>Рожь: 15,000 руб/т</li>
+            </ul>
+            
+            <h3>Условия:</h3>
+            <ul>
+                <li>Скидка 10% при заказе более 10 тонн</li>
+                <li>Максимальный заказ: 100 тонн</li>
+                <li>Минимальный заказ: 0.1 тонны</li>
+            </ul>
+        </div>
+    </div>
+    
+    <style>
+        .grain-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #1976D2;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .success-message {
+            color: #2e7d32;
+            background-color: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .price-info {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .price-info h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        
+        .price-info ul {
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}

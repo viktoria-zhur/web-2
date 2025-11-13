@@ -233,3 +233,74 @@ def fridge():
                          message=message,
                          snowflakes=snowflakes,
                          error=error)
+
+@lab4.route('/lab4/grain', methods=['GET', 'POST'])
+def grain():
+    grain_type = ''
+    weight = ''
+    total_price = 0
+    discount = 0
+    message = ''
+    error = ''
+    success = False
+    
+    # Цены на зерно
+    prices = {
+        'barley': 12000,   # ячмень
+        'oats': 8500,      # овёс
+        'wheat': 9000,     # пшеница
+        'rye': 15000       # рожь
+    }
+    
+    # Названия зерна для отображения
+    grain_names = {
+        'barley': 'ячмень',
+        'oats': 'овёс', 
+        'wheat': 'пшеница',
+        'rye': 'рожь'
+    }
+    
+    if request.method == 'POST':
+        grain_type = request.form.get('grain_type', '')
+        weight_input = request.form.get('weight', '').strip()
+        
+        # Проверка на пустые значения
+        if not grain_type:
+            error = "Ошибка: выберите тип зерна"
+        elif not weight_input:
+            error = "Ошибка: не указан вес"
+        else:
+            try:
+                weight = float(weight_input)
+                
+                # Проверка веса
+                if weight <= 0:
+                    error = "Ошибка: вес должен быть больше 0"
+                elif weight > 100:
+                    error = "Извините, такого объёма сейчас нет в наличии"
+                else:
+                    # Расчет стоимости
+                    price_per_ton = prices[grain_type]
+                    total_price = weight * price_per_ton
+                    
+                    # Применение скидки
+                    if weight > 10:
+                        discount = total_price * 0.10
+                        total_price -= discount
+                        message = f"Заказ успешно сформирован. Вы заказали {grain_names[grain_type]}. Вес: {weight} т. Сумма к оплате: {total_price:,.0f} руб. (применена скидка 10% за большой объём - {discount:,.0f} руб.)"
+                    else:
+                        message = f"Заказ успешно сформирован. Вы заказали {grain_names[grain_type]}. Вес: {weight} т. Сумма к оплате: {total_price:,.0f} руб."
+                    
+                    success = True
+                    
+            except ValueError:
+                error = "Ошибка: введите корректное число для веса"
+    
+    return render_template('lab4/grain.html',
+                         grain_type=grain_type,
+                         weight=weight,
+                         message=message,
+                         error=error,
+                         success=success,
+                         prices=prices,
+                         grain_names=grain_names)

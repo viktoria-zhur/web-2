@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, current_app
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -8,19 +8,19 @@ from os import path
 lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
-    if current_app.config['DB_TYPE'] == 'postgres':
-        conn = psycopg2.connecn(
-        host='127.0.0.1',
-        database='viktoria_zhuravleva_knowledge_base',
-        user='viktoria_zhuravleva_knowledge_base',
-        password='123'
-    )
+    if current_app.config.get('DB_TYPE') == 'postgres':
+        conn = psycopg2.connect(
+            host='127.0.0.1',
+            database='viktoria_zhuravleva_knowledge_base',
+            user='viktoria_zhuravleva_knowledge_base',
+            password='123'
+        )
         cur = conn.cursor(cursor_factory=RealDictCursor)
     else:
         dir_path = path.dirname(path.realpath(__file__))
-        db_path = path.join(dir_path, "database.db")
+        db_path = path.join(dir_path, "knowledge_base.db")
         conn = sqlite3.connect(db_path)
-        con.row_factory = sqlite2.Row
+        conn.row_factory = sqlite3.Row
         cur = conn.cursor()
 
     return conn, cur
@@ -29,6 +29,17 @@ def db_close(conn, cur):
     conn.commit()
     cur.close()
     conn.close()
+
+def execute_query(cur, query, params):
+    """Универсальная функция для выполнения запросов с правильными параметрами"""
+    if current_app.config.get('DB_TYPE') == 'postgres':
+        # Для PostgreSQL используем %s
+        formatted_query = query.replace('?', '%s')
+    else:
+        # Для SQLite используем ?
+        formatted_query = query.replace('%s', '?')
+    
+    cur.execute(formatted_query, params)
 
 @lab5.route('/lab5')
 def main():
@@ -40,16 +51,16 @@ def login():
     if request.method == 'GET':
         return render_template('lab5/login.html')
     
-    login = request.form.get('login')
+    username_input = request.form.get('login')
     password = request.form.get('password')
 
-    if not (login and password):
+    if not (username_input and password):
         return render_template('lab5/login.html', error="Заполните все поля")
     
     try:
         conn, cur = db_connect()
 
-        cur.execute("SELECT * FROM users WHERE login = %s;", (login,))
+        execute_query(cur, "SELECT * FROM users WHERE login = ?;", (username_input,))
         user = cur.fetchone()
 
         if not user:
@@ -60,9 +71,9 @@ def login():
             db_close(conn, cur)
             return render_template('lab5/login.html', error='Логин и/или пароль неверны')
         
-        session['username'] = login
+        session['username'] = username_input
         db_close(conn, cur)
-        return render_template('lab5/success_login.html', login=login)
+        return render_template('lab5/success_login.html', login=username_input)
     
     except Exception as e:
         return render_template('lab5/login.html', error=f'Ошибка базы данных: {str(e)}')
@@ -72,16 +83,16 @@ def register():
     if request.method == 'GET':
         return render_template('lab5/register.html')
     
-    login = request.form.get('login')
+    username_input = request.form.get('login')
     password = request.form.get('password')
 
-    if not (login and password):
+    if not (username_input and password):
         return render_template('lab5/register.html', error='Заполните все поля')
 
     try:
         conn, cur = db_connect()
 
-        cur.execute("SELECT login FROM users WHERE login = %s;", (login,))
+        execute_query(cur, "SELECT login FROM users WHERE login = ?;", (username_input,))
         existing_user = cur.fetchone()
         
         if existing_user:
@@ -90,23 +101,23 @@ def register():
         
         password_hash = generate_password_hash(password)
         
-        cur.execute("INSERT INTO users (login, password_hash) VALUES (%s, %s);", (login, password_hash))
+        execute_query(cur, "INSERT INTO users (login, password_hash) VALUES (?, ?);", (username_input, password_hash))
         
         db_close(conn, cur)
-        return render_template('lab5/success.html', login=login)
+        return render_template('lab5/success.html', login=username_input)
     
     except Exception as e:
         return render_template('lab5/register.html', error=f'Ошибка базы данных: {str(e)}')
 
 @lab5.route('/lab5/list')
 def list_articles():
-    login = session.get('username')
-    if not login:
+    username = session.get('username')
+    if not username:
         return redirect('/lab5/login')
     
     conn, cur = db_connect()
 
-    cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+    execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
     user = cur.fetchone()
     
     if not user:
@@ -115,7 +126,7 @@ def list_articles():
     
     user_id = user['id']
 
-    cur.execute("SELECT * FROM articles WHERE user_id = %s;", (user_id,))
+    execute_query(cur, "SELECT * FROM articles WHERE user_id = ?;", (user_id,))
     articles = cur.fetchall()
 
     db_close(conn, cur)
@@ -123,8 +134,8 @@ def list_articles():
 
 @lab5.route('/lab5/create', methods=['GET', 'POST'])
 def create_article():
-    login = session.get('username')
-    if not login:
+    username = session.get('username')
+    if not username:
         return redirect('/lab5/login')
 
     if request.method == 'GET':
@@ -139,7 +150,7 @@ def create_article():
     try:
         conn, cur = db_connect()
 
-        cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+        execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
         user = cur.fetchone()
         
         if not user:
@@ -148,7 +159,7 @@ def create_article():
 
         user_id = user["id"]
 
-        cur.execute("INSERT INTO articles (user_id, title, article_text) VALUES (%s, %s, %s);", 
+        execute_query(cur, "INSERT INTO articles (user_id, title, article_text) VALUES (?, ?, ?);", 
                    (user_id, title, article_text))
 
         db_close(conn, cur)

@@ -3,7 +3,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
-# Сначала определяем Blueprint
 lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
@@ -60,64 +59,61 @@ def login():
 
 @lab5.route('/lab5/register', methods=['GET', 'POST'])
 def register():
-    print("🎯 Функция register() вызвана")
-    
     if request.method == 'GET':
-        print("📝 GET запрос - показываем форму")
         return render_template('lab5/register.html')
     
-    print("📨 POST запрос - обрабатываем данные")
     login = request.form.get('login')
     password = request.form.get('password')
 
-    print(f"🔍 ДАННЫЕ ИЗ ФОРМЫ: login='{login}', password='{password}'")
-    print(f"🔍 ВСЕ ДАННЫЕ ФОРМЫ: {dict(request.form)}")
-
     if not (login and password):
-        print("❌ Ошибка: не заполнены все поля")
         return render_template('lab5/register.html', error='Заполните все поля')
 
     try:
-        print("🔄 Попытка подключения к БД...")
         conn, cur = db_connect()
-        print("✅ Подключение к БД установлено")
 
-        print(f"🔍 Проверяем существующего пользователя: '{login}'")
         cur.execute("SELECT login FROM users WHERE login = %s;", (login,))
         existing_user = cur.fetchone()
-        print(f"🔍 Результат проверки: {existing_user}")
         
         if existing_user:
             db_close(conn, cur)
-            print("❌ Пользователь уже существует")
             return render_template('lab5/register.html', error="Такой пользователь уже существует")
         
-        print("🔐 Генерируем хеш пароля...")
         password_hash = generate_password_hash(password)
-        print(f"🔐 Сгенерирован хеш: {password_hash}")
         
-        print(f"🚀 Выполняем INSERT в БД...")
         cur.execute("INSERT INTO users (login, password_hash) VALUES (%s, %s);", (login, password_hash))
-        print("✅ INSERT выполнен")
         
         db_close(conn, cur)
-        print("✅ Пользователь успешно добавлен в БД")
-        
         return render_template('lab5/success.html', login=login)
     
     except Exception as e:
-        print(f"💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
-        import traceback
-        print(f"💥 ТРАССИРОВКА: {traceback.format_exc()}")
         return render_template('lab5/register.html', error=f'Ошибка базы данных: {str(e)}')
 
 @lab5.route('/lab5/list')
 def list_articles():
-    return "список статей"
+    login = session.get('username')
+    if not login:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+
+    cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+    user = cur.fetchone()
+    
+    if not user:
+        db_close(conn, cur)
+        return redirect('/lab5/login')
+    
+    user_id = user['id']
+
+    cur.execute("SELECT * FROM articles WHERE user_id = %s;", (user_id,))
+    articles = cur.fetchall()
+
+    db_close(conn, cur)
+    return render_template('lab5/articles.html', articles=articles)
 
 @lab5.route('/lab5/create', methods=['GET', 'POST'])
 def create_article():
-    login = session.get('username')  # Исправлено: используем 'username' из сессии
+    login = session.get('username')
     if not login:
         return redirect('/lab5/login')
 
@@ -125,7 +121,7 @@ def create_article():
         return render_template('lab5/create_article.html')
 
     title = request.form.get('title')
-    article_text = request.form.get('article_text')  
+    article_text = request.form.get('article_text')
 
     if not (title and article_text):
         return render_template('lab5/create_article.html', error="Заполните все поля")
@@ -133,7 +129,6 @@ def create_article():
     try:
         conn, cur = db_connect()
 
-        # Исправленный запрос
         cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
         user = cur.fetchone()
         
@@ -143,7 +138,6 @@ def create_article():
 
         user_id = user["id"]
 
-        # Исправленный запрос - используем параметризованный запрос
         cur.execute("INSERT INTO articles (user_id, title, article_text) VALUES (%s, %s, %s);", 
                    (user_id, title, article_text))
 

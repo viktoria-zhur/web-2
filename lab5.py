@@ -2,17 +2,27 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
+import sqlite3
+from os import path
 
 lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
-    conn = psycopg2.connect(
+    if current_app.config['DB_TYPE'] == 'postgres':
+        conn = psycopg2.connecn(
         host='127.0.0.1',
         database='viktoria_zhuravleva_knowledge_base',
         user='viktoria_zhuravleva_knowledge_base',
         password='123'
     )
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+    else:
+        dir_path = path.dirname(path.realpath(__file__))
+        db_path = path.join(dir_path, "database.db")
+        conn = sqlite3.connect(db_path)
+        con.row_factory = sqlite2.Row
+        cur = conn.cursor()
+
     return conn, cur
 
 def db_close(conn, cur):

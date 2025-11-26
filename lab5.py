@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, redirect, url_for
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# Сначала определяем Blueprint
 lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
@@ -114,6 +115,40 @@ def register():
 def list_articles():
     return "список статей"
 
-@lab5.route('/lab5/create')
+@lab5.route('/lab5/create', methods=['GET', 'POST'])
 def create_article():
-    return "форма создания статьи"
+    login = session.get('username')  # Исправлено: используем 'username' из сессии
+    if not login:
+        return redirect('/lab5/login')
+
+    if request.method == 'GET':
+        return render_template('lab5/create_article.html')
+
+    title = request.form.get('title')
+    article_text = request.form.get('article_text')  
+
+    if not (title and article_text):
+        return render_template('lab5/create_article.html', error="Заполните все поля")
+
+    try:
+        conn, cur = db_connect()
+
+        # Исправленный запрос
+        cur.execute("SELECT id FROM users WHERE login = %s;", (login,))
+        user = cur.fetchone()
+        
+        if not user:
+            db_close(conn, cur)
+            return render_template('lab5/create_article.html', error="Пользователь не найден")
+
+        user_id = user["id"]
+
+        # Исправленный запрос - используем параметризованный запрос
+        cur.execute("INSERT INTO articles (user_id, title, article_text) VALUES (%s, %s, %s);", 
+                   (user_id, title, article_text))
+
+        db_close(conn, cur)
+        return redirect('/lab5')
+    
+    except Exception as e:
+        return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')

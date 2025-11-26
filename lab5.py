@@ -103,8 +103,11 @@ def register():
         
         execute_query(cur, "INSERT INTO users (login, password_hash) VALUES (?, ?);", (username_input, password_hash))
         
+        # АВТОМАТИЧЕСКАЯ АВТОРИЗАЦИЯ ПОСЛЕ РЕГИСТРАЦИИ
+        session['username'] = username_input
+        
         db_close(conn, cur)
-        return render_template('lab5/success.html', login=username_input)
+        return redirect('/lab5')  # Перенаправляем в главное меню лаб. работы 5
     
     except Exception as e:
         return render_template('lab5/register.html', error=f'Ошибка базы данных: {str(e)}')
@@ -166,4 +169,8 @@ def create_article():
         return redirect('/lab5')
     
     except Exception as e:
-        return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')
+        return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')   
+@lab5.route('/lab5/logout')
+def logout():
+    session.pop('username', None)
+    return redirect('/lab5')

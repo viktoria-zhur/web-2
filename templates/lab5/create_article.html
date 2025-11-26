@@ -4,21 +4,31 @@
 
 {% block main %}
     <h1>Создание статьи</h1>
+    
+    <div>
+        <a href="/lab5">Главное меню</a> |
+        <a href="/lab5/list">Список статей</a>
+    </div>
 
+    {% if error %}
+        <div style="color: red; margin: 10px 0;">{{ error }}</div>
+    {% endif %}
+    
     <form method="post">
         <div>
             <label>
-                Название статьи:
-                <input type="text" maxlength="50" name="title">
+                Заголовок:
+                <input type="text" name="title" maxlength="50" required>
             </label>
         </div>
-
         <div>
-            <textarea name="article_text"></textarea>
+            <label>
+                Текст статьи:
+                <textarea name="article_text" rows="10" required></textarea>
+            </label>
         </div>
-
         <div>
-            <button type="submit">Готово</button>
+            <button type="submit">Создать статью</button>
         </div>
     </form>
 {% endblock %}

@@ -14,9 +14,13 @@ from lab5 import lab5
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'секретно-секретный секрет')
-app.config['DB_TYPE'] = 'sqlite' 
+app.config['DB_TYPE'] = 'sqlite'
 
-app.secret_key = 'секретно-секретный секрет'
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 час
+app.config['SESSION_COOKIE_SECURE'] = False  # Для HTTP на PythonAnywhere
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 app.register_blueprint(lab1)
 app.register_blueprint(lab2)

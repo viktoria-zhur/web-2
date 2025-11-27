@@ -73,7 +73,7 @@ def login():
         
         session['username'] = username_input
         db_close(conn, cur)
-        return render_template('lab5/success_login.html', login=username_input)
+        return redirect('/lab5')
     
     except Exception as e:
         return render_template('lab5/login.html', error=f'Ошибка базы данных: {str(e)}')
@@ -101,14 +101,11 @@ def register():
         
         password_hash = generate_password_hash(password)
         
-        # ИСПРАВЛЕНО: password → password_hash
         execute_query(cur, "INSERT INTO users (login, password) VALUES (?, ?);", (username_input, password_hash))
         
-        # АВТОМАТИЧЕСКАЯ АВТОРИЗАЦИЯ ПОСЛЕ РЕГИСТРАЦИИ
         session['username'] = username_input
-        
         db_close(conn, cur)
-        return redirect('/lab5')  # Перенаправляем в главное меню лаб. работы 5
+        return redirect('/lab5')
     
     except Exception as e:
         return render_template('lab5/register.html', error=f'Ошибка базы данных: {str(e)}')
@@ -130,7 +127,6 @@ def list_articles():
     
     user_id = user['id']
 
-    # ИСПРАВЛЕНО: user_id → login_id
     execute_query(cur, "SELECT * FROM articles WHERE login_id = ?;", (user_id,))
     articles = cur.fetchall()
 
@@ -164,15 +160,79 @@ def create_article():
 
         user_id = user["id"]
 
-        # ИСПРАВЛЕНО: user_id → login_id
         execute_query(cur, "INSERT INTO articles (login_id, title, article_text) VALUES (?, ?, ?);", 
                    (user_id, title, article_text))
 
         db_close(conn, cur)
-        return redirect('/lab5')
+        return redirect('/lab5/list')
     
     except Exception as e:
         return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')
+
+@lab5.route('/lab5/edit/<int:article_id>', methods=['GET', 'POST'])
+def edit_article(article_id):
+    username = session.get('username')
+    if not username:
+        return redirect('/lab5/login')
+
+    conn, cur = db_connect()
+
+    # Проверяем, принадлежит ли статья текущему пользователю
+    execute_query(cur, "SELECT a.* FROM articles a JOIN users u ON a.login_id = u.id WHERE a.id = ? AND u.login = ?;", 
+                 (article_id, username))
+    article = cur.fetchone()
+
+    if not article:
+        db_close(conn, cur)
+        return "Статья не найдена или у вас нет прав для редактирования", 404
+
+    if request.method == 'GET':
+        db_close(conn, cur)
+        return render_template('lab5/edit_article.html', article=article)
+
+    # Обработка формы редактирования
+    title = request.form.get('title')
+    article_text = request.form.get('article_text')
+
+    if not (title and article_text):
+        db_close(conn, cur)
+        return render_template('lab5/edit_article.html', article=article, error="Заполните все поля")
+
+    try:
+        execute_query(cur, "UPDATE articles SET title = ?, article_text = ? WHERE id = ?;", 
+                     (title, article_text, article_id))
+        db_close(conn, cur)
+        return redirect('/lab5/list')
+    
+    except Exception as e:
+        db_close(conn, cur)
+        return render_template('lab5/edit_article.html', article=article, error=f'Ошибка базы данных: {str(e)}')
+
+@lab5.route('/lab5/delete/<int:article_id>')
+def delete_article(article_id):
+    username = session.get('username')
+    if not username:
+        return redirect('/lab5/login')
+
+    conn, cur = db_connect()
+
+    
+    execute_query(cur, "SELECT a.* FROM articles a JOIN users u ON a.login_id = u.id WHERE a.id = ? AND u.login = ?;", 
+                 (article_id, username))
+    article = cur.fetchone()
+
+    if not article:
+        db_close(conn, cur)
+        return "Статья не найдена или у вас нет прав для удаления", 404
+
+    try:
+        execute_query(cur, "DELETE FROM articles WHERE id = ?;", (article_id,))
+        db_close(conn, cur)
+        return redirect('/lab5/list')
+    
+    except Exception as e:
+        db_close(conn, cur)
+        return f'Ошибка базы данных: {str(e)}', 500
 
 @lab5.route('/lab5/logout')
 def logout():

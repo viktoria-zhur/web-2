@@ -67,7 +67,7 @@ def login():
             db_close(conn, cur)
             return render_template('lab5/login.html', error='Логин и/или пароль неверны')
 
-        if not check_password_hash(user['password_hash'], password):
+        if not check_password_hash(user['password'], password):
             db_close(conn, cur)
             return render_template('lab5/login.html', error='Логин и/или пароль неверны')
         
@@ -101,7 +101,7 @@ def register():
         
         password_hash = generate_password_hash(password)
         
-        execute_query(cur, "INSERT INTO users (login, password_hash) VALUES (?, ?);", (username_input, password_hash))
+        execute_query(cur, "INSERT INTO users (login, password) VALUES (?, ?);", (username_input, password))
         
         # АВТОМАТИЧЕСКАЯ АВТОРИЗАЦИЯ ПОСЛЕ РЕГИСТРАЦИИ
         session['username'] = username_input

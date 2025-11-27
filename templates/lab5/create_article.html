@@ -1,34 +1,35 @@
 {% extends "base.html" %}
 
-{% block lab %}Лабораторная работа 5{% endblock %}
+{% block lab %}Лабораторная работа 5 - Создание статьи{% endblock %}
 
 {% block main %}
     <h1>Создание статьи</h1>
     
     <div>
-        <a href="/lab5">Главное меню</a> |
-        <a href="/lab5/list">Список статей</a>
+        <a href="/lab5">← Главное меню</a> | 
+        <a href="/lab5/list">Мои статьи</a>
     </div>
 
     {% if error %}
-        <div style="color: red; margin: 10px 0;">{{ error }}</div>
+        <div style="color: red;">
+            {{ error }}
+        </div>
     {% endif %}
     
     <form method="post">
         <div>
-            <label>
-                Заголовок:
-                <input type="text" name="title" maxlength="50" required>
-            </label>
+            <label>Заголовок статьи:</label>
+            <input type="text" name="title" maxlength="50" required placeholder="Введите заголовок">
         </div>
+        
         <div>
-            <label>
-                Текст статьи:
-                <textarea name="article_text" rows="10" required></textarea>
-            </label>
+            <label>Текст статьи:</label>
+            <textarea name="article_text" rows="12" required placeholder="Напишите содержание вашей статьи"></textarea>
         </div>
+        
         <div>
             <button type="submit">Создать статью</button>
+            <a href="/lab5/list">Отмена</a>
         </div>
     </form>
 {% endblock %}

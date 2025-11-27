@@ -1,43 +1,47 @@
 {% extends "base.html" %}
 
-{% block lab %}Лабораторная работа 5{% endblock %}
+{% block lab %}Лабораторная работа 5 - Мои статьи{% endblock %}
 
 {% block main %}
     <h1>Мои статьи</h1>
     
-    <div style="margin-bottom: 20px;">
+    <div>
         <a href="/lab5">← Главное меню</a> | 
-        <a href="/lab5/create">✏️ Создать новую статью</a>
+        <a href="/lab5/create">Создать новую статью</a>
     </div>
 
     {% if articles %}
-        {% for article in articles %}
-            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-                <h2>{{ article['title'] }}</h2>
-                <p>{{ article['article_text'] }}</p>
-                <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                    <small>ID: {{ article['id'] }}</small>
+        <div>
+            {% for article in articles %}
+                <div style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
+                    <h2>{{ article['title'] }}</h2>
+                    <div>
+                        {{ article['article_text'] | replace('\n', '<br>') | safe }}
+                    </div>
+                    <div>
+                        <small>ID: {{ article['id'] }}</small>
+                        {% if article['created_at'] %}
+                            <small> | Создано: {{ article['created_at'] }}</small>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{{ url_for('lab5.edit_article', article_id=article['id']) }}">
+                            Редактировать
+                        </a>
+                        <a href="{{ url_for('lab5.delete_article', article_id=article['id']) }}" 
+                           onclick="return confirm('Вы уверены, что хотите удалить эту статью?')"
+                           style="margin-left: 10px; color: red;">
+                            Удалить
+                        </a>
+                    </div>
                 </div>
-                <div style="margin-top: 10px;">
-                    <a href="{{ url_for('lab5.edit_article', article_id=article['id']) }}" 
-                       style="background: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px;">
-                        ✏️ Редактировать
-                    </a>
-                    <a href="{{ url_for('lab5.delete_article', article_id=article['id']) }}" 
-                       onclick="return confirm('Вы уверены, что хотите удалить эту статью?')"
-                       style="background: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; margin-left: 10px;">
-                        🗑️ Удалить
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     {% else %}
-        <div style="text-align: center; padding: 40px; color: #666;">
-            <h3>📝 У вас пока нет статей</h3>
+        <div>
+            <h3>У вас пока нет статей</h3>
             <p>Создайте свою первую статью!</p>
-            <a href="/lab5/create" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Создать статью
-            </a>
+            <a href="/lab5/create">Создать первую статью</a>
         </div>
     {% endif %}
 {% endblock %}

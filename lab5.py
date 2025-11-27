@@ -162,14 +162,37 @@ def create_article():
 
         user_id = user["id"]
 
-        execute_query(cur, "INSERT INTO articles (user_id, title, article_text) VALUES (?, ?, ?);", 
+        execute_query(cur, "INSERT INTO articles (login_id, title, article_text) VALUES (?, ?, ?);", 
                    (user_id, title, article_text))
 
         db_close(conn, cur)
         return redirect('/lab5')
     
     except Exception as e:
-        return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')   
+        return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')
+
+@lab5.route('/lab5/list')
+def list_articles():
+    username = session.get('username')
+    if not username:
+        return redirect('/lab5/login')
+    
+    conn, cur = db_connect()
+
+    execute_query(cur, "SELECT id FROM users WHERE login_id = ?;", (user_id))
+    user = cur.fetchone()
+    
+    if not user:
+        db_close(conn, cur)
+        return redirect('/lab5/login')
+    
+    user_id = user['id']
+
+    execute_query(cur, "SELECT * FROM articles WHERE login_id = ?;", (user_id,))
+    articles = cur.fetchall()
+
+    db_close(conn, cur)
+    return render_template('lab5/articles.html', articles=articles)   
 @lab5.route('/lab5/logout')
 def logout():
     session.pop('username', None)

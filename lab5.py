@@ -101,7 +101,8 @@ def register():
         
         password_hash = generate_password_hash(password)
         
-        execute_query(cur, "INSERT INTO users (login, password) VALUES (?, ?);", (username_input, password))
+        # ИСПРАВЛЕНО: password → password_hash
+        execute_query(cur, "INSERT INTO users (login, password) VALUES (?, ?);", (username_input, password_hash))
         
         # АВТОМАТИЧЕСКАЯ АВТОРИЗАЦИЯ ПОСЛЕ РЕГИСТРАЦИИ
         session['username'] = username_input
@@ -129,7 +130,8 @@ def list_articles():
     
     user_id = user['id']
 
-    execute_query(cur, "SELECT * FROM articles WHERE user_id = ?;", (user_id,))
+    # ИСПРАВЛЕНО: user_id → login_id
+    execute_query(cur, "SELECT * FROM articles WHERE login_id = ?;", (user_id,))
     articles = cur.fetchall()
 
     db_close(conn, cur)
@@ -162,6 +164,7 @@ def create_article():
 
         user_id = user["id"]
 
+        # ИСПРАВЛЕНО: user_id → login_id
         execute_query(cur, "INSERT INTO articles (login_id, title, article_text) VALUES (?, ?, ?);", 
                    (user_id, title, article_text))
 
@@ -171,28 +174,6 @@ def create_article():
     except Exception as e:
         return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')
 
-@lab5.route('/lab5/list')
-def list_articles():
-    username = session.get('username')
-    if not username:
-        return redirect('/lab5/login')
-    
-    conn, cur = db_connect()
-
-    execute_query(cur, "SELECT id FROM users WHERE login_id = ?;", (user_id))
-    user = cur.fetchone()
-    
-    if not user:
-        db_close(conn, cur)
-        return redirect('/lab5/login')
-    
-    user_id = user['id']
-
-    execute_query(cur, "SELECT * FROM articles WHERE login_id = ?;", (user_id,))
-    articles = cur.fetchall()
-
-    db_close(conn, cur)
-    return render_template('lab5/articles.html', articles=articles)   
 @lab5.route('/lab5/logout')
 def logout():
     session.pop('username', None)

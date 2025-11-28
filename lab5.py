@@ -19,9 +19,53 @@ def db_connect():
     else:
         dir_path = path.dirname(path.realpath(__file__))
         db_path = path.join(dir_path, "knowledge_base.db")
+        
+        print(f"🔍 Текущая директория: {dir_path}")
+        print(f"🔍 Путь к базе: {db_path}")
+        print(f"🔍 Файл существует: {path.exists(db_path)}")
+        
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
+        
+        # Проверим таблицы
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cur.fetchall()
+        table_names = [table['name'] for table in tables]
+        print(f"📊 Таблицы в базе: {table_names}")
+        
+        # Если таблиц нет, создаем их
+        if not table_names:
+            print("❌ Таблицы не найдены! Создаем...")
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    login VARCHAR(30) UNIQUE NOT NULL,
+                    password VARCHAR(162) NOT NULL,
+                    real_name VARCHAR(100)
+                )
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS articles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    login_id INTEGER NOT NULL,
+                    title VARCHAR(50),
+                    article_text TEXT,
+                    is_favorite BOOLEAN DEFAULT 0,
+                    is_public BOOLEAN DEFAULT 0,
+                    likes INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (login_id) REFERENCES users(id)
+                )
+            ''')
+            conn.commit()
+            print("✅ Таблицы users и articles созданы")
+            
+            # Проверим еще раз
+            cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cur.fetchall()
+            table_names = [table['name'] for table in tables]
+            print(f"📊 Таблицы после создания: {table_names}")
 
     return conn, cur
 
@@ -85,12 +129,16 @@ def register():
     password = request.form.get('password')
     real_name = request.form.get('real_name')
 
+    print(f"🔍 Данные регистрации: login={username_input}, real_name={real_name}")
+
     if not (username_input and password):
         return render_template('lab5/register.html', error='Заполните логин и пароль')
 
     try:
+        print("🔄 Подключение к БД...")
         conn, cur = db_connect()
 
+        print("🔄 Проверка существующего пользователя...")
         execute_query(cur, "SELECT login FROM users WHERE login = ?;", (username_input,))
         existing_user = cur.fetchone()
         
@@ -100,14 +148,20 @@ def register():
         
         password_hash = generate_password_hash(password)
         
+        print("🔄 Добавление нового пользователя...")
         execute_query(cur, "INSERT INTO users (login, password, real_name) VALUES (?, ?, ?);", 
                      (username_input, password_hash, real_name))
         
         session['username'] = username_input
         db_close(conn, cur)
+        
+        print(f"✅ Пользователь {username_input} успешно зарегистрирован")
         return redirect('/lab5')
     
     except Exception as e:
+        print(f"❌ Ошибка при регистрации: {e}")
+        import traceback
+        print(f"❌ Трассировка ошибки: {traceback.format_exc()}")
         return render_template('lab5/register.html', error=f'Ошибка базы данных: {str(e)}')
 
 @lab5.route('/lab5/list')
@@ -152,10 +206,13 @@ def create_article():
     is_favorite = 1 if request.form.get('is_favorite') else 0
     is_public = 1 if request.form.get('is_public') else 0
 
+    print(f"🔍 Данные статьи: title={title}, text_len={len(article_text) if article_text else 0}, favorite={is_favorite}, public={is_public}")
+
     if not (title and article_text):
         return render_template('lab5/create_article.html', error="Заполните заголовок и текст")
 
     try:
+        print("🔄 Подключение к БД для создания статьи...")
         conn, cur = db_connect()
 
         execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
@@ -166,15 +223,19 @@ def create_article():
             return render_template('lab5/create_article.html', error="Пользователь не найден")
 
         user_id = user["id"]
+        print(f"🔍 Найден user_id: {user_id}")
 
-        # Исправленный INSERT с учетом колонки likes
         execute_query(cur, "INSERT INTO articles (login_id, title, article_text, is_favorite, is_public, likes) VALUES (?, ?, ?, ?, ?, ?);", 
                    (user_id, title, article_text, is_favorite, is_public, 0))
 
         db_close(conn, cur)
+        print("✅ Статья успешно создана")
         return redirect('/lab5/list')
     
     except Exception as e:
+        print(f"❌ Ошибка при создании статьи: {e}")
+        import traceback
+        print(f"❌ Трассировка ошибки: {traceback.format_exc()}")
         return render_template('lab5/create_article.html', error=f'Ошибка базы данных: {str(e)}')
 
 @lab5.route('/lab5/edit/<int:article_id>', methods=['GET', 'POST'])
@@ -207,7 +268,6 @@ def edit_article(article_id):
         return render_template('lab5/edit_article.html', article=article, error="Заполните все поля")
 
     try:
-        # Исправленный UPDATE с учетом колонки likes
         execute_query(cur, "UPDATE articles SET title = ?, article_text = ?, is_favorite = ?, is_public = ?, likes = ? WHERE id = ?;", 
                      (title, article_text, is_favorite, is_public, article.get('likes', 0), article_id))
         db_close(conn, cur)

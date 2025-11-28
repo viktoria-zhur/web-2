@@ -13,14 +13,16 @@
     
     <nav>
         <ul>
+            <li><a href="{{ url_for('lab5.list_articles') }}">📚 Статьи</a></li>
+            <li><a href="{{ url_for('lab5.list_users') }}">👥 Все пользователи</a></li>
+            
             {% if username and username != "Anonymous" %}
-                <li><a href="{{ url_for('lab5.list_articles') }}">Просмотр статей</a></li>
-                <li><a href="{{ url_for('lab5.create_article') }}">Создание статьи</a></li>
-                <li><a href="{{ url_for('lab5.logout') }}">Выйти</a></li>
+                <li><a href="{{ url_for('lab5.create_article') }}">✏️ Создать статью</a></li>
+                <li><a href="{{ url_for('lab5.edit_profile') }}">⚙️ Мой профиль</a></li>
+                <li><a href="{{ url_for('lab5.logout') }}">🚪 Выйти</a></li>
             {% else %}
-                <li><a href="{{ url_for('lab5.register') }}">Регистрация</a></li>
-                <li><a href="{{ url_for('lab5.login') }}">Авторизация</a></li>
-                <li><a href="{{ url_for('lab5.list_articles') }}">Просмотр статей</a></li>
+                <li><a href="{{ url_for('lab5.register') }}">📝 Регистрация</a></li>
+                <li><a href="{{ url_for('lab5.login') }}">🔑 Авторизация</a></li>
             {% endif %}
         </ul>
     </nav>

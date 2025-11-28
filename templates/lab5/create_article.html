@@ -11,9 +11,7 @@
     </div>
 
     {% if error %}
-        <div style="color: red;">
-            {{ error }}
-        </div>
+        <div style="color: red;">{{ error }}</div>
     {% endif %}
     
     <form method="post">
@@ -25,6 +23,20 @@
         <div>
             <label>Текст статьи:</label>
             <textarea name="article_text" rows="12" required placeholder="Напишите содержание вашей статьи"></textarea>
+        </div>
+
+        <div>
+            <label>
+                <input type="checkbox" name="is_favorite" value="1">
+                Добавить в избранное
+            </label>
+        </div>
+
+        <div>
+            <label>
+                <input type="checkbox" name="is_public" value="1">
+                Сделать публичной
+            </label>
         </div>
         
         <div>

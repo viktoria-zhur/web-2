@@ -9,7 +9,7 @@ lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
     if current_app.config.get('DB_TYPE') == 'postgres':
-        conn = psycopg2.connect(
+        conn = psycopopg2.connect(
             host='127.0.0.1',
             database='viktoria_zhuravleva_knowledge_base',
             user='viktoria_zhuravleva_knowledge_base',
@@ -33,10 +33,8 @@ def db_close(conn, cur):
 def execute_query(cur, query, params):
     """Универсальная функция для выполнения запросов с правильными параметрами"""
     if current_app.config.get('DB_TYPE') == 'postgres':
-        # Для PostgreSQL используем %s
         formatted_query = query.replace('?', '%s')
     else:
-        # Для SQLite используем ?
         formatted_query = query.replace('%s', '?')
     
     cur.execute(formatted_query, params)
@@ -85,9 +83,10 @@ def register():
     
     username_input = request.form.get('login')
     password = request.form.get('password')
+    real_name = request.form.get('real_name')
 
     if not (username_input and password):
-        return render_template('lab5/register.html', error='Заполните все поля')
+        return render_template('lab5/register.html', error='Заполните логин и пароль')
 
     try:
         conn, cur = db_connect()
@@ -101,7 +100,8 @@ def register():
         
         password_hash = generate_password_hash(password)
         
-        execute_query(cur, "INSERT INTO users (login, password) VALUES (?, ?);", (username_input, password_hash))
+        execute_query(cur, "INSERT INTO users (login, password, real_name) VALUES (?, ?, ?);", 
+                     (username_input, password_hash, real_name))
         
         session['username'] = username_input
         db_close(conn, cur)
@@ -113,25 +113,33 @@ def register():
 @lab5.route('/lab5/list')
 def list_articles():
     username = session.get('username')
-    if not username:
-        return redirect('/lab5/login')
     
     conn, cur = db_connect()
 
-    execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
-    user = cur.fetchone()
-    
-    if not user:
-        db_close(conn, cur)
-        return redirect('/lab5/login')
-    
-    user_id = user['id']
+    if username and username != 'Anonymous':
+        # Для авторизованных пользователей - их статьи + публичные статьи других
+        execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
+        user = cur.fetchone()
+        
+        if user:
+            user_id = user['id']
+            # Сначала любимые статьи, затем остальные, сначала свои, затем публичные других
+            execute_query(cur, """
+                SELECT a.*, u.login as author_login 
+                FROM articles a 
+                JOIN users u ON a.login_id = u.id 
+                WHERE a.login_id = ? OR a.is_public = 1 
+                ORDER BY a.is_favorite DESC, a.login_id = ? DESC, a.created_at DESC
+            """, (user_id, user_id))
+        else:
+            execute_query(cur, "SELECT a.*, u.login as author_login FROM articles a JOIN users u ON a.login_id = u.id WHERE a.is_public = 1 ORDER BY a.created_at DESC;", ())
+    else:
+        # Для неавторизованных - только публичные статьи
+        execute_query(cur, "SELECT a.*, u.login as author_login FROM articles a JOIN users u ON a.login_id = u.id WHERE a.is_public = 1 ORDER BY a.created_at DESC;", ())
 
-    execute_query(cur, "SELECT * FROM articles WHERE login_id = ?;", (user_id,))
     articles = cur.fetchall()
-
     db_close(conn, cur)
-    return render_template('lab5/articles.html', articles=articles)
+    return render_template('lab5/articles.html', articles=articles, username=username)
 
 @lab5.route('/lab5/create', methods=['GET', 'POST'])
 def create_article():
@@ -144,9 +152,11 @@ def create_article():
 
     title = request.form.get('title')
     article_text = request.form.get('article_text')
+    is_favorite = 1 if request.form.get('is_favorite') else 0
+    is_public = 1 if request.form.get('is_public') else 0
 
     if not (title and article_text):
-        return render_template('lab5/create_article.html', error="Заполните все поля")
+        return render_template('lab5/create_article.html', error="Заполните заголовок и текст")
 
     try:
         conn, cur = db_connect()
@@ -160,8 +170,8 @@ def create_article():
 
         user_id = user["id"]
 
-        execute_query(cur, "INSERT INTO articles (login_id, title, article_text) VALUES (?, ?, ?);", 
-                   (user_id, title, article_text))
+        execute_query(cur, "INSERT INTO articles (login_id, title, article_text, is_favorite, is_public) VALUES (?, ?, ?, ?, ?);", 
+                   (user_id, title, article_text, is_favorite, is_public))
 
         db_close(conn, cur)
         return redirect('/lab5/list')
@@ -177,7 +187,6 @@ def edit_article(article_id):
 
     conn, cur = db_connect()
 
-    # Проверяем, принадлежит ли статья текущему пользователю
     execute_query(cur, "SELECT a.* FROM articles a JOIN users u ON a.login_id = u.id WHERE a.id = ? AND u.login = ?;", 
                  (article_id, username))
     article = cur.fetchone()
@@ -190,17 +199,18 @@ def edit_article(article_id):
         db_close(conn, cur)
         return render_template('lab5/edit_article.html', article=article)
 
-    # Обработка формы редактирования
     title = request.form.get('title')
     article_text = request.form.get('article_text')
+    is_favorite = 1 if request.form.get('is_favorite') else 0
+    is_public = 1 if request.form.get('is_public') else 0
 
     if not (title and article_text):
         db_close(conn, cur)
         return render_template('lab5/edit_article.html', article=article, error="Заполните все поля")
 
     try:
-        execute_query(cur, "UPDATE articles SET title = ?, article_text = ? WHERE id = ?;", 
-                     (title, article_text, article_id))
+        execute_query(cur, "UPDATE articles SET title = ?, article_text = ?, is_favorite = ?, is_public = ? WHERE id = ?;", 
+                     (title, article_text, is_favorite, is_public, article_id))
         db_close(conn, cur)
         return redirect('/lab5/list')
     
@@ -216,7 +226,6 @@ def delete_article(article_id):
 
     conn, cur = db_connect()
 
-    
     execute_query(cur, "SELECT a.* FROM articles a JOIN users u ON a.login_id = u.id WHERE a.id = ? AND u.login = ?;", 
                  (article_id, username))
     article = cur.fetchone()
@@ -233,6 +242,72 @@ def delete_article(article_id):
     except Exception as e:
         db_close(conn, cur)
         return f'Ошибка базы данных: {str(e)}', 500
+
+@lab5.route('/lab5/users')
+def list_users():
+    """Страница со списком всех пользователей"""
+    conn, cur = db_connect()
+    execute_query(cur, "SELECT login, real_name FROM users ORDER BY login;", ())
+    users = cur.fetchall()
+    db_close(conn, cur)
+    return render_template('lab5/users.html', users=users)
+
+@lab5.route('/lab5/profile', methods=['GET', 'POST'])
+def edit_profile():
+    """Страница изменения имени и пароля"""
+    username = session.get('username')
+    if not username:
+        return redirect('/lab5/login')
+
+    if request.method == 'GET':
+        conn, cur = db_connect()
+        execute_query(cur, "SELECT login, real_name FROM users WHERE login = ?;", (username,))
+        user = cur.fetchone()
+        db_close(conn, cur)
+        return render_template('lab5/profile.html', user=user)
+
+    # Обработка формы
+    real_name = request.form.get('real_name')
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    try:
+        conn, cur = db_connect()
+
+        # Получаем текущего пользователя
+        execute_query(cur, "SELECT * FROM users WHERE login = ?;", (username,))
+        user = cur.fetchone()
+
+        # Проверяем текущий пароль если меняется пароль
+        if new_password:
+            if not current_password:
+                db_close(conn, cur)
+                return render_template('lab5/profile.html', user=user, error="Введите текущий пароль")
+            
+            if not check_password_hash(user['password'], current_password):
+                db_close(conn, cur)
+                return render_template('lab5/profile.html', user=user, error="Неверный текущий пароль")
+            
+            if new_password != confirm_password:
+                db_close(conn, cur)
+                return render_template('lab5/profile.html', user=user, error="Новый пароль и подтверждение не совпадают")
+            
+            # Хешируем новый пароль
+            new_password_hash = generate_password_hash(new_password)
+            execute_query(cur, "UPDATE users SET real_name = ?, password = ? WHERE login = ?;", 
+                         (real_name, new_password_hash, username))
+        else:
+            # Меняем только имя
+            execute_query(cur, "UPDATE users SET real_name = ? WHERE login = ?;", 
+                         (real_name, username))
+
+        db_close(conn, cur)
+        return redirect('/lab5')
+    
+    except Exception as e:
+        db_close(conn, cur)
+        return render_template('lab5/profile.html', user=user, error=f'Ошибка базы данных: {str(e)}')
 
 @lab5.route('/lab5/logout')
 def logout():

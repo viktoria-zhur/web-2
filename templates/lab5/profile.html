@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block lab %}Лабораторная работа 5 - Редактирование профиля{% endblock %}
+
+{% block main %}
+    <h1>Редактирование профиля</h1>
+    
+    <div>
+        <a href="/lab5">← Главное меню</a>
+    </div>
+
+    {% if error %}
+        <div style="color: red;">{{ error }}</div>
+    {% endif %}
+    
+    <form method="post">
+        <div>
+            <label>Логин:</label>
+            <input type="text" value="{{ user['login'] }}" disabled>
+            <small>(логин нельзя изменить)</small>
+        </div>
+        <div>
+            <label>Реальное имя:</label>
+            <input type="text" name="real_name" value="{{ user['real_name'] or '' }}">
+        </div>
+        
+        <h3>Смена пароля</h3>
+        <div>
+            <label>Текущий пароль:</label>
+            <input type="password" name="current_password">
+        </div>
+        <div>
+            <label>Новый пароль:</label>
+            <input type="password" name="new_password">
+        </div>
+        <div>
+            <label>Подтверждение пароля:</label>
+            <input type="password" name="confirm_password">
+        </div>
+        <div>
+            <small>Оставьте поля пароля пустыми, если не хотите менять пароль</small>
+        </div>
+        
+        <div>
+            <button type="submit">Сохранить изменения</button>
+            <a href="/lab5">Отмена</a>
+        </div>
+    </form>
+{% endblock %}

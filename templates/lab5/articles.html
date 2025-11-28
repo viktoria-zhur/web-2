@@ -1,29 +1,39 @@
 {% extends "base.html" %}
 
-{% block lab %}Лабораторная работа 5 - Мои статьи{% endblock %}
+{% block lab %}Лабораторная работа 5 - Статьи{% endblock %}
 
 {% block main %}
-    <h1>Мои статьи</h1>
+    <h1>{% if username and username != 'Anonymous' %}Мои статьи{% else %}Публичные статьи{% endif %}</h1>
     
     <div>
-        <a href="/lab5">← Главное меню</a> | 
-        <a href="/lab5/create">Создать новую статью</a>
+        <a href="/lab5">← Главное меню</a> 
+        {% if username and username != 'Anonymous' %}
+        | <a href="/lab5/create">Создать новую статью</a>
+        {% endif %}
     </div>
 
     {% if articles %}
         <div>
             {% for article in articles %}
                 <div style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
-                    <h2>{{ article['title'] }}</h2>
+                    <h2>
+                        {{ article['title'] }}
+                        {% if article['is_favorite'] %} ⭐{% endif %}
+                        {% if article['is_public'] %} 🌐{% endif %}
+                    </h2>
                     <div>
                         {{ article['article_text'] | replace('\n', '<br>') | safe }}
                     </div>
                     <div>
-                        <small>ID: {{ article['id'] }}</small>
-                        {% if article['created_at'] %}
-                            <small> | Создано: {{ article['created_at'] }}</small>
-                        {% endif %}
+                        <small>
+                            ID: {{ article['id'] }} | 
+                            Автор: {{ article['author_login'] }}
+                            {% if article['created_at'] %}
+                                | Создано: {{ article['created_at'] }}
+                            {% endif %}
+                        </small>
                     </div>
+                    {% if username and username != 'Anonymous' and article['author_login'] == username %}
                     <div>
                         <a href="{{ url_for('lab5.edit_article', article_id=article['id']) }}">
                             Редактировать
@@ -34,14 +44,17 @@
                             Удалить
                         </a>
                     </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
     {% else %}
         <div>
-            <h3>У вас пока нет статей</h3>
-            <p>Создайте свою первую статью!</p>
+            <h3>Статьи не найдены</h3>
+            <p>{% if username and username != 'Anonymous' %}У вас пока нет статей. Создайте первую!{% else %}Публичные статьи отсутствуют.{% endif %}</p>
+            {% if username and username != 'Anonymous' %}
             <a href="/lab5/create">Создать первую статью</a>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}

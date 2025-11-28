@@ -9,7 +9,7 @@ lab5 = Blueprint('lab5', __name__)
 
 def db_connect():
     if current_app.config.get('DB_TYPE') == 'postgres':
-        conn = psycopopg2.connect(
+        conn = psycopg2.connect(
             host='127.0.0.1',
             database='viktoria_zhuravleva_knowledge_base',
             user='viktoria_zhuravleva_knowledge_base',
@@ -117,13 +117,11 @@ def list_articles():
     conn, cur = db_connect()
 
     if username and username != 'Anonymous':
-        # Для авторизованных пользователей - их статьи + публичные статьи других
         execute_query(cur, "SELECT id FROM users WHERE login = ?;", (username,))
         user = cur.fetchone()
         
         if user:
             user_id = user['id']
-            # Сначала любимые статьи, затем остальные, сначала свои, затем публичные других
             execute_query(cur, """
                 SELECT a.*, u.login as author_login 
                 FROM articles a 
@@ -134,7 +132,6 @@ def list_articles():
         else:
             execute_query(cur, "SELECT a.*, u.login as author_login FROM articles a JOIN users u ON a.login_id = u.id WHERE a.is_public = 1 ORDER BY a.created_at DESC;", ())
     else:
-        # Для неавторизованных - только публичные статьи
         execute_query(cur, "SELECT a.*, u.login as author_login FROM articles a JOIN users u ON a.login_id = u.id WHERE a.is_public = 1 ORDER BY a.created_at DESC;", ())
 
     articles = cur.fetchall()
@@ -170,8 +167,9 @@ def create_article():
 
         user_id = user["id"]
 
-        execute_query(cur, "INSERT INTO articles (login_id, title, article_text, is_favorite, is_public) VALUES (?, ?, ?, ?, ?);", 
-                   (user_id, title, article_text, is_favorite, is_public))
+        # Исправленный INSERT с учетом колонки likes
+        execute_query(cur, "INSERT INTO articles (login_id, title, article_text, is_favorite, is_public, likes) VALUES (?, ?, ?, ?, ?, ?);", 
+                   (user_id, title, article_text, is_favorite, is_public, 0))
 
         db_close(conn, cur)
         return redirect('/lab5/list')
@@ -209,8 +207,9 @@ def edit_article(article_id):
         return render_template('lab5/edit_article.html', article=article, error="Заполните все поля")
 
     try:
-        execute_query(cur, "UPDATE articles SET title = ?, article_text = ?, is_favorite = ?, is_public = ? WHERE id = ?;", 
-                     (title, article_text, is_favorite, is_public, article_id))
+        # Исправленный UPDATE с учетом колонки likes
+        execute_query(cur, "UPDATE articles SET title = ?, article_text = ?, is_favorite = ?, is_public = ?, likes = ? WHERE id = ?;", 
+                     (title, article_text, is_favorite, is_public, article.get('likes', 0), article_id))
         db_close(conn, cur)
         return redirect('/lab5/list')
     
@@ -245,7 +244,6 @@ def delete_article(article_id):
 
 @lab5.route('/lab5/users')
 def list_users():
-    """Страница со списком всех пользователей"""
     conn, cur = db_connect()
     execute_query(cur, "SELECT login, real_name FROM users ORDER BY login;", ())
     users = cur.fetchall()
@@ -254,7 +252,6 @@ def list_users():
 
 @lab5.route('/lab5/profile', methods=['GET', 'POST'])
 def edit_profile():
-    """Страница изменения имени и пароля"""
     username = session.get('username')
     if not username:
         return redirect('/lab5/login')
@@ -266,7 +263,6 @@ def edit_profile():
         db_close(conn, cur)
         return render_template('lab5/profile.html', user=user)
 
-    # Обработка формы
     real_name = request.form.get('real_name')
     current_password = request.form.get('current_password')
     new_password = request.form.get('new_password')
@@ -275,11 +271,9 @@ def edit_profile():
     try:
         conn, cur = db_connect()
 
-        # Получаем текущего пользователя
         execute_query(cur, "SELECT * FROM users WHERE login = ?;", (username,))
         user = cur.fetchone()
 
-        # Проверяем текущий пароль если меняется пароль
         if new_password:
             if not current_password:
                 db_close(conn, cur)
@@ -293,12 +287,10 @@ def edit_profile():
                 db_close(conn, cur)
                 return render_template('lab5/profile.html', user=user, error="Новый пароль и подтверждение не совпадают")
             
-            # Хешируем новый пароль
             new_password_hash = generate_password_hash(new_password)
             execute_query(cur, "UPDATE users SET real_name = ?, password = ? WHERE login = ?;", 
                          (real_name, new_password_hash, username))
         else:
-            # Меняем только имя
             execute_query(cur, "UPDATE users SET real_name = ? WHERE login = ?;", 
                          (real_name, username))
 

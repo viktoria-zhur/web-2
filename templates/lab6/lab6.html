@@ -2,5 +2,175 @@
 
 {% block lab %}Лабораторная работа 6{% endblock %}
 
+{% block script %}
+<script>
+    function getOfficeList() {
+        const url = '/lab6/json-rpc-api/';
+        const json = {
+            'jsonrpc': '2.0',
+            'method': 'info',
+            'id': Math.round(Math.random() * 1000)
+        };
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(json)   
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Office list:', data);
+            displayOffices(data.result);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayOffices(officeList) {
+        const ul = document.getElementById('office-list');
+        ul.innerHTML = '';
+        
+        officeList.forEach(office => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>Офис №${office.number}</strong>: ${office.tenant || 'свободен'}`;
+
+            if (!office.tenant) {
+                const bookingButton = document.createElement('button');
+                bookingButton.innerText = 'зарезервировать';
+                bookingButton.style.marginLeft = '10px';
+                bookingButton.onclick = () => booking(office.number);
+                li.appendChild(bookingButton);
+            } else {
+                const statusSpan = document.createElement('span');
+                statusSpan.style.marginLeft = '10px';
+                statusSpan.style.color = '#666';
+                statusSpan.innerText = `(занят: ${office.tenant})`;
+                li.appendChild(statusSpan);
+
+                // Добавляем кнопку отмены, если офис забронирован текущим пользователем
+                const cancelButton = document.createElement('button');
+                cancelButton.innerText = 'отменить';
+                cancelButton.style.marginLeft = '10px';
+                cancelButton.onclick = () => cancelBooking(office.number);
+                li.appendChild(cancelButton);
+            }
+
+            ul.appendChild(li);
+        });
+    }
+
+    function booking(officeNumber) {
+        console.log('Booking office:', officeNumber);
+        
+        const url = '/lab6/json-rpc-api/';
+        const json = {
+            'jsonrpc': '2.0',
+            'method': 'booking',
+            'params': {'number': officeNumber},
+            'id': Math.round(Math.random() * 1000)
+        };
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(json)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Booking response:', data);
+            
+            if (data.error) {
+                handleError(data.error);
+            } else {
+                alert('Офис №' + officeNumber + ' успешно забронирован!');
+                getOfficeList(); // Обновляем список
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при бронировании');
+        });
+    }
+
+    function cancelBooking(officeNumber) {
+        console.log('Cancelling booking for office:', officeNumber);
+        
+        const url = '/lab6/json-rpc-api/';
+        const json = {
+            'jsonrpc': '2.0',
+            'method': 'cancellation',
+            'params': {'number': officeNumber},
+            'id': Math.round(Math.random() * 1000)
+        };
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(json)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Cancel response:', data);
+            
+            if (data.error) {
+                handleError(data.error);
+            } else {
+                alert('Бронь офиса №' + officeNumber + ' отменена!');
+                getOfficeList(); // Обновляем список
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Произошла ошибка при отмене брони');
+        });
+    }
+
+    function handleError(error) {
+        switch(error.code) {
+            case 1:
+                alert('Вы не авторизованы, пожалуйста, авторизуйтесь');
+                window.location.href = '/lab6/login';
+                break;
+            case 2:
+                alert('Офис уже арендуется');
+                break;
+            case 3:
+                alert('Офис не найден');
+                break;
+            case 4:
+                alert('Вы можете отменять только свои бронирования');
+                break;
+            case -32601:
+                alert('Странная ошибка: метод не найден');
+                break;
+            case -32600:
+                alert('Некорректный запрос');
+                break;
+            default:
+                alert('Неизвестная ошибка: ' + error.message);
+                break;
+        }
+    }
+
+    // Загружаем список при загрузке страницы
+    document.addEventListener('DOMContentLoaded', getOfficeList);
+</script>
+{% endblock %}
+
 {% block main %}
+    <h1>Аренда офисов</h1>
+    
+    <div style="margin-bottom: 20px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+        {% if session.get('login') %}
+            <p>Вы вошли как: <strong>{{ session['login'] }}</strong> | 
+               <a href="{{ url_for('lab6.logout') }}">Выйти</a>
+            </p>
+        {% else %}
+            <p><a href="{{ url_for('lab6.login') }}" style="color: blue; text-decoration: underline;">Войдите</a> чтобы бронировать офисы</p>
+        {% endif %}
+    </div>
+    
+    <h2>Список офисов:</h2>
+    <ul id="office-list" style="list-style: none; padding: 0;"></ul>
+    
+    <button onclick="getOfficeList()" style="margin-top: 20px; padding: 10px;">Обновить список</button>
 {% endblock %}

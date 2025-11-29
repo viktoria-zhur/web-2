@@ -31,27 +31,34 @@
         
         officeList.forEach(office => {
             const li = document.createElement('li');
-            li.innerHTML = `<strong>Офис №${office.number}</strong>: ${office.tenant || 'свободен'}`;
+            li.style.padding = '10px';
+            li.style.border = '1px solid #ddd';
+            li.style.margin = '5px 0';
+            li.style.borderRadius = '5px';
 
             if (!office.tenant) {
+                // Свободный офис - показываем кнопку бронирования
+                li.innerHTML = `<strong>Офис №${office.number}</strong>: свободен`;
                 const bookingButton = document.createElement('button');
-                bookingButton.innerText = 'зарезервировать';
+                bookingButton.innerText = 'забронировать';
                 bookingButton.style.marginLeft = '10px';
                 bookingButton.onclick = () => booking(office.number);
                 li.appendChild(bookingButton);
             } else {
-                const statusSpan = document.createElement('span');
-                statusSpan.style.marginLeft = '10px';
-                statusSpan.style.color = '#666';
-                statusSpan.innerText = `(занят: ${office.tenant})`;
-                li.appendChild(statusSpan);
-
-                // Добавляем кнопку отмены, если офис забронирован текущим пользователем
-                const cancelButton = document.createElement('button');
-                cancelButton.innerText = 'отменить';
-                cancelButton.style.marginLeft = '10px';
-                cancelButton.onclick = () => cancelBooking(office.number);
-                li.appendChild(cancelButton);
+                // Занятый офис - показываем арендатора и кнопку освобождения
+                li.innerHTML = `<strong>Офис №${office.number}</strong>: занят (${office.tenant})`;
+                
+                // Показываем кнопку "освободить" только если офис занят текущим пользователем
+                {% if session.get('login') %}
+                    if (office.tenant === "{{ session['login'] }}") {
+                        const freeButton = document.createElement('button');
+                        freeButton.innerText = 'освободить';
+                        freeButton.style.marginLeft = '10px';
+                        freeButton.style.backgroundColor = '#ff6b6b';
+                        freeButton.onclick = () => cancelBooking(office.number);
+                        li.appendChild(freeButton);
+                    }
+                {% endif %}
             }
 
             ul.appendChild(li);
@@ -82,7 +89,7 @@
                 handleError(data.error);
             } else {
                 alert('Офис №' + officeNumber + ' успешно забронирован!');
-                getOfficeList(); // Обновляем список
+                getOfficeList();
             }
         })
         .catch(error => {
@@ -114,13 +121,13 @@
             if (data.error) {
                 handleError(data.error);
             } else {
-                alert('Бронь офиса №' + officeNumber + ' отменена!');
-                getOfficeList(); // Обновляем список
+                alert('Офис №' + officeNumber + ' освобожден!');
+                getOfficeList();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Произошла ошибка при отмене брони');
+            alert('Произошла ошибка при освобождении офиса');
         });
     }
 
@@ -139,11 +146,11 @@
             case 4:
                 alert('Вы можете отменять только свои бронирования');
                 break;
+            case 5:
+                alert('Офис не арендован, нельзя освободить');
+                break;
             case -32601:
                 alert('Странная ошибка: метод не найден');
-                break;
-            case -32600:
-                alert('Некорректный запрос');
                 break;
             default:
                 alert('Неизвестная ошибка: ' + error.message);

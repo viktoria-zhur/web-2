@@ -55,7 +55,7 @@ def api():
             'id': request_id
         })
     
-    # Для методов бронирования нужна авторизация
+    # Для методов бронирования и отмены нужна авторизация
     login = session.get('login')
     if not login:
         return jsonify({
@@ -72,6 +72,7 @@ def api():
         
         for office in offices:
             if office['number'] == office_number:
+                # Проверка: офис не должен быть уже арендован
                 if office['tenant']:
                     return jsonify({
                         'jsonrpc': '2.0',
@@ -81,6 +82,7 @@ def api():
                         },
                         'id': request_id
                     })
+                # Бронируем офис
                 office['tenant'] = login 
                 return jsonify({
                     'jsonrpc': '2.0',
@@ -102,14 +104,18 @@ def api():
         
         for office in offices:
             if office['number'] == office_number:
-                if office['tenant'] == login:
-                    office['tenant'] = ""
+                # Проверка: офис должен быть арендован
+                if not office['tenant']:
                     return jsonify({
                         'jsonrpc': '2.0',
-                        'result': 'success',
+                        'error': {
+                            'code': 5,
+                            'message': f'Office {office_number} is not booked'
+                        },
                         'id': request_id
                     })
-                else:
+                # Проверка: офис должен быть арендован текущим пользователем
+                if office['tenant'] != login:
                     return jsonify({
                         'jsonrpc': '2.0',
                         'error': {
@@ -118,6 +124,13 @@ def api():
                         },
                         'id': request_id
                     })
+                # Снимаем аренду
+                office['tenant'] = ""
+                return jsonify({
+                    'jsonrpc': '2.0',
+                    'result': 'success',
+                    'id': request_id
+                })
         
         return jsonify({
             'jsonrpc': '2.0',

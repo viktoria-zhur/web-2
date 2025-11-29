@@ -2,10 +2,11 @@ from flask import Blueprint, render_template, request, jsonify, session, redirec
 
 lab6 = Blueprint('lab6', __name__)
 
-# Глобальный список офисов
+# Глобальный список офисов с разной стоимостью
 offices = []
 for i in range(1, 11):
-    offices.append({"number": i, "tenant": ""})
+    # Разная стоимость: 900 + номер_офиса * 100
+    offices.append({"number": i, "tenant": "", "price": 900 + i * 100})
 
 @lab6.route('/lab6/')
 def main():

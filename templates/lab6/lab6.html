@@ -21,6 +21,7 @@
         .then(data => {
             console.log('Office list:', data);
             displayOffices(data.result);
+            calculateTotalCost(data.result);
         })
         .catch(error => console.error('Error:', error));
     }
@@ -38,7 +39,7 @@
 
             if (!office.tenant) {
                 // Свободный офис - показываем кнопку бронирования
-                li.innerHTML = `<strong>Офис №${office.number}</strong>: свободен`;
+                li.innerHTML = `<strong>Офис №${office.number}</strong>: свободен | Стоимость: ${office.price} руб./мес.`;
                 const bookingButton = document.createElement('button');
                 bookingButton.innerText = 'забронировать';
                 bookingButton.style.marginLeft = '10px';
@@ -46,7 +47,7 @@
                 li.appendChild(bookingButton);
             } else {
                 // Занятый офис - показываем арендатора и кнопку освобождения
-                li.innerHTML = `<strong>Офис №${office.number}</strong>: занят (${office.tenant})`;
+                li.innerHTML = `<strong>Офис №${office.number}</strong>: занят (${office.tenant}) | Стоимость: ${office.price} руб./мес.`;
                 
                 // Показываем кнопку "освободить" только если офис занят текущим пользователем
                 {% if session.get('login') %}
@@ -63,6 +64,34 @@
 
             ul.appendChild(li);
         });
+    }
+
+    function calculateTotalCost(officeList) {
+        const totalCostElement = document.getElementById('total-cost');
+        {% if session.get('login') %}
+            const userLogin = "{{ session['login'] }}";
+            let totalCost = 0;
+            let userOffices = [];
+            
+            officeList.forEach(office => {
+                if (office.tenant === userLogin) {
+                    totalCost += office.price;
+                    userOffices.push(office.number);
+                }
+            });
+            
+            if (userOffices.length > 0) {
+                totalCostElement.innerHTML = `
+                    <h3>Ваша аренда:</h3>
+                    <p>Арендованные офисы: №${userOffices.join(', №')}</p>
+                    <p><strong>Общая стоимость: ${totalCost} руб./мес.</strong></p>
+                `;
+            } else {
+                totalCostElement.innerHTML = '<p>У вас нет арендованных офисов</p>';
+            }
+        {% else %}
+            totalCostElement.innerHTML = '<p>Войдите, чтобы увидеть стоимость аренды</p>';
+        {% endif %}
     }
 
     function booking(officeNumber) {
@@ -178,6 +207,10 @@
     
     <h2>Список офисов:</h2>
     <ul id="office-list" style="list-style: none; padding: 0;"></ul>
+    
+    <div id="total-cost" style="margin: 20px 0; padding: 15px; background: #e8f5e8; border-radius: 5px; border: 1px solid #4caf50;">
+        <!-- Здесь будет отображаться общая стоимость аренды -->
+    </div>
     
     <button onclick="getOfficeList()" style="margin-top: 20px; padding: 10px;">Обновить список</button>
 {% endblock %}

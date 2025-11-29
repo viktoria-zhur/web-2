@@ -2,17 +2,15 @@ from flask import Flask, url_for, request, redirect, abort, render_template, cur
 import datetime
 import os
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
 
 load_dotenv()
 
-from lab1 import lab1
-from lab2 import lab2
-from lab3 import lab3
-from lab4 import lab4
-from lab5 import lab5
-from lab6 import lab6
-
 app = Flask(__name__)
+
+# Конфигурация базы данных для lab6
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///offices.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'секретно-секретный секрет')
 app.config['DB_TYPE'] = 'sqlite'
@@ -23,12 +21,26 @@ app.config['SESSION_COOKIE_SECURE'] = False  # Для HTTP на PythonAnywhere
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
+# Инициализация базы данных
+db = SQLAlchemy(app)
+
+from lab1 import lab1
+from lab2 import lab2
+from lab3 import lab3
+from lab4 import lab4
+from lab5 import lab5
+from lab6 import lab6
+
 app.register_blueprint(lab1)
 app.register_blueprint(lab2)
 app.register_blueprint(lab3)
 app.register_blueprint(lab4)
 app.register_blueprint(lab5)
 app.register_blueprint(lab6)
+
+# Создаем таблицы при первом запуске
+with app.app_context():
+    db.create_all()
 
 access_log = []
 count = 0  

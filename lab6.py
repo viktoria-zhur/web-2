@@ -1,12 +1,21 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from app import db
 
 lab6 = Blueprint('lab6', __name__)
 
-# Глобальный список офисов с разной стоимостью
-offices = []
-for i in range(1, 11):
-    # Разная стоимость: 900 + номер_офиса * 100
-    offices.append({"number": i, "tenant": "", "price": 900 + i * 100})
+# Модель Office для базы данных
+class Office(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, unique=True, nullable=False)
+    tenant = db.Column(db.String(100), nullable=True)
+    price = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        return {
+            'number': self.number,
+            'tenant': self.tenant,
+            'price': self.price
+        }
 
 @lab6.route('/lab6/')
 def main():
@@ -29,6 +38,24 @@ def logout():
     session.pop('login', None)
     return redirect(url_for('lab6.main'))
 
+@lab6.route('/lab6/init-db')
+def init_db():
+    """Инициализация базы данных с офисами"""
+    # Очищаем существующие данные
+    Office.query.delete()
+    
+    # Создаем 10 офисов с разной стоимостью
+    for i in range(1, 11):
+        office = Office(
+            number=i,
+            tenant="",
+            price=900 + i * 100
+        )
+        db.session.add(office)
+    
+    db.session.commit()
+    return 'База данных инициализирована! <a href="/lab6/">Вернуться на главную</a>'
+
 @lab6.route('/lab6/json-rpc-api/', methods=['POST'])
 def api():
     data = request.get_json()
@@ -50,9 +77,12 @@ def api():
     
     # Метод info доступен без авторизации
     if method == 'info':
+        # Получаем все офисы из базы данных
+        offices = Office.query.order_by(Office.number).all()
+        offices_list = [office.to_dict() for office in offices]
         return jsonify({
             'jsonrpc': '2.0',
-            'result': offices,
+            'result': offices_list,
             'id': request_id
         })
     
@@ -71,74 +101,105 @@ def api():
     if method == 'booking':
         office_number = params.get('number')
         
-        for office in offices:
-            if office['number'] == office_number:
-                # Проверка: офис не должен быть уже арендован
-                if office['tenant']:
-                    return jsonify({
-                        'jsonrpc': '2.0',
-                        'error': {
-                            'code': 2,
-                            'message': f'Office {office_number} is already booked'
-                        },
-                        'id': request_id
-                    })
-                # Бронируем офис
-                office['tenant'] = login 
-                return jsonify({
-                    'jsonrpc': '2.0',
-                    'result': 'success',
-                    'id': request_id
-                })
+        if not office_number:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': -32602,
+                    'message': 'Invalid params: number required'
+                },
+                'id': request_id
+            })
+        
+        # Ищем офис в базе данных
+        office = Office.query.filter_by(number=office_number).first()
+        
+        if not office:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 3,
+                    'message': f'Office {office_number} not found'
+                },
+                'id': request_id
+            })
+        
+        # Проверка: офис не должен быть уже арендован
+        if office.tenant:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 2,
+                    'message': f'Office {office_number} is already booked'
+                },
+                'id': request_id
+            })
+        
+        # Бронируем офис в базе данных
+        office.tenant = login
+        db.session.commit()
         
         return jsonify({
             'jsonrpc': '2.0',
-            'error': {
-                'code': 3,
-                'message': f'Office {office_number} not found'
-            },
+            'result': 'success',
             'id': request_id
         })
     
     elif method == 'cancellation':
         office_number = params.get('number')
         
-        for office in offices:
-            if office['number'] == office_number:
-                # Проверка: офис должен быть арендован
-                if not office['tenant']:
-                    return jsonify({
-                        'jsonrpc': '2.0',
-                        'error': {
-                            'code': 5,
-                            'message': f'Office {office_number} is not booked'
-                        },
-                        'id': request_id
-                    })
-                # Проверка: офис должен быть арендован текущим пользователем
-                if office['tenant'] != login:
-                    return jsonify({
-                        'jsonrpc': '2.0',
-                        'error': {
-                            'code': 4,
-                            'message': 'You can only cancel your own bookings'
-                        },
-                        'id': request_id
-                    })
-                # Снимаем аренду
-                office['tenant'] = ""
-                return jsonify({
-                    'jsonrpc': '2.0',
-                    'result': 'success',
-                    'id': request_id
-                })
+        if not office_number:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': -32602,
+                    'message': 'Invalid params: number required'
+                },
+                'id': request_id
+            })
+        
+        # Ищем офис в базе данных
+        office = Office.query.filter_by(number=office_number).first()
+        
+        if not office:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 3,
+                    'message': f'Office {office_number} not found'
+                },
+                'id': request_id
+            })
+        
+        # Проверка: офис должен быть арендован
+        if not office.tenant:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 5,
+                    'message': f'Office {office_number} is not booked'
+                },
+                'id': request_id
+            })
+        
+        # Проверка: офис должен быть арендован текущим пользователем
+        if office.tenant != login:
+            return jsonify({
+                'jsonrpc': '2.0',
+                'error': {
+                    'code': 4,
+                    'message': 'You can only cancel your own bookings'
+                },
+                'id': request_id
+            })
+        
+        # Снимаем аренду в базе данных
+        office.tenant = ""
+        db.session.commit()
         
         return jsonify({
             'jsonrpc': '2.0',
-            'error': {
-                'code': 3,
-                'message': f'Office {office_number} not found'
-            },
+            'result': 'success',
             'id': request_id
         })
     

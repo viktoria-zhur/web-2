@@ -32,13 +32,14 @@ from lab5 import lab5
 from lab6 import lab6
 from lab7 import lab7
 
+# Регистрируем Blueprint для lab7 с правильным url_prefix
 app.register_blueprint(lab1)
 app.register_blueprint(lab2)
 app.register_blueprint(lab3)
 app.register_blueprint(lab4)
 app.register_blueprint(lab5)
 app.register_blueprint(lab6)
-app.register_blueprint(lab7)
+app.register_blueprint(lab7, url_prefix='/lab7')  # Добавляем url_prefix для lab7
 
 # Создаем таблицы при первом запуске
 with app.app_context():
@@ -120,7 +121,7 @@ def index():
     lab4_url = url_for('lab4.lab')
     lab5_url = url_for('lab5.main')
     lab6_url = url_for('lab6.main')
-    lab7_url = url_for('lab7.main')
+    lab7_url = url_for('lab7.main')  # Правильное имя переменной
 
     return f'''
     <!doctype html>
@@ -146,7 +147,7 @@ def index():
                             <li><a href="{lab4_url}">Лабораторная работа 4</a></li>
                             <li><a href="{lab5_url}">Лабораторная работа 5</a></li>
                             <li><a href="{lab6_url}">Лабораторная работа 6</a></li>
-                            <li><a href="{lab7_url}">Лабораторная работа 7</a></li>  
+                            <li><a href="{lab7_url}">Лабораторная работа 7</a></li>  <!-- Исправлено lab_url → lab7_url -->
                         </ul>
                     </div>
                 </main>
@@ -183,7 +184,7 @@ def internal_server_error(err):
                 </div>
                 <div class="info-box error-details">
                     <h2>Что произошло?</h2>
-                    <p>На сервере произошла внутренняя ошибка. Наша команда уже уведомлена и работает над решением проблемы.</p>
+                    <p>На сервере произошла внутренняя ошибка. Наша команда уже уведомлена и работает над решениием проблемы.</p>
                     <div class="error-actions">
                         <h3>Что можно сделать:</h3>
                         <ul>

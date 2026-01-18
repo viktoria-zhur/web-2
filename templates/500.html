@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Ошибка сервера | НГТУ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ngtu-red: #c41230;
+            --ngtu-blue: #0056a6;
+            --ngtu-orange: #ff6f00;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .error-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            padding: 50px;
+            border-top: 8px solid var(--ngtu-orange);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: var(--ngtu-orange);
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            line-height: 1;
+        }
+        
+        .btn-ngtu {
+            background: linear-gradient(90deg, var(--ngtu-orange), var(--ngtu-red));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container text-center">
+            <div class="error-code mb-4">500</div>
+            <h1 class="mb-4" style="color: var(--ngtu-red);">
+                <i class="fas fa-server me-2"></i>Внутренняя ошибка сервера
+            </h1>
+            <p class="lead mb-4">
+                На сервере произошла непредвиденная ошибка.
+            </p>
+            <p class="mb-5">
+                Наша команда уже уведомлена о проблеме и работает над её решением.
+            </p>
+            
+            <div class="row mt-5">
+                <div class="col-md-6 mb-3">
+                    <a href="/" class="btn-ngtu w-100">
+                        <i class="fas fa-home me-2"></i>На главную
+                    </a>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <a href="javascript:location.reload()" class="btn btn-outline-warning w-100">
+                        <i class="fas fa-redo me-2"></i>Обновить страницу
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-5 pt-4 border-top">
+                <p class="text-muted">
+                    <i class="fas fa-university me-1"></i>
+                    {{ student.university }}
+                </p>
+                <p class="text-muted mb-0">
+                    <small>Система лабораторных работ по Web-программированию</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+</body>
+</html>

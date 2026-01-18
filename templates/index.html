@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>НГТУ | Лабораторные работы | {{ student.name }}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Цвета НГТУ */
+        :root {
+            --ngtu-red: #c41230;      /* Основной красный */
+            --ngtu-blue: #0056a6;     /* Синий */
+            --ngtu-dark-blue: #003366; /* Темно-синий */
+            --ngtu-light-blue: #e6f0ff; /* Светло-синий */
+            --ngtu-gray: #f5f5f5;     /* Серый фон */
+            --ngtu-text: #333333;     /* Основной текст */
+            --ngtu-gold: #ffd700;     /* Золотой для акцентов */
+            --ngtu-green: #2e7d32;    /* Зеленый */
+            --ngtu-orange: #ff6f00;   /* Оранжевый */
+            --ngtu-purple: #6a1b9a;   /* Фиолетовый */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--ngtu-gray);
+            color: var(--ngtu-text);
+            line-height: 1.6;
+        }
+        
+        /* Шапка в стиле НГТУ */
+        .header-ngtu {
+            background: linear-gradient(135deg, var(--ngtu-red) 0%, var(--ngtu-dark-blue) 100%);
+            color: white;
+            padding: 50px 0 30px;
+            border-bottom: 5px solid var(--ngtu-gold);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-ngtu::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+        
+        .ngtu-logo {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .ngtu-logo small {
+            font-size: 1.2rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        
+        /* Карточка студента */
+        .student-card-ngtu {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--ngtu-red);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .student-header {
+            background: linear-gradient(90deg, var(--ngtu-blue), var(--ngtu-dark-blue));
+            color: white;
+            padding: 20px;
+        }
+        
+        .student-body {
+            padding: 25px;
+        }
+        
+        /* Карточки лабораторных */
+        .lab-card-ngtu {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            overflow: hidden;
+        }
+        
+        .lab-card-ngtu:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            text-decoration: none;
+            color: inherit;
+            border-color: var(--ngtu-red);
+        }
+        
+        .lab-icon-wrapper {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+        }
+        
+        .ngtu-red { background: linear-gradient(135deg, var(--ngtu-red), #a01028); }
+        .ngtu-blue { background: linear-gradient(135deg, var(--ngtu-blue), #004080); }
+        .ngtu-green { background: linear-gradient(135deg, var(--ngtu-green), #1b5e20); }
+        .ngtu-orange { background: linear-gradient(135deg, var(--ngtu-orange), #cc5a00); }
+        .ngtu-purple { background: linear-gradient(135deg, var(--ngtu-purple), #4a148c); }
+        .ngtu-dark-blue { background: linear-gradient(135deg, var(--ngtu-dark-blue), #002244); }
+        .ngtu-gold { background: linear-gradient(135deg, var(--ngtu-gold), #ffc400); color: #333 !important; }
+        
+        .lab-content {
+            padding: 25px;
+        }
+        
+        .lab-number {
+            font-size: 0.9rem;
+            color: var(--ngtu-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-ngtu {
+            background: linear-gradient(90deg, var(--ngtu-red), var(--ngtu-blue));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-ngtu:hover {
+            background: linear-gradient(90deg, var(--ngtu-blue), var(--ngtu-red));
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(198, 18, 48, 0.3);
+        }
+        
+        .btn-ngtu-outline {
+            background: transparent;
+            border: 2px solid var(--ngtu-red);
+            color: var(--ngtu-red);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-ngtu-outline:hover {
+            background: var(--ngtu-red);
+            color: white;
+        }
+        
+        /* Статистика */
+        .stats-card-ngtu {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--ngtu-blue);
+            transition: transform 0.3s;
+        }
+        
+        .stats-card-ngtu:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--ngtu-red);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        /* Подвал */
+        .footer-ngtu {
+            background: linear-gradient(90deg, var(--ngtu-dark-blue), #002244);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+            border-top: 5px solid var(--ngtu-gold);
+        }
+        
+        .ngtu-badge {
+            background: linear-gradient(90deg, var(--ngtu-red), var(--ngtu-blue));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .progress-bar-ngtu {
+            background: linear-gradient(90deg, var(--ngtu-red), var(--ngtu-blue));
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-ngtu {
+                padding: 30px 0 20px;
+            }
+            
+            .ngtu-logo {
+                font-size: 2rem;
+            }
+            
+            .lab-icon-wrapper {
+                height: 100px;
+                font-size: 2rem;
+            }
+            
+            .lab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка НГТУ -->
+    <header class="header-ngtu">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="ngtu-logo mb-3">
+                        НОВОСИБИРСКИЙ ГОСУДАРСТВЕННЫЙ ТЕХНИЧЕСКИЙ УНИВЕРСИТЕТ
+                        <br>
+                        <small>Кафедра информационных систем и технологий</small>
+                    </div>
+                    <h2 class="mb-0">Лабораторные работы по Web-программированию</h2>
+                    <p class="mb-0">Курс "Web-программирование", часть 2</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <div class="bg-white text-dark rounded-3 p-3 d-inline-block shadow">
+                        <h5 class="mb-2" style="color: var(--ngtu-red);">
+                            <i class="fas fa-user-graduate me-2"></i>{{ student.name }}
+                        </h5>
+                        <p class="mb-1"><i class="fas fa-users me-2"></i>{{ student.group }}</p>
+                        <p class="mb-0"><i class="fas fa-calendar-alt me-2"></i>{{ student.year }} учебный год</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <!-- Карточка студента -->
+        <div class="student-card-ngtu">
+            <div class="student-header">
+                <h3 class="mb-0"><i class="fas fa-id-card me-2"></i>Информация о студенте</h3>
+            </div>
+            <div class="student-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3" style="color: var(--ngtu-blue);">
+                            <i class="fas fa-user me-2"></i>Личные данные
+                        </h5>
+                        <p><strong>ФИО:</strong> {{ student.name }}</p>
+                        <p><strong>Группа:</strong> {{ student.group }}</p>
+                        <p><strong>Курс:</strong> 3 курс</p>
+                        <p><strong>Год обучения:</strong> {{ student.year }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="mb-3" style="color: var(--ngtu-blue);">
+                            <i class="fas fa-university me-2"></i>Образовательная информация
+                        </h5>
+                        <p><strong>Университет:</strong> {{ student.university }}</p>
+                        <p><strong>Факультет:</strong> {{ student.faculty }}</p>
+                        <p><strong>Специальность:</strong> {{ student.specialty }}</p>
+                        <p><strong>Дисциплина:</strong> {{ student.course }}</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="ngtu-badge"><i class="fas fa-check-circle me-1"></i> Все работы выполнены</span>
+                    <span class="ngtu-badge"><i class="fas fa-code me-1"></i> Web-программирование</span>
+                    <span class="ngtu-badge"><i class="fas fa-graduation-cap me-1"></i> ФБИ-34</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="row mb-5">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stats-card-ngtu">
+                    <div class="stat-number">7</div>
+                    <p>Лабораторных работ</p>
+                    <i class="fas fa-file-code fa-2x text-muted"></i>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stats-card-ngtu">
+                    <div class="stat-number">100%</div>
+                    <p>Выполнено</p>
+                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stats-card-ngtu">
+                    <div class="stat-number">{{ student.year }}</div>
+                    <p>Год обучения</p>
+                    <i class="fas fa-calendar-alt fa-2x text-muted"></i>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stats-card-ngtu">
+                    <div class="stat-number">НГТУ</div>
+                    <p>Университет</p>
+                    <i class="fas fa-university fa-2x" style="color: var(--ngtu-red);"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Лабораторные работы -->
+        <h2 class="text-center mb-5" style="color: var(--ngtu-dark-blue);">
+            <i class="fas fa-flask me-2"></i>Лабораторные работы
+        </h2>
+        
+        <div class="row g-4 mb-5">
+            {% for lab in labs %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <a href="{{ lab.url }}" class="lab-card-ngtu">
+                    <div class="lab-icon-wrapper {{ lab.color }}">
+                        <i class="{{ lab.icon }}"></i>
+                    </div>
+                    <div class="lab-content">
+                        <div class="lab-number">Лабораторная работа №{{ lab.number }}</div>
+                        <h4 class="mb-3">{{ lab.title }}</h4>
+                        
+                        <p class="text-muted small mb-4">
+                            {% if lab.number == 1 %}
+                            Основы Flask, HTML, CSS, работа с маршрутами и шаблонами
+                            {% elif lab.number == 2 %}
+                            Шаблоны Jinja2, наследование шаблонов, макросы и фильтры
+                            {% elif lab.number == 3 %}
+                            Формы, JavaScript, обработка пользовательских данных
+                            {% elif lab.number == 4 %}
+                            DOM-манипуляции, AJAX запросы, асинхронные операции
+                            {% elif lab.number == 5 %}
+                            REST API, JSON, работа с внешними сервисами
+                            {% elif lab.number == 6 %}
+                            Работа с базами данных, SQLAlchemy, модели
+                            {% elif lab.number == 7 %}
+                            Полноценное Flask приложение с БД, валидация, CRUD
+                            {% endif %}
+                        </p>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-ngtu">
+                                <i class="fas fa-arrow-right me-2"></i>Перейти к работе
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Дополнительное задание -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="student-card-ngtu">
+                    <div class="student-header" style="background: linear-gradient(90deg, var(--ngtu-orange), var(--ngtu-purple));">
+                        <h3 class="mb-0"><i class="fas fa-trophy me-2"></i>Дополнительное задание</h3>
+                    </div>
+                    <div class="student-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="mb-3" style="color: var(--ngtu-purple);">
+                                    Лабораторная работа 7: Расширенная версия
+                                </h4>
+                                <p class="mb-3">Полная реализация с базой данных, валидацией и REST API для управления фильмами.</p>
+                                <ul class="mb-0">
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> Валидация данных на бэкенде</li>
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> База данных SQLite с SQLAlchemy</li>
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> Полный CRUD через REST API</li>
+                                    <li><i class="fas fa-check-circle text-success me-2"></i> Современный пользовательский интерфейс</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="/lab7-final" class="btn btn-ngtu btn-lg">
+                                    <i class="fas fa-rocket me-2"></i>Перейти к заданию
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Прогресс обучения -->
+        <div class="student-card-ngtu">
+            <div class="student-header" style="background: linear-gradient(90deg, var(--ngtu-green), var(--ngtu-blue));">
+                <h3 class="mb-0"><i class="fas fa-chart-line me-2"></i>Прогресс обучения</h3>
+            </div>
+            <div class="student-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-3">Выполнение лабораторных работ</h5>
+                        <div class="progress mb-4" style="height: 25px;">
+                            <div class="progress-bar progress-bar-ngtu progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 100%;" 
+                                 aria-valuenow="100" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                <strong>100% выполнено</strong>
+                            </div>
+                        </div>
+                        <p class="mb-0">Все 7 лабораторных работ успешно выполнены и проверены.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="display-4 fw-bold" style="color: var(--ngtu-green);">100%</div>
+                        <p class="text-muted">Выполнено</p>
+                    </div>
+                </div>
+                
+                <div class="row text-center mt-4">
+                    {% for i in range(1, 8) %}
+                    <div class="col">
+                        <div class="ngtu-badge" style="background: var(--ngtu-blue);">
+                            <i class="fas fa-check me-1"></i> Lab {{ i }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer-ngtu">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-3">
+                        <i class="fas fa-graduation-cap me-2"></i>{{ student.university }}
+                    </h5>
+                    <p>{{ student.faculty }}</p>
+                    <p>Кафедра информационных систем и технологий</p>
+                    <p class="mb-0">Курс "Web-программирование", часть 2</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5 class="mb-3">
+                        <i class="fas fa-user-graduate me-2"></i>Студент
+                    </h5>
+                    <p>{{ student.name }}</p>
+                    <p>{{ student.group }} | {{ student.year }} учебный год</p>
+                    <p class="mb-0">
+                        <small>© {{ student.year }} Все лабораторные работы выполнены самостоятельно</small>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.2);">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-0">
+                        <small>
+                            <i class="fas fa-laptop-code me-1"></i> 
+                            Лабораторные работы по курсу Web-программирование
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Анимация карточек при наведении
+        document.addEventListener('DOMContentLoaded', function() {
+            const labCards = document.querySelectorAll('.lab-card-ngtu');
+            
+            labCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Подсветка текущей лабораторной в меню
+            const currentPage = window.location.pathname;
+            const navLinks = document.querySelectorAll('.lab-card-ngtu');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.style.borderColor = 'var(--ngtu-gold)';
+                    link.style.boxShadow = '0 0 0 2px var(--ngtu-gold), 0 10px 20px rgba(0,0,0,0.1)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

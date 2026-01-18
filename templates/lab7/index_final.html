@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lab7 с БД</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                 color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .task-complete { background: #e8f5e9; padding: 20px; border-radius: 8px; 
+                        border-left: 5px solid #4CAF50; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #4CAF50; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border: 1px solid #ddd; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; 
+               font-weight: bold; margin: 5px; }
+        .btn-add { background: #9C27B0; color: white; }
+        .btn-edit { background: #FF9800; color: white; }
+        .btn-delete { background: #f44336; color: white; }
+        .form-group { margin: 15px 0; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; }
+        .error { color: #f44336; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <a href="/" style="display: inline-block; padding: 10px 20px; background: #4CAF50; 
+       color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        ← Назад к меню
+    </a>
+</div>
+    <div class="header">
+        <h1>🎬 Лабораторная работа 7</h1>
+        <h2>Управление фильмами с базой данных</h2>
+    </div>
+    
+    <div class="task-complete">
+        <h3>✅ Дополнительное задание выполнено:</h3>
+        <p><strong>1. Валидация на бэкенде:</strong> Русское название обязательно, год 1895-текущий, описание до 2000 символов</p>
+        <p><strong>2. База данных:</strong> SQLite, таблица movies_final, данные сохраняются</p>
+        <p><strong>Фильмов в базе:</strong> <span id="films-count">{{ films_count }}</span></p>
+    </div>
+    
+    <div>
+        <button class="btn btn-add" onclick="showAddForm()">+ Добавить фильм</button>
+        <button class="btn" onclick="loadFilms()">🔄 Обновить список</button>
+    </div>
+    
+    <h3>Список фильмов:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Оригинальное название</th>
+                <th>Русское название</th>
+                <th>Год</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="films-table"></tbody>
+    </table>
+    
+    <div id="form-container" style="display: none; margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+        <h3 id="form-title">Добавление фильма</h3>
+        <div class="form-group">
+            <label>Оригинальное название:</label>
+            <input type="text" id="film-title" placeholder="Введите оригинальное название">
+        </div>
+        <div class="form-group">
+            <label>Русское название *:</label>
+            <input type="text" id="film-title-ru" placeholder="Введите русское название" required>
+        </div>
+        <div class="form-group">
+            <label>Год *:</label>
+            <input type="number" id="film-year" min="1895" max="2025" value="2024">
+        </div>
+        <div class="form-group">
+            <label>Описание *:</label>
+            <textarea id="film-description" rows="4" placeholder="Введите описание (макс. 2000 символов)"></textarea>
+        </div>
+        <input type="hidden" id="film-id" value="">
+        <button class="btn btn-add" onclick="saveFilm()">💾 Сохранить</button>
+        <button class="btn" onclick="hideForm()">❌ Отмена</button>
+        <div id="error-message" class="error"></div>
+    </div>
+    
+    <script>
+    let editingId = null;
+    
+    // Загрузка фильмов
+    function loadFilms() {
+        fetch('/api/films')
+            .then(r => r.json())
+            .then(films => {
+                const tbody = document.getElementById('films-table');
+                tbody.innerHTML = '';
+                
+                films.forEach(film => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${film.id}</td>
+                        <td>${film.title === film.title_ru ? '' : film.title}</td>
+                        <td>${film.title_ru}</td>
+                        <td>${film.year}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editFilm(${film.id})">✏️ Ред.</button>
+                            <button class="btn btn-delete" onclick="deleteFilm(${film.id}, '${film.title_ru}')">🗑️ Уд.</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                document.getElementById('films-count').textContent = films.length;
+            });
+    }
+    
+    // Показать форму добавления
+    function showAddForm() {
+        editingId = null;
+        document.getElementById('form-title').textContent = 'Добавление фильма';
+        document.getElementById('film-id').value = '';
+        document.getElementById('film-title').value = '';
+        document.getElementById('film-title-ru').value = '';
+        document.getElementById('film-year').value = new Date().getFullYear();
+        document.getElementById('film-description').value = '';
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('error-message').textContent = '';
+    }
+    
+    // Редактировать фильм
+    function editFilm(id) {
+        fetch(`/api/films/${id}`)
+            .then(r => r.json())
+            .then(film => {
+                editingId = id;
+                document.getElementById('form-title').textContent = 'Редактирование фильма';
+                document.getElementById('film-id').value = id;
+                document.getElementById('film-title').value = film.title;
+                document.getElementById('film-title-ru').value = film.title_ru;
+                document.getElementById('film-year').value = film.year;
+                document.getElementById('film-description').value = film.description;
+                document.getElementById('form-container').style.display = 'block';
+                document.getElementById('error-message').textContent = '';
+            });
+    }
+    
+    // Сохранить фильм
+    function saveFilm() {
+        const filmData = {
+            title: document.getElementById('film-title').value.trim(),
+            title_ru: document.getElementById('film-title-ru').value.trim(),
+            year: parseInt(document.getElementById('film-year').value),
+            description: document.getElementById('film-description').value.trim()
+        };
+        
+        const url = editingId ? `/api/films/${editingId}` : '/api/films';
+        const method = editingId ? 'PUT' : 'POST';
+        
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(filmData)
+        })
+        .then(r => {
+            if (r.ok) {
+                return r.json();
+            } else {
+                return r.json().then(err => { throw err; });
+            }
+        })
+        .then(result => {
+            alert(editingId ? 'Фильм обновлен!' : 'Фильм добавлен!');
+            hideForm();
+            loadFilms();
+        })
+        .catch(error => {
+            if (error.errors) {
+                let errorMsg = 'Ошибки:\n';
+                error.errors.forEach(err => {
+                    errorMsg += `• ${err.field}: ${err.message}\n`;
+                });
+                document.getElementById('error-message').textContent = errorMsg;
+            } else {
+                document.getElementById('error-message').textContent = 'Ошибка: ' + (error.error || 'Неизвестная ошибка');
+            }
+        });
+    }
+    
+    // Удалить фильм
+    function deleteFilm(id, title) {
+        if (confirm(`Удалить фильм "${title}"?`)) {
+            fetch(`/api/films/${id}`, {method: 'DELETE'})
+                .then(r => {
+                    if (r.ok) {
+                        alert('Фильм удален!');
+                        loadFilms();
+                    }
+                });
+        }
+    }
+    
+    // Скрыть форму
+    function hideForm() {
+        document.getElementById('form-container').style.display = 'none';
+    }
+    
+    // Загрузить фильмы при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadFilms);
+    </script>
+</body>
+</html>

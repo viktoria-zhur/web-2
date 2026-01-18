@@ -1,0 +1,130 @@
+<!-- templates/lab7/index_db.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lab7 с БД</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .success { background: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background: #4CAF50; color: white; padding: 10px; }
+        td { padding: 10px; border: 1px solid #ddd; }
+        .btn { padding: 8px 15px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-add { background: #9C27B0; color: white; }
+        .btn-edit { background: #FF9800; color: white; }
+        .btn-delete { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Лабораторная работа 7 - с БАЗОЙ ДАННЫХ</h1>
+    
+    <div class="success">
+        <h3>✅ Дополнительное задание выполнено полностью!</h3>
+        <p><strong>1. Валидация на бэкенде:</strong> ✓ Русское название, ✓ Год 1895-текущий, ✓ Описание до 2000 символов</p>
+        <p><strong>2. База данных SQLite:</strong> ✓ Таблица lab7_movies, ✓ Данные сохраняются между запусками</p>
+        <p><strong>Файл БД:</strong> lab7_only.db</p>
+    </div>
+    
+    <h3>Фильмы из базы данных:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Оригинальное</th>
+                <th>Русское</th>
+                <th>Год</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="film-list">
+            <tr><td colspan="4">Загрузка...</td></tr>
+        </tbody>
+    </table>
+    
+    <button class="btn btn-add" onclick="addFilm()">+ Добавить фильм</button>
+    
+    <script>
+    function loadFilms() {
+        fetch('/lab7-db/rest-api/films/')
+            .then(r => r.json())
+            .then(films => {
+                const tbody = document.getElementById('film-list');
+                tbody.innerHTML = '';
+                
+                films.forEach(film => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${film.title === film.title_ru ? '' : film.title}</td>
+                        <td>${film.title_ru}</td>
+                        <td>${film.year}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editFilm(${film.id})">Ред.</button>
+                            <button class="btn btn-delete" onclick="deleteFilm(${film.id}, '${film.title_ru}')">Уд.</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+    
+    function addFilm() {
+        const title = prompt("Оригинальное название:");
+        const titleRu = prompt("Русское название:");
+        const year = prompt("Год:");
+        const desc = prompt("Описание:");
+        
+        if (titleRu && year && desc) {
+            fetch('/lab7-db/rest-api/films/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title: title || titleRu,
+                    title_ru: titleRu,
+                    year: parseInt(year),
+                    description: desc
+                })
+            }).then(() => {
+                alert('Фильм добавлен в БД!');
+                loadFilms();
+            });
+        }
+    }
+    
+    function editFilm(id) {
+        const title = prompt("Новое оригинальное название:");
+        const titleRu = prompt("Новое русское название:");
+        const year = prompt("Новый год:");
+        const desc = prompt("Новое описание:");
+        
+        if (titleRu && year && desc) {
+            fetch(`/lab7-db/rest-api/films/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title: title || titleRu,
+                    title_ru: titleRu,
+                    year: parseInt(year),
+                    description: desc
+                })
+            }).then(() => {
+                alert('Фильм обновлен в БД!');
+                loadFilms();
+            });
+        }
+    }
+    
+    function deleteFilm(id, title) {
+        if (confirm(`Удалить "${title}" из базы данных?`)) {
+            fetch(`/lab7-db/rest-api/films/${id}`, {
+                method: 'DELETE'
+            }).then(() => {
+                alert('Фильм удален из БД!');
+                loadFilms();
+            });
+        }
+    }
+    
+    // Загружаем фильмы при запуске
+    document.addEventListener('DOMContentLoaded', loadFilms);
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab {{ lab_number }} | {{ student.name }} | НГТУ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ngtu-red: #c41230;
+            --ngtu-blue: #0056a6;
+            --ngtu-dark-blue: #003366;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .header-lab {
+            background: linear-gradient(135deg, var(--ngtu-dark-blue) 0%, var(--ngtu-blue) 100%);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            border-bottom: 5px solid var(--ngtu-red);
+        }
+        
+        .lab-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            margin: 20px 0;
+            border-left: 5px solid var(--ngtu-red);
+        }
+        
+        .btn-ngtu {
+            background: linear-gradient(90deg, var(--ngtu-red), var(--ngtu-blue));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-lab">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-3">
+                        <i class="fas fa-flask me-3"></i>Лабораторная работа {{ lab_number }}
+                    </h1>
+                    <h3 class="mb-0">{{ lab_title }}</h3>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p class="mb-1">{{ student.name }}</p>
+                    <p class="mb-0">{{ student.group }} | {{ student.university }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="lab-card">
+            <div class="text-center mb-5">
+                <div class="display-1 mb-4" style="color: var(--ngtu-red);">
+                    <i class="fas fa-microscope"></i>
+                </div>
+                <h2 class="mb-3">Лабораторная работа {{ lab_number }}: {{ lab_title }}</h2>
+                <p class="lead">
+                    Эта лабораторная работа реализована в отдельном модуле.
+                </p>
+            </div>
+            
+            <div class="alert alert-info mb-4">
+                <h5><i class="fas fa-info-circle me-2"></i>Информация</h5>
+                <p class="mb-0">
+                    Если вы видите эту страницу, значит Blueprint для лабораторной работы {{ lab_number }} 
+                    не был зарегистрирован или произошла ошибка при его загрузке.
+                </p>
+            </div>
+            
+            <div class="row mt-5">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-code fa-3x mb-3" style="color: var(--ngtu-blue);"></i>
+                            <h5>Проверьте файлы</h5>
+                            <p>Убедитесь, что файл <code>lab{{ lab_number }}.py</code> существует в папке проекта.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-bug fa-3x mb-3" style="color: var(--ngtu-red);"></i>
+                            <h5>Проверьте консоль</h5>
+                            <p>Посмотрите сообщения об ошибках в консоли, где запущен Flask-сервер.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="/" class="btn-ngtu me-3">
+                    <i class="fas fa-arrow-left me-2"></i>Назад к меню
+                </a>
+                <a href="/lab{{ lab_number }}/" class="btn btn-outline-primary">
+                    <i class="fas fa-external-link-alt me-2"></i>Попробовать напрямую
+                </a>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-muted">
+            <p>
+                <i class="fas fa-university me-1"></i>
+                {{ student.university }} | {{ student.faculty }}
+            </p>
+            <p class="mb-0">
+                <small>Курс "Web-программирование" | Лабораторная работа {{ lab_number }}</small>
+            </p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

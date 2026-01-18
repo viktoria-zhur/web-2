@@ -1,60 +1,36 @@
 from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from dotenv import load_dotenv
 import os
 
-app = Flask(__name__)
+# Сначала создаем экземпляры расширений
+db = SQLAlchemy()
+login_manager = LoginManager()
 
-load_dotenv()
+# Потом создаем приложение
+app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
 
-# ТОЛЬКО ОДНА БАЗА ДАННЫХ для всего приложения
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    'sqlite:///' + os.path.join(basedir, 'instance', 'app.db')
-)
+# Одна база данных для всего
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "lab8.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret')
+app.config['SECRET_KEY'] = 'super-secret-key-for-lab8'
 
-db = SQLAlchemy(app)
+# Инициализируем расширения с приложением
+db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = 'lab8.login'
 
-# Модель для офисов
-class Office(db.Model):
-    __tablename__ = 'offices'
-    id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.Integer, unique=True, nullable=False)
-    tenant = db.Column(db.String(100))
-    price = db.Column(db.Integer, nullable=False)
-
-# Модель для фильмов
-class Movie(db.Model):
-    __tablename__ = 'movies_final'
-    id = db.Column(db.Integer, primary_key=True)
-    original_title = db.Column(db.String(200))
-    russian_title = db.Column(db.String(200), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.Text, nullable=False)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.original_title or self.russian_title,
-            "title_ru": self.russian_title,
-            "year": self.year,
-            "description": self.description
-        }
-
-# ================= МОДЕЛИ ДЛЯ LAB8 =================
+# Модели должны быть определены ПОСЛЕ инициализации db
 class User(db.Model):
-    __tablename__ = 'lab8_users'
-    
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    login = db.Column(db.String(30), nullable=False, unique=True)
-    password = db.Column(db.String(162), nullable=False)
+    login = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     
-    # Для Flask-Login
+    # Flask-Login
     @property
     def is_authenticated(self):
         return True
@@ -71,142 +47,73 @@ class User(db.Model):
         return str(self.id)
 
 class Article(db.Model):
-    __tablename__ = 'lab8_articles'
-    
+    __tablename__ = 'articles'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('lab8_users.id'), nullable=False)
-    title = db.Column(db.String(50), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     article_text = db.Column(db.Text, nullable=False)
+    is_public = db.Column(db.Boolean, default=True)
     is_favorite = db.Column(db.Boolean, default=False)
-    is_public = db.Column(db.Boolean, default=False)
     likes = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-# ================= FLASK-LOGIN НАСТРОЙКА =================
-login_manager = LoginManager()
-login_manager.login_view = 'lab8.login'
-login_manager.init_app(app)
-
+# Загрузчик пользователя
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id)) if user_id else None
+    # Используем контекст приложения
+    with app.app_context():
+        return db.session.get(User, int(user_id)) if user_id else None
 
-# ================= BLUEPRINTS =================
-# Импортируем blueprint'ы других лабораторных
-try:
-    from lab1 import lab1
-    app.register_blueprint(lab1, url_prefix='/lab1')
-except:
-    pass
-
-try:
-    from lab2 import lab2
-    app.register_blueprint(lab2, url_prefix='/lab2')
-except:
-    pass
-
-try:
-    from lab3 import lab3
-    app.register_blueprint(lab3, url_prefix='/lab3')
-except:
-    pass
-
-try:
-    from lab4 import lab4
-    app.register_blueprint(lab4, url_prefix='/lab4')
-except:
-    pass
-
-try:
-    from lab5 import lab5
-    app.register_blueprint(lab5, url_prefix='/lab5')
-except:
-    pass
-
-try:
-    from lab6 import lab6
-    app.register_blueprint(lab6, url_prefix='/lab6')
-except:
-    pass
-
-try:
-    from lab7 import lab7
-    app.register_blueprint(lab7, url_prefix='/lab7')
-except:
-    pass
-
-try:
-    from lab7_with_db import lab7_db
-    app.register_blueprint(lab7_db, url_prefix='/lab7-db')
-except:
-    pass
-
-# ================= СОЗДАНИЕ ТАБЛИЦ =================
-with app.app_context():
-    try:
-        print("=" * 60)
-        print("СОЗДАНИЕ ТАБЛИЦ БАЗЫ ДАННЫХ")
-        print("=" * 60)
-        
-        # Создаем все таблицы
-        db.create_all()
-        print("✓ Все таблицы созданы успешно")
-        
-        # Проверяем существующие таблицы
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        tables = inspector.get_table_names()
-        print(f"Существующие таблицы: {tables}")
-        
-    except Exception as e:
-        print(f"Ошибка при создании таблиц: {e}")
-        import traceback
-        traceback.print_exc()
-
-# ================= ГЛАВНАЯ СТРАНИЦА =================
+# Главная страница
 @app.route('/')
 @app.route('/index')
 def index():
-    return '''
+    labs = [
+        {'number': 1, 'title': 'Основы Flask', 'url': '/lab1/'},
+        {'number': 2, 'title': 'Jinja2', 'url': '/lab2/'},
+        {'number': 3, 'title': 'Формы и Cookies', 'url': '/lab3/'},
+        {'number': 4, 'title': 'Валидация и Сессии', 'url': '/lab4/'},
+        {'number': 5, 'title': 'Базы данных', 'url': '/lab5/'},
+        {'number': 6, 'title': 'JSON-RPC API', 'url': '/lab6/'},
+        {'number': 7, 'title': 'REST API', 'url': '/lab7/'},
+        {'number': 8, 'title': 'Flask и БД (ORM)', 'url': '/lab8/'},
+    ]
+
+    return f'''
     <!doctype html>
     <html>
     <head>
-        <title>Главная - Лабораторные работы</title>
+        <title>Главная</title>
         <style>
-            body { 
+            body {{ 
                 font-family: Arial, sans-serif; 
-                margin: 0;
-                padding: 20px;
+                margin: 40px;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
-            }
-            .container { 
+            }}
+            .container {{ 
                 max-width: 800px; 
                 margin: 0 auto;
                 background: white;
                 padding: 30px;
                 border-radius: 15px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            }
-            h1 { 
+            }}
+            h1 {{ 
                 color: #333; 
                 text-align: center;
-                margin-bottom: 10px;
-            }
-            h2 {
-                color: #666;
-                text-align: center;
-                margin-top: 0;
                 margin-bottom: 30px;
-            }
-            .lab-list { 
+                border-bottom: 2px solid #764ba2;
+                padding-bottom: 10px;
+            }}
+            .lab-list {{ 
                 list-style: none; 
                 padding: 0; 
-            }
-            .lab-list li { 
+            }}
+            .lab-list li {{ 
                 margin: 15px 0; 
-            }
-            .lab-list a { 
+            }}
+            .lab-list a {{ 
                 display: block; 
                 padding: 20px; 
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -216,12 +123,12 @@ def index():
                 transition: transform 0.3s, box-shadow 0.3s;
                 font-size: 18px;
                 font-weight: bold;
-            }
-            .lab-list a:hover { 
+            }}
+            .lab-list a:hover {{ 
                 transform: translateY(-5px);
                 box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6);
-            }
-            .lab-number {
+            }}
+            .lab-number {{
                 display: inline-block;
                 background: white;
                 color: #764ba2;
@@ -232,14 +139,24 @@ def index():
                 line-height: 30px;
                 margin-right: 15px;
                 font-weight: bold;
-            }
-            .student-info {
+            }}
+            .student-info {{
                 text-align: center;
                 margin-top: 30px;
                 padding-top: 20px;
                 border-top: 1px solid #ddd;
                 color: #666;
-            }
+            }}
+            .heart {{ 
+                color: #e74c3c;
+                font-size: 24px;
+                animation: heartbeat 1.5s infinite;
+            }}
+            @keyframes heartbeat {{
+                0% {{ transform: scale(1); }}
+                50% {{ transform: scale(1.1); }}
+                100% {{ transform: scale(1); }}
+            }}
         </style>
     </head>
     <body>
@@ -259,7 +176,7 @@ def index():
             </ul>
             
             <div class="student-info">
-                <p><strong>Журавлева Виктория Александровна, ФБИ-34</strong></p>
+                <p><span class="heart">💖</span> Журавлева Виктория Александровна, ФБИ-34 <span class="heart">💖</span></p>
                 <p>3 курс, 2025 год</p>
             </div>
         </div>
@@ -267,52 +184,199 @@ def index():
     </html>
     '''
 
-@app.route('/lab7-final')
-def lab7_final():
-    count = Movie.query.count()
-    return f'''
-    <!doctype html>
-    <html>
-    <head><title>Lab 7</title></head>
-    <body>
-        <h1>Lab 7 Final</h1>
-        <p>Фильмов в базе: {count}</p>
-        <a href="/">← На главную</a>
-    </body>
-    </html>
-    '''
-
-@app.route('/api/films')
-def films():
-    return jsonify([m.to_dict() for m in Movie.query.all()])
-
+# Обработчики ошибок
 @app.errorhandler(404)
 def not_found(e):
     return '''
     <!doctype html>
     <html>
-    <head><title>404</title></head>
+    <head>
+        <title>404 - Страница не найдена</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 40px; 
+                text-align: center;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .error-container {{
+                background: white;
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }}
+            h1 {{ 
+                color: #d00; 
+                font-size: 72px;
+                margin: 0;
+            }}
+            p {{
+                color: #666;
+                font-size: 18px;
+                margin: 20px 0;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 25px;
+                font-weight: bold;
+                transition: transform 0.3s;
+            }}
+            .btn:hover {{
+                transform: translateY(-3px);
+            }}
+        </style>
+    </head>
     <body>
-        <h1>404 - Страница не найдена</h1>
-        <p>Запрошенная страница не существует.</p>
-        <a href="/">На главную</a>
+        <div class="error-container">
+            <h1>404</h1>
+            <p>Страница не найдена</p>
+            <p>Запрошенная страница не существует.</p>
+            <a href="/" class="btn">← Вернуться на главную</a>
+        </div>
     </body>
     </html>
     ''', 404
 
-# Импортируем lab8 в самом конце
-try:
-    from lab8 import lab8
-    app.register_blueprint(lab8, url_prefix='/lab8')
-    print("✓ Blueprint lab8 зарегистрирован")
-except Exception as e:
-    print(f"✗ Ошибка при регистрации lab8: {e}")
+@app.errorhandler(500)
+def server_error(e):
+    return '''
+    <!doctype html>
+    <html>
+    <head>
+        <title>500 - Ошибка сервера</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                margin: 40px; 
+                text-align: center;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .error-container {{
+                background: white;
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }}
+            h1 {{ 
+                color: #d00; 
+                font-size: 72px;
+                margin: 0;
+            }}
+            p {{
+                color: #666;
+                font-size: 18px;
+                margin: 20px 0;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 25px;
+                font-weight: bold;
+                transition: transform 0.3s;
+            }}
+            .btn:hover {{
+                transform: translateY(-3px);
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <h1>500</h1>
+            <p>Ошибка сервера</p>
+            <p>Что-то пошло не так на сервере.</p>
+            <a href="/" class="btn">← Вернуться на главную</a>
+        </div>
+    </body>
+    </html>
+    ''', 500
+
+# Импортируем и регистрируем blueprints ПОСЛЕ определения всех моделей
+with app.app_context():
+    # Создаем таблицы
+    db.create_all()
+    print("=" * 60)
+    print("БАЗА ДАННЫХ СОЗДАНА")
+    print("=" * 60)
+    
+    # Теперь импортируем blueprints
+    try:
+        from lab8 import lab8
+        app.register_blueprint(lab8, url_prefix='/lab8')
+        print("lab8 blueprint зарегистрирован")
+    except ImportError as e:
+        print(f"lab8.py не найден: {e}")
+    
+    # Простые заглушки для других лабораторных
+    try:
+        from lab1 import lab1
+        app.register_blueprint(lab1, url_prefix='/lab1')
+    except ImportError:
+        pass
+    
+    try:
+        from lab2 import lab2
+        app.register_blueprint(lab2, url_prefix='/lab2')
+    except ImportError:
+        pass
+    
+    try:
+        from lab3 import lab3
+        app.register_blueprint(lab3, url_prefix='/lab3')
+    except ImportError:
+        pass
+    
+    try:
+        from lab4 import lab4
+        app.register_blueprint(lab4, url_prefix='/lab4')
+    except ImportError:
+        pass
+    
+    try:
+        from lab5 import lab5
+        app.register_blueprint(lab5, url_prefix='/lab5')
+    except ImportError:
+        pass
+    
+    try:
+        from lab6 import lab6
+        app.register_blueprint(lab6, url_prefix='/lab6')
+    except ImportError:
+        pass
+    
+    try:
+        from lab7 import lab7
+        app.register_blueprint(lab7, url_prefix='/lab7')
+    except ImportError:
+        pass
+    
+    try:
+        from lab7_with_db import lab7_db
+        app.register_blueprint(lab7_db, url_prefix='/lab7-db')
+    except ImportError:
+        pass
 
 if __name__ == '__main__':
-    print("\n" + "=" * 60)
-    print("ЗАПУСК ПРИЛОЖЕНИЯ")
     print("=" * 60)
-    print("Сервер запущен по адресу: http://127.0.0.1:5000")
-    print("Страница lab8: http://127.0.0.1:5000/lab8/")
-    print("=" * 60 + "\n")
-    app.run(debug=True, port=5000)
+    print("ЗАПУСК СЕРВЕРА")
+    print("=" * 60)
+    print("Откройте браузер и перейдите по адресу:")
+    print("http://127.0.0.1:5000/")
+    print("Для lab8 перейдите по адресу:")
+    print("http://127.0.0.1:5000/lab8/")
+    print("=" * 60)
+    app.run(debug=True)

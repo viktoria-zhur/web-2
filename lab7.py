@@ -34,11 +34,12 @@ films = [
         "year": 1994,
         "description": "Профессиональный убийца Леон, не знающий пощады и жалости,<br>знакомится со своей очаровательной соседкой Матильдой,<br>семья которой погибает от рук агента Управления по борьбе с наркотиками Стенса.<br>Девочке некуда идти, и Леон, сам того не желая, становится её защитником."
     }
-] 
+]
 
 @lab7.route('/')
 def main():
-    return render_template('lab7/index.html')
+    # Передаем количество фильмов в шаблон
+    return render_template('lab7/index.html', films_count=len(films))
 
 # Получение всех фильмов
 @lab7.route('/rest-api/films/', methods=['GET'])
@@ -53,3 +54,16 @@ def get_film(id):
         return jsonify({"error": "Фильм не найден"}), 404
     
     return jsonify(films[id])
+
+# Удаление фильма по ID
+@lab7.route('/rest-api/films/<int:id>', methods=['DELETE'])
+def delete_film(id):
+    # Проверка на выход за границы списка
+    if id < 0 or id >= len(films):
+        return jsonify({"error": "Фильм не найден"}), 404
+    
+    # Удаляем фильм из списка
+    deleted_film = films.pop(id)
+    
+    # Возвращаем пустой ответ с кодом 204 (No Content)
+    return '', 204

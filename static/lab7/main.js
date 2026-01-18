@@ -92,7 +92,7 @@ function loadFilmForEdit(id) {
             
             // Показываем сообщение
             const output = document.getElementById('output');
-            output.innerHTML = `<h3>Редактирование фильма #${id}</h3>
+            output.innerHTML = `<h3>Редактирование фильма #${id}: "${film.title_ru}"</h3>
                               <p>Заполните форму выше и нажмите "Обновить фильм"</p>`;
         })
         .catch(function(error) {
@@ -101,8 +101,9 @@ function loadFilmForEdit(id) {
         });
 }
 
-// Функция удаления фильма
+// Функция удаления фильма (с улучшениями из методички)
 function deleteFilm(id, title) {
+    // Добавляем подтверждение с именем фильма
     if (!confirm(`Вы точно хотите удалить фильм "${title}"?`)) {
         return;
     }
@@ -112,26 +113,111 @@ function deleteFilm(id, title) {
     })
     .then(function(response) {
         if (response.status === 204) {
-            // Показываем сообщение
+            // Показываем сообщение об успешном удалении
             const output = document.getElementById('output');
             output.innerHTML = `<h3>Фильм "${title}" успешно удален!</h3>`;
             
             // Перезагружаем таблицу после удаления
             setTimeout(fillFilmList, 500);
         } else {
-            alert('Ошибка при удалении фильма');
+            response.json().then(function(error) {
+                alert(`Ошибка при удалении фильма: ${error.error || 'Неизвестная ошибка'}`);
+            });
         }
     })
     .catch(function(error) {
         console.error('Ошибка:', error);
-        alert('Ошибка при удалении фильма');
+        alert('Ошибка при удалении фильма. Проверьте подключение к серверу.');
     });
 }
 
 // Функция для показа формы добавления
 function addFilm() {
-    // В будущем здесь будет показа формы добавления
-    alert('Функция добавления фильма будет реализована в следующих пунктах');
+    // Создаем форму добавления динамически
+    const output = document.getElementById('output');
+    output.innerHTML = `
+        <h3>Добавление нового фильма</h3>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
+            <div style="margin-bottom: 10px;">
+                <label>Название на русском: *</label><br>
+                <input type="text" id="newTitleRu" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Оригинальное название:</label><br>
+                <input type="text" id="newTitle" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Год выпуска: *</label><br>
+                <input type="number" id="newYear" min="1895" max="2025" value="2024" style="width: 100%; padding: 8px; margin-top: 5px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label>Описание: *</label><br>
+                <textarea id="newDescription" rows="4" style="width: 100%; padding: 8px; margin-top: 5px;"></textarea>
+            </div>
+            <button onclick="submitNewFilm()" style="padding: 10px 20px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Добавить фильм
+            </button>
+            <button onclick="fillFilmList()" style="padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                Отмена
+            </button>
+        </div>
+    `;
+}
+
+// Функция добавления нового фильма
+function submitNewFilm() {
+    const title = document.getElementById('newTitle').value;
+    const titleRu = document.getElementById('newTitleRu').value;
+    const year = document.getElementById('newYear').value;
+    const description = document.getElementById('newDescription').value;
+    
+    // Простая валидация
+    if (!titleRu.trim()) {
+        alert('Пожалуйста, введите название фильма на русском');
+        return;
+    }
+    if (!year || year < 1895 || year > new Date().getFullYear()) {
+        alert(`Пожалуйста, введите корректный год (1895-${new Date().getFullYear()})`);
+        return;
+    }
+    if (!description.trim()) {
+        alert('Пожалуйста, введите описание фильма');
+        return;
+    }
+    
+    const filmData = {
+        title: title || titleRu, // Если оригинальное название пустое, используем русское
+        title_ru: titleRu,
+        year: parseInt(year),
+        description: description
+    };
+    
+    fetch('/lab7/rest-api/films/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(filmData)
+    })
+    .then(function(response) {
+        if (response.status === 201) {
+            return response.json();
+        } else {
+            throw new Error('Ошибка добавления фильма');
+        }
+    })
+    .then(function(result) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3>Новый фильм успешно добавлен!</h3>
+                           <p>ID нового фильма: <strong>${result.id}</strong></p>
+                           <pre>${JSON.stringify(filmData, null, 2)}</pre>`;
+        // Обновляем таблицу
+        fillFilmList();
+    })
+    .catch(function(error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при добавлении фильма');
+    });
 }
 
 // Функция обновления статистики
@@ -140,6 +226,60 @@ function updateStats() {
         .then(r => r.json())
         .then(films => {
             document.getElementById('films-count').textContent = films.length;
-            document.getElementById('max-id').textContent = films.length - 1;
+            document.getElementById('max-id').textContent = films.length > 0 ? films.length - 1 : 0;
         });
 }
+
+// Функция для отправки формы редактирования (добавим в глобальную область видимости)
+window.editFilmSubmit = async function() {
+    const id = document.getElementById('editId').value;
+    const title = document.getElementById('editTitle').value;
+    const titleRu = document.getElementById('editTitleRu').value;
+    const year = document.getElementById('editYear').value;
+    const description = document.getElementById('editDescription').value;
+    
+    // Валидация
+    if (!titleRu.trim()) {
+        alert('Пожалуйста, введите название фильма на русском');
+        return;
+    }
+    if (!year || year < 1895 || year > new Date().getFullYear()) {
+        alert(`Пожалуйста, введите корректный год (1895-${new Date().getFullYear()})`);
+        return;
+    }
+    if (!description.trim()) {
+        alert('Пожалуйста, введите описание фильма');
+        return;
+    }
+    
+    const filmData = {
+        title: title,
+        title_ru: titleRu,
+        year: parseInt(year),
+        description: description
+    };
+    
+    try {
+        const response = await fetch(`/lab7/rest-api/films/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(filmData)
+        });
+        
+        const output = document.getElementById('output');
+        if (response.status === 200) {
+            const updatedFilm = await response.json();
+            output.innerHTML = `<h3>Фильм #${id} успешно обновлен!</h3><pre>${JSON.stringify(updatedFilm, null, 2)}</pre>`;
+            // Обновляем таблицу
+            fillFilmList();
+        } else {
+            const error = await response.json();
+            output.innerHTML = `<h3>Ошибка редактирования:</h3><pre>${JSON.stringify(error, null, 2)}</pre>`;
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при обновлении фильма');
+    }
+};

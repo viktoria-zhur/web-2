@@ -31,45 +31,15 @@
             </tbody>
         </table>
         
-        <!-- Форма для добавления нового фильма (скрытая по умолчанию) -->
-        <div id="add-film-form" style="display: none; margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 5px; border: 1px solid #ddd;">
-            <h4>Добавить новый фильм</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                    <label>Название на русском: *</label>
-                    <input type="text" id="newTitleRu" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px;">
-                </div>
-                <div>
-                    <label>Оригинальное название:</label>
-                    <input type="text" id="newTitle" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px;">
-                </div>
-                <div>
-                    <label>Год выпуска: *</label>
-                    <input type="number" id="newYear" min="1895" max="2025" value="2024" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px;">
-                </div>
-                <div>
-                    <label>&nbsp;</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="submitNewFilm()" style="padding: 10px 20px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            Сохранить
-                        </button>
-                        <button onclick="hideAddForm()" style="padding: 10px 20px; background: #ccc; color: #333; border: none; border-radius: 4px; cursor: pointer;">
-                            Отмена
-                        </button>
-                    </div>
-                </div>
-                <div style="grid-column: span 2;">
-                    <label>Описание: *</label>
-                    <textarea id="newDescription" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 3px;"></textarea>
-                </div>
-            </div>
-            <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                * - обязательные поля
-            </p>
-        </div>
+        <script>
+            // Автоматически загружаем фильмы при загрузке страницы
+            document.addEventListener('DOMContentLoaded', function() {
+                fillFilmList();
+            });
+        </script>
         
         <div style="text-align: center; margin-bottom: 30px;">
-            <button onclick="showAddForm()" style="padding: 10px 20px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+            <button onclick="addFilm()" style="padding: 10px 20px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
                 + Добавить фильм
             </button>
         </div>
@@ -144,19 +114,6 @@
     </div>
     
     <script>
-    // Функции для работы с формой добавления
-    function showAddForm() {
-        document.getElementById('add-film-form').style.display = 'block';
-        document.getElementById('newTitleRu').value = '';
-        document.getElementById('newTitle').value = '';
-        document.getElementById('newYear').value = '2024';
-        document.getElementById('newDescription').value = '';
-    }
-    
-    function hideAddForm() {
-        document.getElementById('add-film-form').style.display = 'none';
-    }
-    
     // Функция для отправки формы редактирования
     async function editFilmSubmit() {
         const id = document.getElementById('editId').value;
@@ -192,29 +149,15 @@
         }
     }
     
-    // Функция для добавления нового фильма
-    async function submitNewFilm() {
+    // Функция для добавления нового фильма через форму
+    async function addFilmSubmit() {
         const title = document.getElementById('newTitle').value;
         const titleRu = document.getElementById('newTitleRu').value;
         const year = document.getElementById('newYear').value;
         const description = document.getElementById('newDescription').value;
         
-        // Простая валидация
-        if (!titleRu.trim()) {
-            alert('Пожалуйста, введите название фильма на русском');
-            return;
-        }
-        if (!year || year < 1895 || year > 2025) {
-            alert('Пожалуйста, введите корректный год (1895-2025)');
-            return;
-        }
-        if (!description.trim()) {
-            alert('Пожалуйста, введите описание фильма');
-            return;
-        }
-        
         const filmData = {
-            title: title || titleRu, // Если оригинальное название пустое, используем русское
+            title: title,
             title_ru: titleRu,
             year: parseInt(year),
             description: description
@@ -234,28 +177,12 @@
             output.innerHTML = `<h3>Новый фильм успешно добавлен!</h3>
                                <p>ID нового фильма: <strong>${result.id}</strong></p>
                                <pre>${JSON.stringify(filmData, null, 2)}</pre>`;
-            // Обновляем таблицу и скрываем форму
+            // Обновляем таблицу
             fillFilmList();
-            hideAddForm();
         } else {
             const error = await response.json();
             output.innerHTML = `<h3>Ошибка добавления:</h3><pre>${JSON.stringify(error, null, 2)}</pre>`;
         }
     }
-    
-    // Обновляем статистику после загрузки фильмов
-    function updateStats() {
-        fetch('/lab7/rest-api/films/')
-            .then(r => r.json())
-            .then(films => {
-                document.getElementById('films-count').textContent = films.length;
-                document.getElementById('max-id').textContent = films.length - 1;
-            });
-    }
-    
-    // Вызываем updateStats при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(updateStats, 500);
-    });
     </script>
 {% endblock %}

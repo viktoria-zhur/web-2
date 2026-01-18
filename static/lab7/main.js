@@ -5,36 +5,32 @@ function fillFilmList() {
             return data.json();
         })
         .then(function (films) {
+            // Получаем тело таблицы по id и очищаем его
             let tbody = document.getElementById('film-list');
             tbody.innerHTML = '';
             
+            // Пробегаемся по массиву фильмов
             for(let i = 0; i < films.length; i++) {
+                // Создаем строку
                 let tr = document.createElement('tr');
                 
-                // Ячейка с русским названием
-                let tdTitleRus = document.createElement('td');
-                tdTitleRus.innerHTML = films[i].title_ru;
-                
-                // Ячейка с оригинальным названием (если отличается)
+                // Создаем ячейки
                 let tdTitle = document.createElement('td');
-                tdTitle.innerHTML = films[i].title === films[i].title_ru ? '' : films[i].title;
-                if (tdTitle.innerHTML) {
-                    tdTitle.style.fontStyle = 'italic';
-                    tdTitle.style.color = '#666';
-                }
-                
-                // Ячейка с годом
+                let tdTitleRus = document.createElement('td');
                 let tdYear = document.createElement('td');
-                tdYear.innerHTML = films[i].year;
-                
-                // Ячейка с действиями
                 let tdActions = document.createElement('td');
                 
-                // Кнопка редактирования
+                // Заполняем данными из массива фильмов
+                // Если русское и оригинальное название совпадают, оригинальное не выводим
+                tdTitle.innerHTML = films[i].title === films[i].title_ru ? '' : films[i].title;
+                tdTitleRus.innerHTML = films[i].title_ru;
+                tdYear.innerHTML = films[i].year;
+                
+                // Создаем кнопки редактирования и удаления
                 let editButton = document.createElement('button');
                 editButton.innerHTML = 'редактировать';
                 editButton.onclick = function() {
-                    editFilm(i);
+                    loadFilmForEdit(i);
                 };
                 editButton.style.marginRight = '10px';
                 editButton.style.padding = '5px 10px';
@@ -44,7 +40,6 @@ function fillFilmList() {
                 editButton.style.borderRadius = '3px';
                 editButton.style.cursor = 'pointer';
                 
-                // Кнопка удаления
                 let delButton = document.createElement('button');
                 delButton.innerHTML = 'удалить';
                 delButton.onclick = function() {
@@ -57,7 +52,7 @@ function fillFilmList() {
                 delButton.style.borderRadius = '3px';
                 delButton.style.cursor = 'pointer';
                 
-                // Добавляем кнопки в ячейку
+                // Добавляем кнопки в ячейку действий
                 tdActions.appendChild(editButton);
                 tdActions.appendChild(delButton);
                 
@@ -70,39 +65,19 @@ function fillFilmList() {
                 // Добавляем строку в таблицу
                 tbody.appendChild(tr);
             }
+            
+            // Обновляем статистику
+            updateStats();
         })
         .catch(function (error) {
             console.error('Ошибка загрузки фильмов:', error);
             document.getElementById('film-list').innerHTML = 
-                '<tr><td colspan="4" style="color: red; text-align: center;">Ошибка загрузки данных</td></tr>';
+                '<tr><td colspan="4" style="color: red; text-align: center; padding: 20px;">Ошибка загрузки данных</td></tr>';
         });
 }
 
-// Функция удаления фильма
-function deleteFilm(id, title) {
-    if (!confirm(`Вы точно хотите удалить фильм "${title}"?`)) {
-        return;
-    }
-    
-    fetch(`/lab7/rest-api/films/${id}`, {
-        method: 'DELETE'
-    })
-    .then(function(response) {
-        if (response.status === 204) {
-            // Перезагружаем таблицу после удаления
-            fillFilmList();
-        } else {
-            alert('Ошибка при удалении фильма');
-        }
-    })
-    .catch(function(error) {
-        console.error('Ошибка:', error);
-        alert('Ошибка при удалении фильма');
-    });
-}
-
-// Функция редактирования фильма
-function editFilm(id) {
+// Функция загрузки фильма для редактирования
+function loadFilmForEdit(id) {
     fetch(`/lab7/rest-api/films/${id}`)
         .then(function(response) {
             return response.json();
@@ -126,21 +101,45 @@ function editFilm(id) {
         });
 }
 
-// Функция добавления нового фильма
-function addFilm() {
-    // Очищаем форму добавления
-    document.getElementById('newTitle').value = '';
-    document.getElementById('newTitleRu').value = '';
-    document.getElementById('newYear').value = '';
-    document.getElementById('newDescription').value = '';
+// Функция удаления фильма
+function deleteFilm(id, title) {
+    if (!confirm(`Вы точно хотите удалить фильм "${title}"?`)) {
+        return;
+    }
     
-    // Показываем сообщение
-    const output = document.getElementById('output');
-    output.innerHTML = '<h3>Добавление нового фильма</h3>' +
-                      '<p>Заполните форму "Добавить новый фильм" выше</p>';
+    fetch(`/lab7/rest-api/films/${id}`, {
+        method: 'DELETE'
+    })
+    .then(function(response) {
+        if (response.status === 204) {
+            // Показываем сообщение
+            const output = document.getElementById('output');
+            output.innerHTML = `<h3>Фильм "${title}" успешно удален!</h3>`;
+            
+            // Перезагружаем таблицу после удаления
+            setTimeout(fillFilmList, 500);
+        } else {
+            alert('Ошибка при удалении фильма');
+        }
+    })
+    .catch(function(error) {
+        console.error('Ошибка:', error);
+        alert('Ошибка при удалении фильма');
+    });
 }
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    fillFilmList();
-});
+// Функция для показа формы добавления
+function addFilm() {
+    // В будущем здесь будет показа формы добавления
+    alert('Функция добавления фильма будет реализована в следующих пунктах');
+}
+
+// Функция обновления статистики
+function updateStats() {
+    fetch('/lab7/rest-api/films/')
+        .then(r => r.json())
+        .then(films => {
+            document.getElementById('films-count').textContent = films.length;
+            document.getElementById('max-id').textContent = films.length - 1;
+        });
+}

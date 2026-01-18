@@ -283,3 +283,213 @@ window.editFilmSubmit = async function() {
         alert('Ошибка при обновлении фильма');
     }
 };
+// Функция для отправки формы редактирования
+window.editFilmSubmit = async function() {
+    const id = document.getElementById('editId').value;
+    const title = document.getElementById('editTitle').value;
+    const titleRu = document.getElementById('editTitleRu').value;
+    const year = document.getElementById('editYear').value;
+    const description = document.getElementById('editDescription').value;
+    
+    // Очищаем предыдущие ошибки
+    clearErrorMessages();
+    
+    // Валидация на клиенте
+    let hasError = false;
+    
+    if (!titleRu.trim()) {
+        showError('editTitleRu', 'Русское название обязательно');
+        hasError = true;
+    }
+    
+    if (!year || year < 1895 || year > 2025) {
+        showError('editYear', 'Год должен быть в диапазоне 1895-2025');
+        hasError = true;
+    }
+    
+    if (!description.trim()) {
+        showError('editDescription', 'Описание обязательно');
+        hasError = true;
+    }
+    
+    if (hasError) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3 style="color: #f44336;">Исправьте ошибки в форме</h3>`;
+        return;
+    }
+    
+    const filmData = {
+        title: title,
+        title_ru: titleRu,
+        year: parseInt(year),
+        description: description
+    };
+    
+    try {
+        const response = await fetch(`/lab7/rest-api/films/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(filmData)
+        });
+        
+        const output = document.getElementById('output');
+        
+        if (response.status === 200) {
+            const updatedFilm = await response.json();
+            output.innerHTML = `<h3 style="color: #4CAF50;">Фильм #${id} успешно обновлен!</h3>
+                              <pre>${JSON.stringify(updatedFilm, null, 2)}</pre>`;
+            // Обновляем таблицу
+            fillFilmList();
+        } else if (response.status === 400) {
+            const errorData = await response.json();
+            showBackendErrors(errorData);
+        } else {
+            const error = await response.json();
+            output.innerHTML = `<h3 style="color: #f44336;">Ошибка редактирования:</h3>
+                              <pre>${JSON.stringify(error, null, 2)}</pre>`;
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3 style="color: #f44336;">Ошибка при обновлении фильма</h3>
+                          <p>${error.message}</p>`;
+    }
+};
+
+// Функция добавления нового фильма
+function submitNewFilm() {
+    const title = document.getElementById('newTitle').value;
+    const titleRu = document.getElementById('newTitleRu').value;
+    const year = document.getElementById('newYear').value;
+    const description = document.getElementById('newDescription').value;
+    
+    // Очищаем предыдущие ошибки
+    clearErrorMessages();
+    
+    // Валидация на клиенте
+    let hasError = false;
+    
+    if (!titleRu.trim()) {
+        showError('newTitleRu', 'Русское название обязательно');
+        hasError = true;
+    }
+    
+    if (!year || year < 1895 || year > 2025) {
+        showError('newYear', 'Год должен быть в диапазоне 1895-2025');
+        hasError = true;
+    }
+    
+    if (!description.trim()) {
+        showError('newDescription', 'Описание обязательно');
+        hasError = true;
+    }
+    
+    if (hasError) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3 style="color: #f44336;">Исправьте ошибки в форме</h3>`;
+        return;
+    }
+    
+    const filmData = {
+        title: title || titleRu,
+        title_ru: titleRu,
+        year: parseInt(year),
+        description: description
+    };
+    
+    fetch('/lab7/rest-api/films/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(filmData)
+    })
+    .then(function(response) {
+        if (response.status === 201) {
+            return response.json();
+        } else if (response.status === 400) {
+            return response.json().then(errorData => {
+                showBackendErrors(errorData);
+                throw new Error('Ошибка валидации');
+            });
+        } else {
+            throw new Error('Ошибка добавления фильма');
+        }
+    })
+    .then(function(result) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3 style="color: #4CAF50;">Новый фильм успешно добавлен!</h3>
+                           <p>ID нового фильма: <strong>${result.id}</strong></p>
+                           <pre>${JSON.stringify(filmData, null, 2)}</pre>`;
+        // Обновляем таблицу
+        fillFilmList();
+    })
+    .catch(function(error) {
+        console.error('Ошибка:', error);
+        if (error.message !== 'Ошибка валидации') {
+            alert('Ошибка при добавлении фильма');
+        }
+    });
+}
+
+// Вспомогательные функции для работы с ошибками
+function showError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.color = '#f44336';
+    errorDiv.style.fontSize = '12px';
+    errorDiv.style.marginTop = '5px';
+    errorDiv.textContent = message;
+    
+    // Удаляем старую ошибку если есть
+    const oldError = field.parentNode.querySelector('.error-message');
+    if (oldError) {
+        oldError.remove();
+    }
+    
+    field.parentNode.appendChild(errorDiv);
+    field.style.borderColor = '#f44336';
+}
+
+function clearErrorMessages() {
+    // Очищаем все сообщения об ошибках
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+    
+    // Сбрасываем цвет рамок
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.style.borderColor = '';
+    });
+}
+
+function showBackendErrors(errorData) {
+    const output = document.getElementById('output');
+    
+    if (errorData.errors && Array.isArray(errorData.errors)) {
+        let html = `<h3 style="color: #f44336;">Обнаружены ошибки:</h3><ul>`;
+        errorData.errors.forEach(error => {
+            html += `<li><strong>${error.field}:</strong> ${error.message}</li>`;
+            
+            // Подсвечиваем поле с ошибкой
+            const field = document.getElementById(error.field);
+            if (field) {
+                field.style.borderColor = '#f44336';
+            }
+        });
+        html += `</ul>`;
+        output.innerHTML = html;
+    } else if (errorData.error) {
+        output.innerHTML = `<h3 style="color: #f44336;">Ошибка:</h3>
+                          <p>${errorData.error}</p>`;
+        
+        // Подсвечиваем поле с ошибкой если указано
+        if (errorData.field) {
+            const field = document.getElementById(errorData.field);
+            if (field) {
+                field.style.borderColor = '#f44336';
+            }
+        }
+    }
+};

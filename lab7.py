@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request
 
 lab7 = Blueprint('lab7', __name__)
 
@@ -38,7 +38,6 @@ films = [
 
 @lab7.route('/')
 def main():
-    # Передаем количество фильмов в шаблон
     return render_template('lab7/index.html', films_count=len(films))
 
 # Получение всех фильмов
@@ -49,21 +48,29 @@ def get_films():
 # Получение одного фильма по ID
 @lab7.route('/rest-api/films/<int:id>', methods=['GET'])
 def get_film(id):
-    # Проверка на выход за границы списка
     if id < 0 or id >= len(films):
         return jsonify({"error": "Фильм не найден"}), 404
-    
     return jsonify(films[id])
 
 # Удаление фильма по ID
 @lab7.route('/rest-api/films/<int:id>', methods=['DELETE'])
 def delete_film(id):
-    # Проверка на выход за границы списка
+    if id < 0 or id >= len(films):
+        return jsonify({"error": "Фильм не найден"}), 404
+    films.pop(id)
+    return '', 204
+
+# Редактирование существующего фильма (PUT)
+@lab7.route('/rest-api/films/<int:id>', methods=['PUT'])
+def put_film(id):
     if id < 0 or id >= len(films):
         return jsonify({"error": "Фильм не найден"}), 404
     
-    # Удаляем фильм из списка
-    deleted_film = films.pop(id)
+    # Получаем новые данные из тела запроса
+    new_film_data = request.get_json()
     
-    # Возвращаем пустой ответ с кодом 204 (No Content)
-    return '', 204
+    # Обновляем фильм
+    films[id] = new_film_data
+    
+    # Возвращаем обновленный фильм
+    return jsonify(films[id])

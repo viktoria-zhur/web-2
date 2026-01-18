@@ -492,4 +492,87 @@ function showBackendErrors(errorData) {
             }
         }
     }
+    // Функция добавления нового фильма
+function submitNewFilm() {
+    const title = document.getElementById('newTitle').value;
+    const titleRu = document.getElementById('newTitleRu').value;
+    const year = document.getElementById('newYear').value;
+    const description = document.getElementById('newDescription').value;
+    
+    // ЗАДАНИЕ 2: Если оригинальное название пустое, используем русское
+    const finalTitle = title.trim() ? title : titleRu;
+    
+    // Очищаем предыдущие ошибки
+    clearErrorMessages();
+    
+    // Валидация на клиенте
+    let hasError = false;
+    
+    if (!titleRu.trim()) {
+        showError('newTitleRu', 'Русское название обязательно');
+        hasError = true;
+    }
+    
+    if (!year || year < 1895 || year > 2025) {
+        showError('newYear', 'Год должен быть в диапазоне 1895-2025');
+        hasError = true;
+    }
+    
+    if (!description.trim()) {
+        showError('newDescription', 'Описание обязательно');
+        hasError = true;
+    }
+    
+    if (hasError) {
+        const output = document.getElementById('output');
+        output.innerHTML = '<h3 style="color: #f44336;">Исправьте ошибки в форме</h3>';
+        return;
+    }
+    
+    const filmData = {
+        title: finalTitle,
+        title_ru: titleRu,
+        year: parseInt(year),
+        description: description
+    };
+    
+    // Показываем пользователю, что будет использовано
+    if (!title.trim()) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<p style="color: #666;"><i>Примечание: Оригинальное название не указано, будет использовано русское название</i></p>`;
+    }
+    
+    fetch('/lab7/rest-api/films/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(filmData)
+    })
+    .then(function(response) {
+        if (response.status === 201) {
+            return response.json();
+        } else if (response.status === 400) {
+            return response.json().then(errorData => {
+                showBackendErrors(errorData);
+                throw new Error('Ошибка валидации');
+            });
+        } else {
+            throw new Error('Ошибка добавления фильма');
+        }
+    })
+    .then(function(result) {
+        const output = document.getElementById('output');
+        output.innerHTML = `<h3 class="success-message">Новый фильм успешно добавлен!</h3>
+                           <p>ID нового фильма: <strong>${result.id}</strong></p>
+                           <pre>${JSON.stringify(filmData, null, 2)}</pre>`;
+        fillFilmList();
+    })
+    .catch(function(error) {
+        console.error('Ошибка:', error);
+        if (error.message !== 'Ошибка валидации') {
+            alert('Ошибка при добавлении фильма');
+        }
+    });
+}
 };

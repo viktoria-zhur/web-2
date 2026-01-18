@@ -50,9 +50,27 @@ def put_film(id):
     
     new_film_data = request.get_json()
     
-    # ВАЛИДАЦИЯ: проверяем описание
+    # ЗАДАНИЕ 2: Если оригинальное название пустое, а русское задано
+    if not new_film_data.get('title') or not new_film_data['title'].strip():
+        if new_film_data.get('title_ru') and new_film_data['title_ru'].strip():
+            new_film_data['title'] = new_film_data['title_ru']
+    
+    # ВАЛИДАЦИЯ
+    errors = []
+    
+    if not new_film_data.get('title_ru') or not new_film_data['title_ru'].strip():
+        errors.append({"field": "title_ru", "message": "Русское название обязательно"})
+    
+    if not new_film_data.get('year'):
+        errors.append({"field": "year", "message": "Год обязателен"})
+    elif not isinstance(new_film_data['year'], int) or new_film_data['year'] < 1895 or new_film_data['year'] > 2025:
+        errors.append({"field": "year", "message": "Год должен быть в диапазоне 1895-2025"})
+    
     if not new_film_data.get('description') or not new_film_data['description'].strip():
-        return jsonify({"error": "Описание обязательно", "field": "description"}), 400
+        errors.append({"field": "description", "message": "Описание обязательно"})
+    
+    if errors:
+        return jsonify({"errors": errors}), 400
     
     films[id] = new_film_data
     return jsonify(films[id])
@@ -62,7 +80,12 @@ def put_film(id):
 def add_film():
     new_film_data = request.get_json()
     
-    # ВАЛИДАЦИЯ: проверяем обязательные поля
+    # ЗАДАНИЕ 2: Если оригинальное название пустое, а русское задано
+    if not new_film_data.get('title') or not new_film_data['title'].strip():
+        if new_film_data.get('title_ru') and new_film_data['title_ru'].strip():
+            new_film_data['title'] = new_film_data['title_ru']
+    
+    # ВАЛИДАЦИЯ
     errors = []
     
     if not new_film_data.get('title_ru') or not new_film_data['title_ru'].strip():

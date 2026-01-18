@@ -1,0 +1,44 @@
+{% extends "lab8/base.html" %}
+
+{% block title %}Главная - База знаний{% endblock %}
+
+{% block content %}
+<div class="welcome">
+    <h1>Добро пожаловать в Базу знаний!</h1>
+    
+    <div class="user-info">
+        {% if current_user.is_authenticated %}
+            <p>Вы вошли как: <strong>{{ current_user.login }}</strong></p>
+            <div class="user-actions">
+                <a href="{{ url_for('lab8.articles') }}" class="btn">📖 Мои статьи</a>
+                <a href="{{ url_for('lab8.create_article') }}" class="btn">➕ Создать статью</a>
+            </div>
+        {% else %}
+            <p>Вы вошли как: <strong>anonymous</strong></p>
+            <p>Для создания и редактирования статей необходимо войти в систему.</p>
+            <div class="auth-actions">
+                <a href="{{ url_for('lab8.login') }}" class="btn">🔑 Войти</a>
+                <a href="{{ url_for('lab8.register') }}" class="btn">📝 Зарегистрироваться</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="features">
+        <h2>Возможности системы:</h2>
+        <div class="feature-cards">
+            <div class="card">
+                <h3>📝 Создание статей</h3>
+                <p>Создавайте и редактируйте свои статьи</p>
+            </div>
+            <div class="card">
+                <h3>🔒 Безопасность</h3>
+                <p>Безопасное хранение паролей с хешированием</p>
+            </div>
+            <div class="card">
+                <h3>📊 Управление</h3>
+                <p>Управляйте своими статьями через удобный интерфейс</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

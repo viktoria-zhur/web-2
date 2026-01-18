@@ -59,7 +59,9 @@ from lab4 import lab4
 from lab5 import lab5
 from lab6 import lab6
 from lab7 import lab7
-from lab7_with_db import lab7_db  # ИСПРАВЛЕНО: lab7_with_db вместо lab7_db
+from lab7_with_db import lab7_db  
+from lab8 import lab8
+
 
 app.register_blueprint(lab1, url_prefix='/lab1')
 app.register_blueprint(lab2, url_prefix='/lab2')
@@ -68,7 +70,8 @@ app.register_blueprint(lab4, url_prefix='/lab4')
 app.register_blueprint(lab5, url_prefix='/lab5')
 app.register_blueprint(lab6, url_prefix='/lab6')
 app.register_blueprint(lab7, url_prefix='/lab7')
-app.register_blueprint(lab7_db, url_prefix='/lab7-db')  # ИСПРАВЛЕНО: lab7-db
+app.register_blueprint(lab7_db, url_prefix='/lab7-db')  
+app.register_blueprint(lab8, url_prefix='/lab8')
 
 
 # ================= СОЗДАНИЕ ТАБЛИЦ =================
@@ -182,6 +185,7 @@ def index():
                 <li><a href="/lab5/"><span class="lab-number">5</span> Лабораторная работа 5 - Базы данных</a></li>
                 <li><a href="/lab6/"><span class="lab-number">6</span> Лабораторная работа 6 - JSON-RPC API</a></li>
                 <li><a href="/lab7/"><span class="lab-number">7</span> Лабораторная работа 7 - REST API</a></li>
+                <li><a href="/lab8/"><span class="lab-number">7</span> Лабораторная работа 8 - REST API</a></li>
             </ul>
             
             <div class="student-info">

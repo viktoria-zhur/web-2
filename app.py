@@ -147,6 +147,7 @@ def index():
                             <li><a href="{lab4_url}">Лабораторная работа 4</a></li>
                             <li><a href="{lab5_url}">Лабораторная работа 5</a></li>
                             <li><a href="{lab6_url}">Лабораторная работа 6</a></li>
+                            <li><a href="{lab7_url}">Лабораторная работа 7</a></li>
                               <!-- Исправлено lab_url → lab7_url -->
                         </ul>
                     </div>

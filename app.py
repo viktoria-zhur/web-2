@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 import os
 
 # Сначала создаем экземпляры расширений
@@ -316,12 +316,13 @@ with app.app_context():
     print("=" * 60)
     
     # Теперь импортируем blueprints
-     try:
+    try:
         from lab9 import lab9
         app.register_blueprint(lab9, url_prefix='/lab9')
         print("lab9 blueprint зарегистрирован")
     except ImportError as e:
         print(f"lab9.py не найден: {e}")
+    
     try:
         from lab8 import lab8
         app.register_blueprint(lab8, url_prefix='/lab8')
@@ -386,5 +387,7 @@ if __name__ == '__main__':
     print("http://127.0.0.1:5000/")
     print("Для lab8 перейдите по адресу:")
     print("http://127.0.0.1:5000/lab8/")
+    print("Для lab9 перейдите по адресу:")
+    print("http://127.0.0.1:5000/lab9/")
     print("=" * 60)
     app.run(debug=True)

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Новогодние Подарки 🎁</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: gold;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background: rgba(0, 100, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: rgba(139, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid gold;
+            min-width: 200px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: gold;
+        }
+        
+        .gifts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .gift-item {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .gift-item:hover:not(.opened) {
+            transform: scale(1.1);
+        }
+        
+        .gift-item.opened {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .gift-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .gift-number {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(139, 0, 0, 0.9);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .message-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid gold;
+            margin: 30px auto;
+            max-width: 800px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .congratulation {
+            font-size: 1.5em;
+            color: gold;
+            margin-bottom: 10px;
+        }
+        
+        .gift-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+        
+        .controls {
+            margin-top: 30px;
+        }
+        
+        .btn {
+            background: #8b0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 0 10px;
+            border: 2px solid gold;
+            font-weight: bold;
+        }
+        
+        .btn:hover:not(:disabled) {
+            background: #a00000;
+        }
+        
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ff0000;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎄 Новогодние Подарки 2025 🎄</h1>
+        
+        <div class="instructions">
+            📌 Вы можете открыть <strong>не более 3 коробок</strong>. 
+            Каждая коробка содержит уникальное поздравление и подарок.
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div>Открыто коробок</div>
+                <div class="stat-value" id="opened-count">0</div>
+                <div>из 3 возможных</div>
+            </div>
+            
+            <div class="stat-box">
+                <div>Осталось подарков</div>
+                <div class="stat-value" id="remaining">10</div>
+                <div>из 10 всего</div>
+            </div>
+        </div>
+        
+        <div class="gifts-container" id="gifts-container">
+            <!-- Коробки будут созданы JavaScript -->
+        </div>
+        
+        <div class="message-container">
+            <div id="message-content">
+                <div class="congratulation">🎁 Нажмите на коробку, чтобы открыть подарок! 🎁</div>
+            </div>
+            <div id="error-message" class="error" style="display: none;"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="resetMyGifts()" id="reset-btn">🔄 Сбросить мои подарки</button>
+            <button class="btn" onclick="checkStatus()">📊 Проверить статус</button>
+            <button class="btn" onclick="location.reload()">🔄 Обновить</button>
+        </div>
+    </div>
+
+    <script>
+        // Константы
+        const TOTAL_GIFTS = 10;
+        const MAX_OPENS = 3;
+        const GIFT_CLOSED_URL = "/static/lab9/gift_closed.png";
+        const GIFT_OPENED_URL = "/static/lab9/gift_opened.png";
+        
+        // Проверка картинок
+        console.log("Путь к закрытой коробке:", GIFT_CLOSED_URL);
+        console.log("Путь к открытой коробке:", GIFT_OPENED_URL);
+        
+        // Состояние
+        let state = {
+            openedCount: 0,
+            remaining: TOTAL_GIFTS,
+            openedGifts: [],
+            canOpenMore: true
+        };
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            createGifts();
+            loadState();
+        });
+        
+        // Создание коробок
+        function createGifts() {
+            const container = document.getElementById('gifts-container');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= TOTAL_GIFTS; i++) {
+                const gift = document.createElement('div');
+                gift.className = 'gift-item';
+                gift.id = `gift-${i}`;
+                gift.dataset.giftId = i;
+                
+                const img = document.createElement('img');
+                img.className = 'gift-image';
+                img.src = GIFT_CLOSED_URL;
+                img.alt = `Коробка ${i}`;
+                
+                const number = document.createElement('div');
+                number.className = 'gift-number';
+                number.textContent = i;
+                
+                gift.appendChild(img);
+                gift.appendChild(number);
+                
+                gift.onclick = () => openGift(i);
+                
+                container.appendChild(gift);
+            }
+        }
+        
+        // Загрузка состояния
+        async function loadState() {
+            try {
+                const response = await fetch('/lab9/status');
+                const data = await response.json();
+                
+                state.openedCount = data.opened_count;
+                state.remaining = data.remaining;
+                state.openedGifts = data.opened_gifts || [];
+                state.canOpenMore = data.can_open_more;
+                
+                updateUI();
+                
+                // Помечаем открытые коробки
+                state.openedGifts.forEach(giftId => {
+                    const gift = document.getElementById(`gift-${giftId}`);
+                    if (gift) {
+                        gift.classList.add('opened');
+                        const img = gift.querySelector('.gift-image');
+                        img.src = GIFT_OPENED_URL;
+                        img.alt = `Открытая коробка ${giftId}`;
+                        gift.onclick = null;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки состояния:', error);
+            }
+        }
+        
+        // Открытие подарка
+        async function openGift(giftId) {
+            const gift = document.getElementById(`gift-${giftId}`);
+            
+            if (gift.classList.contains('opened')) {
+                showError('Эта коробка уже пуста!');
+                return;
+            }
+            
+            if (!state.canOpenMore) {
+                showError('Вы уже открыли максимальное количество коробок!');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/lab9/open_gift/${giftId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                // Обновляем состояние
+                state.openedCount = data.opened_count;
+                state.remaining = data.remaining;
+                state.openedGifts.push(giftId);
+                state.canOpenMore = data.can_open_more;
+                
+                // Обновляем UI
+                updateUI();
+                
+                // Меняем картинку на открытую
+                gift.classList.add('opened');
+                const img = gift.querySelector('.gift-image');
+                img.src = GIFT_OPENED_URL;
+                img.alt = `Открытая коробка ${giftId}`;
+                
+                // Убираем обработчик клика
+                gift.onclick = null;
+                
+                // Анимация
+                gift.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    gift.style.transform = 'scale(1)';
+                }, 300);
+                
+                // Показываем поздравление
+                showCongratulations(data.message, data.image, giftId);
+                
+            } catch (error) {
+                showError('Ошибка сети: ' + error.message);
+            }
+        }
+        
+        // Показать поздравление
+        function showCongratulations(message, emoji, giftId) {
+            document.getElementById('message-content').innerHTML = `
+                <div class="congratulation">${message}</div>
+                <div class="gift-emoji">${emoji}</div>
+                <div style="color: #90ee90; margin-top: 10px;">
+                    🎉 Вы открыли коробку №${giftId}! 🎉
+                </div>
+            `;
+            
+            hideError();
+        }
+        
+        // Показать ошибку
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(hideError, 3000);
+        }
+        
+        // Скрыть ошибку
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        // Обновить UI
+        function updateUI() {
+            document.getElementById('opened-count').textContent = state.openedCount;
+            document.getElementById('remaining').textContent = state.remaining;
+            
+            const resetBtn = document.getElementById('reset-btn');
+            resetBtn.disabled = state.openedCount === 0;
+        }
+        
+        // Сбросить мои подарки
+        async function resetMyGifts() {
+            if (!confirm('Сбросить все открытые подарки?')) return;
+            
+            try {
+                const response = await fetch('/lab9/reset_gifts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                }
+                
+            } catch (error) {
+                showError('Ошибка при сбросе');
+            }
+        }
+        
+        // Проверить статус
+        async function checkStatus() {
+            try {
+                const response = await fetch('/lab9/status');
+                const data = await response.json();
+                
+                alert(`Статус:\n\n` +
+                      `Всего подарков: ${data.total_gifts}\n` +
+                      `Открыто вами: ${data.opened_count}\n` +
+                      `Осталось: ${data.remaining}\n` +
+                      `Можно открыть еще: ${data.can_open_more ? 'Да' : 'Нет'}`);
+                
+            } catch (error) {
+                showError('Ошибка при проверке статуса');
+            }
+        }
+    </script>
+</body>
+</html>

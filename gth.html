@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Повторение строки</title>
+</head>
+<body>
+    <h2>Повторение строки</h2>
+    
+    <div>
+        <label>Число повторений:</label><br>
+        <input type="text" id="number" placeholder="Введите число">
+    </div>
+    
+    <div>
+        <label>Текст:</label><br>
+        <input type="text" id="text" placeholder="Введите текст">
+    </div>
+    
+    <button onclick="send()">Послать</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function send() {
+            // Получаем значения из полей
+            const number = document.getElementById('number').value;
+            const text = document.getElementById('text').value;
+            const resultDiv = document.getElementById('result');
+            
+            // Проверяем, что поля не пустые
+            if (number === '' || text === '') {
+                resultDiv.innerHTML = 'Оба поля должны быть заполнены';
+                return;
+            }
+            
+            // Проверяем, что в первом поле число
+            if (isNaN(number)) {
+                resultDiv.innerHTML = 'В первом поле должно быть число';
+                return;
+            }
+            
+            // Преобразуем число в целое
+            const count = parseInt(number);
+            
+            // Проверяем, что число положительное
+            if (count <= 0) {
+                resultDiv.innerHTML = 'Число должно быть больше нуля';
+                return;
+            }
+            
+            // Создаем результат
+            let result = '';
+            for (let i = 0; i < count; i++) {
+                result += text;
+                if (i < count - 1) {
+                    result += ' ';
+                }
+            }
+            
+            // Выводим результат
+            resultDiv.innerHTML = result;
+        }
+    </script>
+</body>
+</html>

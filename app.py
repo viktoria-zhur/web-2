@@ -77,6 +77,7 @@ def index():
         {'number': 6, 'title': 'JSON-RPC API', 'url': '/lab6/'},
         {'number': 7, 'title': 'REST API', 'url': '/lab7/'},
         {'number': 8, 'title': 'Flask и БД (ORM)', 'url': '/lab8/'},
+        {'number': 9, 'title': 'Поздравление с Новым Годом', 'url': '/lab9/'},
     ]
 
     return f'''
@@ -173,6 +174,7 @@ def index():
                 <li><a href="/lab6/"><span class="lab-number">6</span> Лабораторная работа 6 - JSON-RPC API</a></li>
                 <li><a href="/lab7/"><span class="lab-number">7</span> Лабораторная работа 7 - REST API</a></li>
                 <li><a href="/lab8/"><span class="lab-number">8</span> Лабораторная работа 8 - Flask и БД (ORM)</a></li>
+                <li><a href="/lab9/"><span class="lab-number">9</span> Лабораторная работа 9 - Поздравление с Новым Годом (ORM)</a></li>
             </ul>
             
             <div class="student-info">
@@ -314,6 +316,12 @@ with app.app_context():
     print("=" * 60)
     
     # Теперь импортируем blueprints
+     try:
+        from lab9 import lab9
+        app.register_blueprint(lab9, url_prefix='/lab9')
+        print("lab9 blueprint зарегистрирован")
+    except ImportError as e:
+        print(f"lab9.py не найден: {e}")
     try:
         from lab8 import lab8
         app.register_blueprint(lab8, url_prefix='/lab8')

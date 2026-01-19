@@ -80,6 +80,12 @@
             opacity: 0.7;
         }
         
+        .gift-item.locked {
+            cursor: not-allowed;
+            opacity: 0.5;
+            filter: grayscale(50%);
+        }
+        
         .gift-image {
             width: 100%;
             height: 100%;
@@ -100,6 +106,15 @@
             justify-content: center;
             font-weight: bold;
             border: 2px solid white;
+        }
+        
+        .lock-icon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: gold;
+            font-size: 1.5em;
+            text-shadow: 0 0 3px black;
         }
         
         .message-container {
@@ -129,6 +144,10 @@
         
         .controls {
             margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .btn {
@@ -139,7 +158,6 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
-            margin: 0 10px;
             border: 2px solid gold;
             font-weight: bold;
         }
@@ -153,6 +171,42 @@
             cursor: not-allowed;
         }
         
+        .btn-santa {
+            background: linear-gradient(45deg, #8B0000, #B22222, #8B0000);
+            border-color: #FFD700;
+            font-size: 1.1em;
+            padding: 15px 30px;
+        }
+        
+        .auth-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 40, 0, 0.7);
+            border-radius: 15px;
+            border: 2px solid #FFD700;
+        }
+        
+        .auth-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            min-width: 200px;
+        }
+        
+        .user-status {
+            font-size: 1.2em;
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        
         .error {
             color: #ff6b6b;
             background: rgba(255, 0, 0, 0.1);
@@ -160,6 +214,16 @@
             border-radius: 5px;
             border: 1px solid #ff0000;
             margin: 10px 0;
+        }
+        
+        .info {
+            color: #90EE90;
+            background: rgba(0, 100, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #90EE90;
+            margin: 10px 0;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -170,6 +234,14 @@
         <div class="instructions">
             📌 Вы можете открыть <strong>не более 3 коробок</strong>. 
             Каждая коробка содержит уникальное поздравление и подарок.
+            <div class="info">
+                🔒 Некоторые подарки доступны только <strong>Деду Морозу</strong> (коробки с замком)
+            </div>
+        </div>
+        
+        <!-- Статус пользователя -->
+        <div class="user-status" id="user-status">
+            👤 Статус: <span id="username">Гость</span>
         </div>
         
         <div class="stats">
@@ -200,7 +272,26 @@
         <div class="controls">
             <button class="btn" onclick="resetMyGifts()" id="reset-btn">🔄 Сбросить мои подарки</button>
             <button class="btn" onclick="checkStatus()">📊 Проверить статус</button>
-            <button class="btn" onclick="location.reload()">🔄 Обновить</button>
+            <button class="btn btn-santa" onclick="toggleAuthPanel()" id="santa-btn">🎅 Стать Дедом Морозом</button>
+            <button class="btn" onclick="location.reload()">🔄 Обновить страницу</button>
+        </div>
+        
+        <!-- Панель авторизации (изначально скрыта) -->
+        <div class="auth-panel" id="auth-panel" style="display: none;">
+            <h3>🎅 Авторизация Деда Мороза</h3>
+            <div class="auth-form">
+                <input type="text" id="username-input" placeholder="Имя пользователя" value="dedmoroz">
+                <input type="password" id="password-input" placeholder="Пароль" value="2025">
+                <button class="btn btn-santa" onclick="login()">Войти</button>
+            </div>
+            <div id="auth-message" class="error" style="display: none;"></div>
+            
+            <!-- Панель для авторизованного Деда Мороза -->
+            <div id="santa-panel" style="display: none; margin-top: 20px;">
+                <h4>🎅 Панель управления Деда Мороза</h4>
+                <button class="btn btn-santa" onclick="resetAllGifts()">✨ Восстановить ВСЕ подарки (всех пользователей)</button>
+                <button class="btn" onclick="logout()" style="margin-left: 15px;">🚪 Выйти</button>
+            </div>
         </div>
     </div>
 
@@ -211,22 +302,24 @@
         const GIFT_CLOSED_URL = "/static/lab9/gift_closed.png";
         const GIFT_OPENED_URL = "/static/lab9/gift_opened.png";
         
-        // Проверка картинок
-        console.log("Путь к закрытой коробке:", GIFT_CLOSED_URL);
-        console.log("Путь к открытой коробке:", GIFT_OPENED_URL);
+        // Подарки, требующие авторизации (дополнительное задание)
+        const LOCKED_GIFTS = [4, 6, 8]; // Эти коробки требуют авторизации
         
         // Состояние
         let state = {
             openedCount: 0,
             remaining: TOTAL_GIFTS,
             openedGifts: [],
-            canOpenMore: true
+            canOpenMore: true,
+            isAuthenticated: false,
+            username: 'Гость'
         };
         
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             createGifts();
             loadState();
+            checkAuthStatus();
         });
         
         // Создание коробок
@@ -235,14 +328,24 @@
             container.innerHTML = '';
             
             for (let i = 1; i <= TOTAL_GIFTS; i++) {
+                const isOpened = state.openedGifts.includes(i);
+                const requiresAuth = LOCKED_GIFTS.includes(i);
+                
                 const gift = document.createElement('div');
                 gift.className = 'gift-item';
+                if (isOpened) {
+                    gift.classList.add('opened');
+                }
+                if (requiresAuth && !state.isAuthenticated && !isOpened) {
+                    gift.classList.add('locked');
+                }
                 gift.id = `gift-${i}`;
                 gift.dataset.giftId = i;
+                gift.dataset.requiresAuth = requiresAuth;
                 
                 const img = document.createElement('img');
                 img.className = 'gift-image';
-                img.src = GIFT_CLOSED_URL;
+                img.src = isOpened ? GIFT_OPENED_URL : GIFT_CLOSED_URL;
                 img.alt = `Коробка ${i}`;
                 
                 const number = document.createElement('div');
@@ -252,7 +355,20 @@
                 gift.appendChild(img);
                 gift.appendChild(number);
                 
-                gift.onclick = () => openGift(i);
+                // Добавляем иконку замка для коробок, требующих авторизации
+                if (requiresAuth && !state.isAuthenticated && !isOpened) {
+                    const lock = document.createElement('div');
+                    lock.className = 'lock-icon';
+                    lock.innerHTML = '🔒';
+                    gift.appendChild(lock);
+                }
+                
+                // Назначаем обработчик клика
+                if (!isOpened && (!requiresAuth || state.isAuthenticated)) {
+                    gift.onclick = () => openGift(i);
+                } else if (requiresAuth && !state.isAuthenticated && !isOpened) {
+                    gift.onclick = () => showError('Этот подарок доступен только Деду Морозу! Авторизуйтесь.');
+                }
                 
                 container.appendChild(gift);
             }
@@ -268,6 +384,7 @@
                 state.remaining = data.remaining;
                 state.openedGifts = data.opened_gifts || [];
                 state.canOpenMore = data.can_open_more;
+                state.isAuthenticated = data.is_authenticated || false;
                 
                 updateUI();
                 
@@ -285,6 +402,23 @@
                 
             } catch (error) {
                 console.error('Ошибка загрузки состояния:', error);
+            }
+        }
+        
+        // Проверка статуса авторизации
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/lab9/admin/status');
+                const data = await response.json();
+                
+                if (data.is_authenticated) {
+                    state.isAuthenticated = true;
+                    state.username = data.username;
+                    updateAuthUI();
+                }
+                
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
             }
         }
         
@@ -333,6 +467,12 @@
                 img.src = GIFT_OPENED_URL;
                 img.alt = `Открытая коробка ${giftId}`;
                 
+                // Убираем иконку замка если была
+                const lock = gift.querySelector('.lock-icon');
+                if (lock) {
+                    lock.remove();
+                }
+                
                 // Убираем обработчик клика
                 gift.onclick = null;
                 
@@ -343,7 +483,7 @@
                 }, 300);
                 
                 // Показываем поздравление
-                showCongratulations(data.message, data.image, giftId);
+                showCongratulations(data.message, data.image, giftId, data.requires_auth);
                 
             } catch (error) {
                 showError('Ошибка сети: ' + error.message);
@@ -351,13 +491,19 @@
         }
         
         // Показать поздравление
-        function showCongratulations(message, emoji, giftId) {
+        function showCongratulations(message, emoji, giftId, requiresAuth) {
+            let authInfo = '';
+            if (requiresAuth) {
+                authInfo = '<div class="info" style="margin-top: 10px;">✨ Специальный подарок для Деда Мороза!</div>';
+            }
+            
             document.getElementById('message-content').innerHTML = `
                 <div class="congratulation">${message}</div>
                 <div class="gift-emoji">${emoji}</div>
                 <div style="color: #90ee90; margin-top: 10px;">
                     🎉 Вы открыли коробку №${giftId}! 🎉
                 </div>
+                ${authInfo}
             `;
             
             hideError();
@@ -384,6 +530,122 @@
             
             const resetBtn = document.getElementById('reset-btn');
             resetBtn.disabled = state.openedCount === 0;
+            
+            document.getElementById('username').textContent = state.username;
+        }
+        
+        // Обновить UI авторизации
+        function updateAuthUI() {
+            document.getElementById('username').textContent = state.username;
+            
+            if (state.isAuthenticated) {
+                document.getElementById('santa-btn').textContent = '🎅 Вы - Дед Мороз';
+                document.getElementById('santa-btn').style.background = 'linear-gradient(45deg, #006400, #228B22)';
+                document.getElementById('santa-panel').style.display = 'block';
+                
+                // Пересоздаем коробки, чтобы убрать замки
+                createGifts();
+            }
+        }
+        
+        // Показать/скрыть панель авторизации
+        function toggleAuthPanel() {
+            const panel = document.getElementById('auth-panel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        
+        // Авторизация
+        async function login() {
+            const username = document.getElementById('username-input').value;
+            const password = document.getElementById('password-input').value;
+            
+            if (!username || !password) {
+                showAuthError('Введите имя пользователя и пароль');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/lab9/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    state.isAuthenticated = true;
+                    state.username = 'Дед Мороз';
+                    updateAuthUI();
+                    showAuthMessage('Успешная авторизация! ' + data.message);
+                    setTimeout(() => {
+                        document.getElementById('auth-message').style.display = 'none';
+                        document.getElementById('auth-panel').style.display = 'none';
+                    }, 2000);
+                    
+                    // Перезагружаем коробки
+                    createGifts();
+                    
+                } else {
+                    showAuthError(data.error);
+                }
+                
+            } catch (error) {
+                showAuthError('Ошибка авторизации: ' + error.message);
+            }
+        }
+        
+        // Выход из системы
+        async function logout() {
+            try {
+                const response = await fetch('/lab9/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    state.isAuthenticated = false;
+                    state.username = 'Гость';
+                    updateAuthUI();
+                    document.getElementById('santa-btn').textContent = '🎅 Стать Дедом Морозом';
+                    document.getElementById('santa-btn').style.background = '';
+                    document.getElementById('santa-panel').style.display = 'none';
+                    
+                    // Перезагружаем коробки
+                    createGifts();
+                    
+                    alert(data.message);
+                }
+                
+            } catch (error) {
+                showError('Ошибка выхода из системы');
+            }
+        }
+        
+        // Показать ошибку авторизации
+        function showAuthError(message) {
+            const authError = document.getElementById('auth-message');
+            authError.textContent = message;
+            authError.style.display = 'block';
+            authError.className = 'error';
+        }
+        
+        // Показать сообщение авторизации
+        function showAuthMessage(message) {
+            const authMessage = document.getElementById('auth-message');
+            authMessage.textContent = message;
+            authMessage.style.display = 'block';
+            authMessage.className = 'info';
         }
         
         // Сбросить мои подарки
@@ -409,17 +671,57 @@
             }
         }
         
+        // Сбросить ВСЕ подарки (для Деда Мороза)
+        async function resetAllGifts() {
+            if (!state.isAuthenticated) {
+                showError('Эта функция доступна только Деду Морозу!');
+                return;
+            }
+            
+            if (!confirm('🎅 Дед Мороз, вы уверены, что хотите восстановить ВСЕ подарки для ВСЕХ пользователей?\n\nЭто действие нельзя отменить!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/lab9/admin/reset_all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    showError(data.error);
+                }
+                
+            } catch (error) {
+                showError('Ошибка при восстановлении всех подарков');
+            }
+        }
+        
         // Проверить статус
         async function checkStatus() {
             try {
                 const response = await fetch('/lab9/status');
                 const data = await response.json();
                 
-                alert(`Статус:\n\n` +
+                let authStatus = 'Гость';
+                if (data.is_authenticated) {
+                    authStatus = 'Дед Мороз';
+                }
+                
+                alert(`📊 Статус системы:\n\n` +
                       `Всего подарков: ${data.total_gifts}\n` +
                       `Открыто вами: ${data.opened_count}\n` +
                       `Осталось: ${data.remaining}\n` +
-                      `Можно открыть еще: ${data.can_open_more ? 'Да' : 'Нет'}`);
+                      `Можно открыть еще: ${data.can_open_more ? 'Да' : 'Нет'}\n` +
+                      `Статус авторизации: ${authStatus}\n` +
+                      `Открытые коробки: ${data.opened_gifts.join(', ') || 'нет'}`);
                 
             } catch (error) {
                 showError('Ошибка при проверке статуса');

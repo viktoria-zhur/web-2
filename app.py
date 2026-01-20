@@ -308,6 +308,58 @@ def server_error(e):
     ''', 500
 
 # Импортируем и регистрируем blueprints ПОСЛЕ определения всех моделей
+# Калькулятор
+@app.route('/calc')
+def calc_page():
+    return '''
+    <html>
+    <body>
+        <h1>Калькулятор</h1>
+        <input id="n1">
+        <select id="op">
+            <option>+</option>
+            <option>-</option>
+            <option>*</option>
+            <option>/</option>
+        </select>
+        <input id="n2">
+        <button onclick="calc()">=</button>
+        <div id="result"></div>
+        
+        <script>
+        function calc() {
+            let n1 = document.getElementById('n1').value;
+            let n2 = document.getElementById('n2').value;
+            let op = document.getElementById('op').value;
+            let result = document.getElementById('result');
+            
+            if(!n1 || !n2) {
+                result.innerHTML = "Заполните оба поля";
+                return;
+            }
+            
+            if(isNaN(n1) || isNaN(n2)) {
+                result.innerHTML = "Введите числа";
+                return;
+            }
+            
+            n1 = parseFloat(n1);
+            n2 = parseFloat(n2);
+            
+            let r;
+            if(op == '+') r = n1 + n2;
+            else if(op == '-') r = n1 - n2;
+            else if(op == '*') r = n1 * n2;
+            else if(op == '/') {
+                if(n2 == 0) r = "На 0 делить нельзя";
+                else r = n1 / n2;
+            } 
+            result.innerHTML = "Результат: " + r;
+        }
+        </script>
+    </body>
+    </html>
+    '''
 with app.app_context():
     # Создаем таблицы
     db.create_all()

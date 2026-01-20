@@ -314,49 +314,55 @@ def calc_page():
     return '''
     <html>
     <body>
-        <h1>Калькулятор</h1>
-        <input id="n1">
-        <select id="op">
-            <option>+</option>
-            <option>-</option>
-            <option>*</option>
-            <option>/</option>
-        </select>
-        <input id="n2">
-        <button onclick="calc()">=</button>
-        <div id="result"></div>
-        
-        <script>
-        function calc() {
-            let n1 = document.getElementById('n1').value;
-            let n2 = document.getElementById('n2').value;
-            let op = document.getElementById('op').value;
-            let result = document.getElementById('result');
-            
-            if(!n1 || !n2) {
-                result.innerHTML = "Заполните оба поля";
-                return;
-            }
-            
-            if(isNaN(n1) || isNaN(n2)) {
-                result.innerHTML = "Введите числа";
-                return;
-            }
-            
-            n1 = parseFloat(n1);
-            n2 = parseFloat(n2);
-            
-            let r;
-            if(op == '+') r = n1 + n2;
-            else if(op == '-') r = n1 - n2;
-            else if(op == '*') r = n1 * n2;
-            else if(op == '/') {
-                if(n2 == 0) r = "На 0 делить нельзя";
-                else r = n1 / n2;
-            } 
-            result.innerHTML = "Результат: " + r;
-        }
-        </script>
+        <h1>Калькулятор (серверный)</h1>
+        <form method="POST" action="/calculate">
+            <input name="num1" placeholder="Первое число">
+            <select name="operation">
+                <option>+</option>
+                <option>-</option>
+                <option>*</option>
+                <option>/</option>
+            </select>
+            <input name="num2" placeholder="Второе число">
+            <button type="submit">=</button>
+        </form>
+    </body>
+    </html>
+    '''
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    num1 = request.form.get('num1')
+    num2 = request.form.get('num2')
+    operation = request.form.get('operation')
+    
+    if not num1 or not num2:
+        return "Ошибка: заполните все поля"
+    
+    try:
+        num1 = float(num1)
+        num2 = float(num2)
+    except ValueError:
+        return "Ошибка: введите числа"
+
+    if operation == '+':
+        result = num1 + num2
+    elif operation == '-':
+        result = num1 - num2
+    elif operation == '*':
+        result = num1 * num2
+    elif operation == '/':
+        if num2 == 0:
+            return "Ошибка: деление на ноль"
+        result = num1 / num2
+    else:
+        return "Ошибка: неизвестная операция"
+    
+    return f'''
+    <html>
+    <body>
+        <h1>Результат: {result}</h1>
+        <a href="/calc">Новый расчет</a>
     </body>
     </html>
     '''
